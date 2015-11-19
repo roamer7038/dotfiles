@@ -1,7 +1,7 @@
 #!/bin/sh
 
-ln -s `pwd`/.bash_profile ~/.bash_profile
-ln -s `pwd`/.bashrc ~/.bashrc
-ln -s `pwd`/.screenrc ~/.screenrc
-ln -s `pwd`/.vimrc ~/.vimrc
-ln -s `pwd`/.zshrc ~/.zshrc
+ln -sf `pwd`/.bash_profile ~/.bash_profile
+ln -sf `pwd`/.bashrc ~/.bashrc
+ln -sf `pwd`/.screenrc ~/.screenrc
+ln -sf `pwd`/.vimrc ~/.vimrc
+ln -sf `pwd`/.zshrc ~/.zshrc
