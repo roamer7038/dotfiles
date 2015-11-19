@@ -62,12 +62,13 @@ fi
 case ${OSTYPE} in
     darwin*)
         export CLICOLOR=1
+        export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
         alias ls='ls -G -F'
         if [ -d /Applications/MacVim.app ];then
                 alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
         fi
-        if [ -f ~/.brew_config ];then
-                source ~/.brew_config
+        if [ -f ~/.github_api_token ];then
+                . ~/.github_api_token
         fi
         ;;
     linux*)
