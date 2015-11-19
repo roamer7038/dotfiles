@@ -19,5 +19,5 @@ cd dotfiles/
 ```
 cd
 touch .github_api_token
-cat 'export HOMEBREW_GITHUB_API_TOKEN="[token]"' > .github_api_token
+echo 'export HOMEBREW_GITHUB_API_TOKEN="[token]"' > .github_api_token
 ```
