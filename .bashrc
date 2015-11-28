@@ -5,7 +5,7 @@ set -o e
 shopt -s histappend
 shopt -s checkwinsize
 shopt -s cdspell
-shopt -s autocd
+shopt -s dotglob
 
 HISTCONTROL=ignoreboth
 HISTSIZE=1000

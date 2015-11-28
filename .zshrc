@@ -34,6 +34,10 @@ setopt pushd_ignore_dups
 setopt share_history
 setopt hist_ignore_all_dups
 setopt hist_reduce_blanks
+setopt auto_menu
+setopt auto_param_keys
+setopt magic_equal_subst
+setopt globdots
 
 alias la='ls -a'
 alias ll='ls -l'
