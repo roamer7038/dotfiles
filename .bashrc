@@ -1,6 +1,6 @@
 PS1='\[\e[1;32m\][\u@\h]\[\e[m\] \w \n\$ '
 
-set -o vi
+set -o e
 
 shopt -s histappend
 shopt -s checkwinsize

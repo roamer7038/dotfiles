@@ -4,7 +4,7 @@ export LSCOLORS=Exfxcxdxbxegedabagacad
 autoload -Uz colors
 colors
 
-bindkey -v
+bindkey -e
 
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
