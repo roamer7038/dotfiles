@@ -7,7 +7,6 @@ tap 'caskroom/versions'
 tap 'homebrew/binary'
 tap 'brona/iproute2mac'
 
-brew 'brew-cask'
 brew 'node'
 brew 'openssl'
 brew 'wget'
