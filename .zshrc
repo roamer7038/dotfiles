@@ -1,6 +1,6 @@
 export LANG=ja_JP.UTF-8
 export LSCOLORS=Exfxcxdxbxegedabagacad
- 
+
 autoload -Uz colors
 colors
 
@@ -67,7 +67,11 @@ case ${OSTYPE} in
     darwin*)
         export CLICOLOR=1
         export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
+        export PATH=$HOME/.nodebrew/current/bin:$PATH
+        #export PATH="$HOME/.gem/ruby/2.0.0/bin:$PATH"
+        eval "$(rbenv init -)"  
         alias ls='ls -G -F'
+        alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
         if [ -d /Applications/MacVim.app ];then
                 alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
         fi
