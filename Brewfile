@@ -3,17 +3,18 @@
  
 tap 'caskroom/homebrew-cask'
 tap 'homebrew/versions'
-tap 'caskroom/versions'
 tap 'homebrew/binary'
 
 brew 'openssl'
 brew 'wget'
 brew 'git'
 brew 'gist'
+brew 'gibo'
 brew 'cmake'
 brew 'curl'
 brew 'zsh'
 brew 'zsh-completions'
+
 
 cask 'airmail-beta'
 cask 'appcleaner'
@@ -23,7 +24,6 @@ cask 'dropbox'
 cask 'filezilla'
 cask 'flash'
 cask 'google-chrome'
-cask 'google-chrome-canary'
 cask 'google-japanese-ime'
 cask 'iterm2-beta'
 cask 'java'
