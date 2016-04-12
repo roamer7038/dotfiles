@@ -2,6 +2,7 @@
 # `brew bundle` after `brew tap homebrew/bundle`
  
 tap 'caskroom/homebrew-cask'
+tap 'caskroom/versions'
 tap 'homebrew/versions'
 tap 'homebrew/binary'
 
