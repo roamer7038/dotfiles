@@ -26,6 +26,8 @@ echo 'export HOMEBREW_GITHUB_API_TOKEN="[token]"' > .github_api_token
 ```
 
 ```
+source .bashrc
+cd ~/dotfiles
 brew tap homebrew/bundle
 brew bundle
 ```
