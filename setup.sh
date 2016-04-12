@@ -9,6 +9,6 @@ ln -sf `pwd`/.zshrc ~/.zshrc
 
 cd
 git clone https://github.com/tomasr/molokai.git
-mkdir .vim/colors
+mkdir -p .vim/colors
 cp molokai/colors/molokai.vim .vim/colors/molokai.vim
 rm -rf molokai/
