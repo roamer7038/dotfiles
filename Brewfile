@@ -13,6 +13,7 @@ brew 'gist'
 brew 'gibo'
 brew 'cmake'
 brew 'curl'
+brew 'nmap'
 brew 'zsh'
 brew 'zsh-completions'
 
