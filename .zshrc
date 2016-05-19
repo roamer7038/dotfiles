@@ -69,7 +69,7 @@ case ${OSTYPE} in
         export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
         export PATH=$HOME/.nodebrew/current/bin:$PATH
         #export PATH="$HOME/.gem/ruby/2.0.0/bin:$PATH"
-        eval "$(rbenv init -)"  
+        #eval "$(rbenv init -)"  
         alias ls='ls -G -F'
         alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
         if [ -d /Applications/MacVim.app ];then
