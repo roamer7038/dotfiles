@@ -14,6 +14,7 @@ brew 'gibo'
 brew 'cmake'
 brew 'curl'
 brew 'nmap'
+brew 'jq'
 brew 'zsh'
 brew 'zsh-completions'
 
