@@ -3,7 +3,6 @@
  
 tap 'caskroom/homebrew-cask'
 tap 'caskroom/versions'
-tap 'homebrew/versions'
 tap 'homebrew/binary'
 
 brew 'openssl'
@@ -38,6 +37,6 @@ cask 'minecraft'
 cask 'night-owl'
 cask 'phpstorm'
 cask 'skype'
-cask 'sublime-text3'
+cask 'sublime-text'
 cask 'the-unarchiver'
 cask 'virtualbox'
