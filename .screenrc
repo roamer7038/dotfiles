@@ -6,3 +6,5 @@ defscrollback 1000
 hardstatus alwayslastline "%`%-w%{=b bw}%n %t%{-}%+w"
 altscreen on
 vbell off
+
+escape ^Tt
