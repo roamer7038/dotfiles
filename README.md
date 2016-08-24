@@ -47,3 +47,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 echo '/usr/local/bin/zsh' | sudo tee -a /etc/shells
 chsh -s /usr/local/bin/zsh
 ```
+
+#### 公開鍵認証
+```
+curl https://github.com/roamer7038.keys >> ~/.ssh/authorized_keys
+```
