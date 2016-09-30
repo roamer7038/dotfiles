@@ -4,6 +4,8 @@
 * zsh
 * screen
 * vim
+* git
+* homebrew
 
 ## setup
 
@@ -50,5 +52,8 @@ chsh -s /usr/local/bin/zsh
 
 #### 公開鍵認証
 ```
+mkdir ~/.ssh && chmod 700 ~/.ssh
+cd ~/.ssh
 curl https://github.com/roamer7038.keys >> ~/.ssh/authorized_keys
+chmod 600 authorized_keys
 ```
