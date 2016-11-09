@@ -1,5 +1,6 @@
 export LANG=ja_JP.UTF-8
 export LSCOLORS=Exfxcxdxbxegedabagacad
+export LESS='-i -M -R -x4'
 
 autoload -Uz colors
 colors
