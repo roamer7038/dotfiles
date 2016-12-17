@@ -23,7 +23,6 @@ cask 'appcleaner'
 cask 'brackets'
 cask 'cheatsheet'
 cask 'dropbox'
-cask 'filezilla'
 cask 'franz'
 cask 'github-desktop'
 cask 'google-chrome'
@@ -63,5 +62,5 @@ cask 'qlcolorcode'
 # AppStore Applications
 mas 'LINE', id: 539883307
 mas 'TweetDeck', id: 485812721
-mas 'Veertu', id: 1024069033
-mas 'Todoist', id: 585829637
+mas 'ForkLift', id: 41244805
+#mas 'Veertu', id: 1024069033
