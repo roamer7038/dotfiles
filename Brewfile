@@ -37,6 +37,7 @@ cask 'macvim'
 cask 'minecraft'
 cask 'night-owl'
 cask 'phpstorm'
+cask 'scroll-reverser'
 cask 'skype'
 cask 'slack'
 cask 'sublime-text'
@@ -62,5 +63,5 @@ cask 'qlcolorcode'
 # AppStore Applications
 mas 'LINE', id: 539883307
 mas 'TweetDeck', id: 485812721
-mas 'ForkLift', id: 41244805
+mas 'ForkLift', id: 412448059
 #mas 'Veertu', id: 1024069033
