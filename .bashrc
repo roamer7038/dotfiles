@@ -22,6 +22,7 @@ case ${OSTYPE} in
         if [ -f ~/.github_api_token ];then
                 . ~/.github_api_token
         fi
+        export PATH=$HOME/.nodebrew/current/bin:$PATH
         ;;
     linux*)
         export LSCOLORS=gxfxcxdxbxegedabagacad 
