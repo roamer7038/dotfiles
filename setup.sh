@@ -1,4 +1,20 @@
 #!/bin/sh
+
+# run this script directory path
+PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
+
+ln -sf $PWD/.bash_profile ~/.bash_profile
+ln -sf $PWD/.bashrc ~/.bashrc
+ln -sf $PWD/.screenrc ~/.screenrc
+ln -sf $PWD/.vimrc ~/.vimrc
+ln -sf $PWD/.zshrc ~/.zshrc
+ln -sf $PWD/.gitconfig ~/.gitconfig
+
+mkdir -p ~/.vim/colors
+git clone https://github.com/tomasr/molokai.git
+cp molokai/colors/molokai.vim ~/.vim/colors/molokai.vim
+rm -rf molokai/
+
 case ${OSTYPE} in
     darwin*)
         xcode-select --install
@@ -9,23 +25,18 @@ case ${OSTYPE} in
         touch ~/.github_api_token
         echo 'export HOMEBREW_GITHUB_API_TOKEN="'$TOKEN'"' > ~/.github_api_token
         source ~/.bashrc
-        cd ~/dotfiles
         brew tap homebrew/bundle
+        cd $PWD
         brew bundle
         curl -L git.io/nodebrew | perl - setup
         ;;
+    linux*)
+        ln -sf $PWD/.Xdefaults ~/.Xdefaults
+        ln -sf $PWD/.Xmodmap ~/.Xmodmap
+        ln -sf $PWD/.xprofile ~/.xprofile
+		if [ -x "`which i3 `" ]; then
+   			mkdir -p ~/.config/i3
+			ln -sf $PWD/.config/i3/config ~/.config/i3/config
+		fi 
+        ;;
 esac
-
-cd ~/dotfiles
-ln -sf `pwd`/.bash_profile ~/.bash_profile
-ln -sf `pwd`/.bashrc ~/.bashrc
-ln -sf `pwd`/.screenrc ~/.screenrc
-ln -sf `pwd`/.vimrc ~/.vimrc
-ln -sf `pwd`/.zshrc ~/.zshrc
-ln -sf `pwd`/.gitconfig ~/.gitconfig
-
-cd
-git clone https://github.com/tomasr/molokai.git
-mkdir -p .vim/colors
-cp molokai/colors/molokai.vim .vim/colors/molokai.vim
-rm -rf molokai/

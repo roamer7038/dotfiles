@@ -1,0 +1,6 @@
+export DefaultIMModule=fcitx
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIRES=@im=fcitx
+
+synclient TouchpadOff=1
