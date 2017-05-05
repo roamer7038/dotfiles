@@ -1,0 +1,65 @@
+# i3status configuration file.
+# see "man i3status" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a sharp s:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+# i3status configuration file.
+# see "man i3status" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a sharp s:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+general
+{
+    colors = true 
+    interval = 5
+}
+
+order += "wireless _first_"
+order += "ethernet _first_"
+order += "disk /"
+order += "battery all"
+order += "tztime local"
+order += "volume master"
+
+volume master {
+	format = " %volume"
+	format_muted = "[ %volume]"
+	device = "pulse:0"
+}
+
+wireless _first_ {
+	format_up = " %ip (%essid)"
+    format_down = " [not connected]"
+}
+
+ethernet _first_ {
+	# if you use %speed, i3status requires root privileges
+	format_up = " %ip"
+	format_down = " [not connected]"
+}
+
+battery all {
+	integer_battery_capacity = true
+	last_full_capacity = true
+	status_chr = ""
+	status_bat = ""
+	status_unk = ""
+	status_full = ""
+	threshold_type = "percentage"
+	low_threshold = "15"
+	format = "%status %percentage"
+}
+
+tztime local {
+	format = " %Y-%m-%d   %H:%M"
+}
+
+disk "/" {
+	format = " %avail"
+}

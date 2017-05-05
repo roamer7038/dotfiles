@@ -5,6 +5,11 @@ export LESS='-i -M -R -x4'
 autoload -Uz colors
 colors
 
+which screenfetch > /dev/null 2>&1 && screenfetch
+function _ssh {
+      compadd `fgrep 'Host ' ~/.ssh/config | awk '{print $2}' | sort`;
+}
+
 bindkey -e
 
 HISTFILE=~/.zsh_history
@@ -24,7 +29,6 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
                    /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 
-
 setopt print_eight_bit
 setopt no_beep
 setopt ignore_eof
@@ -42,6 +46,7 @@ setopt globdots
 
 alias la='ls -a'
 alias ll='ls -l'
+alias ks='ls'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
@@ -69,8 +74,6 @@ case ${OSTYPE} in
         export CLICOLOR=1
         export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
         export PATH=$HOME/.nodebrew/current/bin:$PATH
-        #export PATH="$HOME/.gem/ruby/2.0.0/bin:$PATH"
-        eval "$(rbenv init -)"  
         alias ls='ls -G -F'
         alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
         if [ -d /Applications/MacVim.app ];then
@@ -82,6 +85,7 @@ case ${OSTYPE} in
         ;;
     linux*)
         alias ls='ls -F --color=auto'
+        which vim > /dev/null 2>&1 && alias vi=vim
         ;;
 esac
 

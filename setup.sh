@@ -37,6 +37,12 @@ case ${OSTYPE} in
 		if [ -x "`which i3 `" ]; then
    			mkdir -p ~/.config/i3
 			ln -sf $PWD/.config/i3/config ~/.config/i3/config
+            mkdir -p ~/.config/i3status
+            ln -sf $PWD/.config/i3status/config ~/.config/i3status/config
 		fi 
+        if [ -x `which terminator` ]; then
+            mkdir -p ~/.config/terminator
+            ln -sf $PWD/.config/terminator/config ~/.config/terminator/config
+        fi
         ;;
 esac
