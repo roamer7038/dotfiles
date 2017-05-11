@@ -5,7 +5,7 @@ export LESS='-i -M -R -x4'
 autoload -Uz colors
 colors
 
-which screenfetch > /dev/null 2>&1 && screenfetch
+which screenfetch > /dev/null 2>&1 && screenfetch -E
 function _ssh {
     compadd `fgrep 'Host ' ~/.ssh/config | awk '{print $2}' | sort`;
 }
