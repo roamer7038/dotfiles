@@ -7,8 +7,15 @@ colors
 
 which screenfetch > /dev/null 2>&1 && screenfetch
 function _ssh {
-      compadd `fgrep 'Host ' ~/.ssh/config | awk '{print $2}' | sort`;
+    compadd `fgrep 'Host ' ~/.ssh/config | awk '{print $2}' | sort`;
 }
+
+[[ -d ~/.rbenv  ]] && \
+    export PATH=${HOME}/.rbenv/bin:${PATH} && \
+    eval "$(rbenv init -)"
+
+[[ -d ~/.nodebrew ]] && \
+    export PATH=$HOME/.nodebrew/current/bin:$PATH
 
 bindkey -e
 
@@ -73,7 +80,6 @@ case ${OSTYPE} in
     darwin*)
         export CLICOLOR=1
         export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
-        export PATH=$HOME/.nodebrew/current/bin:$PATH
         alias ls='ls -G -F'
         alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
         if [ -d /Applications/MacVim.app ];then

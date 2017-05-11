@@ -1,7 +1,7 @@
 export DefaultIMModule=fcitx
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx
-export XMODIFIRES=@im=fcitx
+export XMODIFIERS=@im=fcitx
 
 xset r rate 300 30
 synclient TouchpadOff=1

@@ -6,7 +6,10 @@
   title_hide_sizetext = True
 [keybindings]
   copy = <Primary><Alt>c
+  group_all = None
+  group_all_toggle = None
   paste = <Primary><Alt>v
+  toggle_scrollbar = <Super>1
 [layouts]
   [[default]]
     [[[child1]]]
