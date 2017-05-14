@@ -18,7 +18,7 @@ font pango:koruri regular, 14px
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-#font pango:DejaVu Sans Mono 8
+# font pango:DejaVu Sans Mono 8
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -44,13 +44,16 @@ bindsym $mod+Shift+q kill
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -fn 'koruri regular-12'"
-bindsym Control+space exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -fn 'koruri regular-12'"
+bindsym Ctrl+space exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -fn 'koruri regular-12'"
 
 # change focus
 bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
 bindsym $mod+l focus right
+
+bindsym $mod+Tab focus right
+bindsym $mod+Shift+Tab focus left
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -108,10 +111,22 @@ bindsym $mod+8 workspace 8
 bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
-bindsym $mod+Control+Right workspace next
-bindsym $mod+Control+l workspace next
-bindsym $mod+Control+Left workspace prev
-bindsym $mod+Control+h workspace prev
+# workspaces from 11-20
+bindsym Mod1+1 workspace 11
+bindsym Mod1+2 workspace 12
+bindsym Mod1+3 workspace 13
+bindsym Mod1+4 workspace 14
+bindsym Mod1+5 workspace 15
+bindsym Mod1+6 workspace 16
+bindsym Mod1+7 workspace 17
+bindsym Mod1+8 workspace 18
+bindsym Mod1+9 workspace 19
+bindsym Mod1+0 workspace 20
+
+bindsym $mod+Ctrl+Right workspace next
+bindsym $mod+Ctrl+l workspace next
+bindsym $mod+Ctrl+Left workspace prev
+bindsym $mod+Ctrl+h workspace prev
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -124,6 +139,18 @@ bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
+
+# move focused container to workspace
+bindsym Mod1+Shift+1 move container to workspace 11
+bindsym Mod1+Shift+2 move container to workspace 12
+bindsym Mod1+Shift+3 move container to workspace 13
+bindsym Mod1+Shift+4 move container to workspace 14
+bindsym Mod1+Shift+5 move container to workspace 15
+bindsym Mod1+Shift+6 move container to workspace 16
+bindsym Mod1+Shift+7 move container to workspace 17
+bindsym Mod1+Shift+8 move container to workspace 18
+bindsym Mod1+Shift+9 move container to workspace 19
+bindsym Mod1+Shift+0 move container to workspace 20
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -212,6 +239,7 @@ bar
 	separator_symbol " "
 	position top
 	status_command i3status
+    tray_output primary
 
 	colors 
 	{
@@ -226,12 +254,11 @@ bar
 
 }
 
-
 # ScreenShot
-bindsym Control+Print exec import -window root ~/$(date +%F_%H%M%S_%N).png
+bindsym Ctrl+Print exec import -window root ~/$(date +%F_%H%M%S_%N).png
 bindsym --release Shift+Print exec import ~/$(date +%F_%H%M%S_%N).png
 
-# Brightness Control
+# Brightness Ctrl
 bindsym XF86MonBrightnessDown exec "xbacklight -dec 5"
 bindsym XF86MonBrightnessUp exec "xbacklight -inc 5"
 
@@ -245,7 +272,8 @@ bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
 exec --no-startup-id xmodmap $HOME/.Xmodmap
 exec --no-startup-id fcitx
 exec --no-startup-id compton -b
-exec --no-startup-id feh --bg-scale /usr/share/pixmaps/wallpaper.jpg
+#exec --no-startup-id feh --bg-scale /usr/share/pixmaps/wallpaper.jpg
+exec --no-startup-id feh --bg-scale /usr/share/pixmaps/archlinux.jpg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id pulseaudio --start

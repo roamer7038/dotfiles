@@ -9,11 +9,7 @@ ln -sf $PWD/.screenrc ~/.screenrc
 ln -sf $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc
 ln -sf $PWD/.gitconfig ~/.gitconfig
-
-mkdir -p ~/.vim/colors
-git clone https://github.com/tomasr/molokai.git
-cp molokai/colors/molokai.vim ~/.vim/colors/molokai.vim
-rm -rf molokai/
+ln -sf $PWD/.latexmkrc ~/.latexmkrc
 
 case ${OSTYPE} in
     darwin*)

@@ -1,11 +1,23 @@
 # dotfiles
+### Common
 
 * bash
 * zsh
 * screen
 * vim
 * git
+* latex
+
+### macOS
+
 * homebrew
+
+### Linux
+
+* X
+* i3wm
+* i3status
+* terminator
 
 ## setup
 
@@ -15,24 +27,11 @@ cd dotfiles/
 ./setup.sh
 ```
 
-
-### for Mac
-
 #### Homebrew
+
 http://brew.sh/index_ja.html
 
-```
-cd
-touch .github_api_token
-echo 'export HOMEBREW_GITHUB_API_TOKEN="[token]"' > .github_api_token
-```
-
-```
-source .bashrc
-cd ~/dotfiles
-brew tap homebrew/bundle
-brew bundle
-```
+`setup.sh`を実行後，GitHub API Tokenが聞かれるので入力する．
 
 #### nodebrew 
 ```
@@ -51,8 +50,11 @@ chsh -s /usr/local/bin/zsh
 ```
 
 #### 公開鍵認証
+
+`install_key.sh`を実行する．
+
 ```
-mkdir ~/.ssh && chmod 700 ~/.ssh
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
 cd ~/.ssh
 curl https://github.com/roamer7038.keys >> ~/.ssh/authorized_keys
 chmod 600 authorized_keys

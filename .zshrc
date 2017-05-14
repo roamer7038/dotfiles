@@ -1,14 +1,12 @@
 export LANG=ja_JP.UTF-8
 export LSCOLORS=Exfxcxdxbxegedabagacad
 export LESS='-i -M -R -x4'
+export EDITOR=vim
 
 autoload -Uz colors
 colors
 
 which screenfetch > /dev/null 2>&1 && screenfetch -E
-function _ssh {
-    compadd `fgrep 'Host ' ~/.ssh/config | awk '{print $2}' | sort`;
-}
 
 [[ -d ~/.rbenv  ]] && \
     export PATH=${HOME}/.rbenv/bin:${PATH} && \
@@ -74,7 +72,6 @@ elif which putclip >/dev/null 2>&1 ; then
     # Cygwin
     alias -g C='| putclip'
 fi
-
 
 case ${OSTYPE} in
     darwin*)
