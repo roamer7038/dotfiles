@@ -6,7 +6,7 @@ export EDITOR=vim
 autoload -Uz colors
 colors
 
-which screenfetch > /dev/null 2>&1 && screenfetch -E
+# which screenfetch > /dev/null 2>&1 && screenfetch -E
 
 [[ -d ~/.rbenv  ]] && \
     export PATH=${HOME}/.rbenv/bin:${PATH} && \
