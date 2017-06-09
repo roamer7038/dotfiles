@@ -5,8 +5,10 @@ export EDITOR=vim
 
 autoload -Uz colors
 colors
-
-# which screenfetch > /dev/null 2>&1 && screenfetch -E
+autoload -Uz compinit
+compinit -u
+autoload -Uz vcs_info
+autoload -Uz add-zsh-hook
 
 [[ -d ~/.rbenv  ]] && \
     export PATH=${HOME}/.rbenv/bin:${PATH} && \
@@ -21,18 +23,18 @@ HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
 
-PROMPT="%{${fg[green]}%}[%n@%m]%{${reset_color}%} %~
-%# "
-
-fpath=(/usr/local/share/zsh-completions $fpath)
-autoload -Uz compinit
-compinit -u
-
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' ignore-parents parent pwd ..
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
                    /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+
+zstyle ':vcs_info:*' formats '[%b]'
+zstyle ':vcs_info:*' actionformats '[%b|%a]'
+
+PROMPT="%{${fg[green]}%}[%n@%m]%{${reset_color}%} %~
+%# "
+RPROMPT="%1(v|%F{green}%1v%f|)"
 
 setopt print_eight_bit
 setopt no_beep
@@ -41,6 +43,7 @@ setopt interactive_comments
 setopt auto_cd
 setopt auto_pushd
 setopt pushd_ignore_dups
+setopt equals
 setopt share_history
 setopt hist_ignore_all_dups
 setopt hist_reduce_blanks
@@ -48,6 +51,7 @@ setopt auto_menu
 setopt auto_param_keys
 setopt magic_equal_subst
 setopt globdots
+setopt transient_rprompt
 
 alias la='ls -a'
 alias ll='ls -l'
