@@ -4,6 +4,7 @@
 * bash
 * zsh
 * screen
+* tmux
 * vim
 * git
 * latex
@@ -14,7 +15,7 @@
 
 ### Linux
 
-* X
+* X window system
 * i3wm
 * i3status
 * terminator
@@ -43,7 +44,7 @@ curl -L git.io/nodebrew | perl - setup
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 ```
 
-#### ログインシェルをZshにする
+#### ログインシェルをZshにする（for Mac）
 ```
 echo '/usr/local/bin/zsh' | sudo tee -a /etc/shells
 chsh -s /usr/local/bin/zsh
@@ -51,7 +52,7 @@ chsh -s /usr/local/bin/zsh
 
 #### 公開鍵認証
 
-`install_key.sh`を実行する．
+`public_key.sh`を実行する．
 
 ```
 mkdir -p ~/.ssh && chmod 700 ~/.ssh

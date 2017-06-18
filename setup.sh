@@ -6,6 +6,7 @@ PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
 ln -sf $PWD/.bash_profile ~/.bash_profile
 ln -sf $PWD/.bashrc ~/.bashrc
 ln -sf $PWD/.screenrc ~/.screenrc
+ln -sf $PWD/.tmux.conf ~/.tmux.conf
 ln -sf $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc
 ln -sf $PWD/.gitconfig ~/.gitconfig
@@ -24,7 +25,6 @@ case ${OSTYPE} in
         brew tap homebrew/bundle
         cd $PWD
         brew bundle
-        curl -L git.io/nodebrew | perl - setup
         ;;
     linux*)
         ln -sf $PWD/.Xdefaults ~/.Xdefaults

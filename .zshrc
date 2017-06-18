@@ -8,7 +8,6 @@ colors
 autoload -Uz compinit
 compinit -u
 autoload -Uz vcs_info
-autoload -Uz add-zsh-hook
 
 [[ -d ~/.rbenv  ]] && \
     export PATH=${HOME}/.rbenv/bin:${PATH} && \
@@ -22,19 +21,6 @@ bindkey -e
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
-
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' ignore-parents parent pwd ..
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
-                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
-
-zstyle ':vcs_info:*' formats '[%b]'
-zstyle ':vcs_info:*' actionformats '[%b|%a]'
-
-PROMPT="%{${fg[green]}%}[%n@%m]%{${reset_color}%} %~
-%# "
-RPROMPT="%1(v|%F{green}%1v%f|)"
 
 setopt print_eight_bit
 setopt no_beep
@@ -51,7 +37,24 @@ setopt auto_menu
 setopt auto_param_keys
 setopt magic_equal_subst
 setopt globdots
-setopt transient_rprompt
+setopt hist_save_no_dups
+setopt rm_star_wait
+setopt prompt_subst
+
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' ignore-parents parent pwd ..
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
+                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+
+zstyle ':vcs_info:*' formats '%K{022}%F{250} %b %f%k '
+zstyle ':vcs_info:*' actionformats '%K{124}%F{250} %a %f%k%K{022}%F{250} %b %f%k '
+
+precmd() { vcs_info }
+
+PROMPT="%F{034}%B[%n@%m]%b%f %F{075}%3~%f
+%F{208}>%#%f "
+RPROMPT='%B${vcs_info_msg_0_}%b%{${reset_color}%}%F{178}%B[%*]%b%f%{${reset_color}%}'
 
 alias la='ls -a'
 alias ll='ls -l'
@@ -83,12 +86,10 @@ case ${OSTYPE} in
         export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
         alias ls='ls -G -F'
         alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
-        if [ -d /Applications/MacVim.app ];then
-                alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
-        fi
-        if [ -f ~/.github_api_token ];then
-                . ~/.github_api_token
-        fi
+        [[ -d /Applications/MacVim.app ]] && \
+            alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
+        [[ -f ~/.github_api_token ]] && \
+            source  ~/.github_api_token
         ;;
     linux*)
         alias ls='ls -F --color=auto'
@@ -96,3 +97,5 @@ case ${OSTYPE} in
         ;;
 esac
 
+# 同期したくない固有設定
+[[ -e ~/.zsh_option ]] && source .zsh_option
