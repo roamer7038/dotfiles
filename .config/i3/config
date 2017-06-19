@@ -286,7 +286,7 @@ bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
 exec --no-startup-id xmodmap $HOME/.Xmodmap
 exec --no-startup-id fcitx
 exec --no-startup-id compton -b
-exec --no-startup-id feh --bg-scale /usr/share/pixmaps/archlinux.jpg
+exec --no-startup-id feh --bg-scale --bg-fill /usr/share/pixmaps/wallpaper.jpg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id pulseaudio --start
