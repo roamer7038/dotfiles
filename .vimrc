@@ -57,7 +57,7 @@ filetype plugin indent on
 
 set splitright 
 set splitbelow
-let g:quickrun_config = {'_': {'hook/time/enable': '1', 'split': 'botright 12sp'}}
+let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:vim_markdown_folding_disabled=1
 
 nmap <Leader>c <Plug>(caw:hatpos:toggle)

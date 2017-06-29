@@ -286,7 +286,7 @@ bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
 exec --no-startup-id xmodmap $HOME/.Xmodmap
 exec --no-startup-id fcitx
 exec --no-startup-id compton -b
-exec --no-startup-id feh --bg-scale --bg-fill /usr/share/pixmaps/wallpaper.jpg
+exec --no-startup-id sh ~/.fehbg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id pulseaudio --start
@@ -294,6 +294,7 @@ exec --no-startup-id volumeicon
 
 # Window
 for_window [class="[.]*"] border pixel 3 
+for_window [window_role="GtkFileChooserDialog"] resize set 720 480
 
 # dislay settings
 # exec shell_script of external file
