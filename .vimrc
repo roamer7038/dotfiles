@@ -8,6 +8,7 @@ set shiftwidth=4
 set smartindent
 set hidden
 set t_Co=256
+set clipboard=unnamedplus
 
 let s:dein_dir = expand('~/.vim/dein')
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
@@ -35,6 +36,7 @@ call dein#add('Xuyuanp/nerdtree-git-plugin')
 call dein#add('airblade/vim-gitgutter')
 call dein#add('thinca/vim-quickrun')
 call dein#add('kentarosasaki/vim-emacs-bindings')
+call dein#add('fuenor/im_control.vim')
 
 call dein#add('othree/html5.vim', { 'on_ft': 'html' })
 call dein#add('mattn/emmet-vim', { 'on_ft': ['html', 'css'] })
@@ -59,14 +61,17 @@ set splitright
 set splitbelow
 let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:vim_markdown_folding_disabled=1
+let IM_CtrlMode = 6
 
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 nnoremap <silent><Leader>e :NERDTreeToggle<CR>
+inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
 
 augroup fileTypeIndent
     autocmd!
     autocmd BufNewFile,BufRead *.py setlocal tabstop=4 softtabstop=4 shiftwidth=4
     autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.js setlocal tabstop=2 softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufRead *.tex setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
