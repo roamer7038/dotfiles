@@ -9,6 +9,8 @@ set smartindent
 set hidden
 set t_Co=256
 set clipboard=unnamedplus
+set hlsearch
+set cursorline
 
 let s:dein_dir = expand('~/.vim/dein')
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
@@ -22,6 +24,7 @@ execute 'set runtimepath^=' . s:dein_repo_dir
 call dein#begin(s:dein_dir)
 
 call dein#add('Shougo/dein.vim')
+call dein#add('Shougo/vimproc.vim')
 call dein#add('Shougo/neocomplete.vim')
 call dein#add('Shougo/neosnippet.vim')
 call dein#add('Shougo/neosnippet-snippets')
@@ -63,6 +66,7 @@ let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}
 let g:vim_markdown_folding_disabled=1
 let IM_CtrlMode = 6
 
+nmap <Esc><Esc> :nohlsearch<CR><Esc>
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 nnoremap <silent><Leader>e :NERDTreeToggle<CR>
