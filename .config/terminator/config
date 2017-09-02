@@ -1,4 +1,5 @@
 [global_config]
+  enabled_plugins = APTURLHandler, LaunchpadCodeURLHandler, LaunchpadBugURLHandler
   extra_styling = False
   homogeneous_tabbar = False
   inactive_color_offset = 1.0

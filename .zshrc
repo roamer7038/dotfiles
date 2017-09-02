@@ -57,6 +57,7 @@ PROMPT="%F{034}%B[%n@%m]%b%f %F{075}%3~%f
 RPROMPT='%B${vcs_info_msg_0_}%b%{${reset_color}%}%F{178}%B[%*]%b%f%{${reset_color}%}'
 
 alias l='ls'
+alias s='ls'
 alias la='ls -a'
 alias ll='ls -l'
 alias ks='ls'

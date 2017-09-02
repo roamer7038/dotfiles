@@ -36,9 +36,13 @@ case ${OSTYPE} in
             mkdir -p ~/.config/i3status
             ln -sf $PWD/.config/i3status/config ~/.config/i3status/config
 		fi 
-        if [ -x `which terminator` ]; then
-            mkdir -p ~/.config/terminator
-            ln -sf $PWD/.config/terminator/config ~/.config/terminator/config
-        fi
-        ;;
+    if [ -x `which terminator` ]; then
+        mkdir -p ~/.config/terminator
+        ln -sf $PWD/.config/terminator/config ~/.config/terminator/config
+    fi
+    if [ -x `which dunst` ]; then
+        mkdir -p ~/.config/dunst
+        ln -sf $PWD/.config/dunst/dunstrc ~/.config/dunst/dunstrc
+    fi
+    ;;
 esac
