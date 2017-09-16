@@ -171,7 +171,7 @@ mode "$mode_system" {
     bindsym r exec --no-startup-id systemctl reboot, mode "default"
     bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"
 
-    # back to normal: Enter or Escape
+# back to normal: Enter or Escape
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
@@ -180,44 +180,44 @@ bindsym $mod+Shift+p mode "$mode_system"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
-        # These bindings trigger as soon as you enter the resize mode
+    # These bindings trigger as soon as you enter the resize mode
 
-        # Pressing left will shrink the window’s width.
-        # Pressing right will grow the window’s width.
-        # Pressing up will shrink the window’s height.
-        # Pressing down will grow the window’s height.
-        bindsym h resize shrink width 10 px or 10 ppt
-        bindsym j resize grow height 10 px or 10 ppt
-        bindsym k resize shrink height 10 px or 10 ppt
-        bindsym l resize grow width 10 px or 10 ppt
+    # Pressing left will shrink the window’s width.
+    # Pressing right will grow the window’s width.
+    # Pressing up will shrink the window’s height.
+    # Pressing down will grow the window’s height.
+    bindsym h resize shrink width 10 px or 10 ppt
+    bindsym j resize grow height 10 px or 10 ppt
+    bindsym k resize shrink height 10 px or 10 ppt
+    bindsym l resize grow width 10 px or 10 ppt
 
-        # same bindings, but for the arrow keys
-        bindsym Left resize shrink width 10 px or 10 ppt
-        bindsym Down resize grow height 10 px or 10 ppt
-        bindsym Up resize shrink height 10 px or 10 ppt
-        bindsym Right resize grow width 10 px or 10 ppt
+    # same bindings, but for the arrow keys
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
 
-        # back to normal: Enter or Escape
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
 }
 
 bindsym $mod+r mode "resize"
 
 # move window mode
 mode "move" {
-        bindsym Left move left 20px
-        bindsym Down move down 20px
-        bindsym Up move up 20px
-        bindsym Right move right 20px
-        
-        bindsym h move left 20px
-        bindsym j move down 20px
-        bindsym k move up 20px
-        bindsym l move right 20px
+    bindsym Left move left 20px
+    bindsym Down move down 20px
+    bindsym Up move up 20px
+    bindsym Right move right 20px
+    
+    bindsym h move left 20px
+    bindsym j move down 20px
+    bindsym k move up 20px
+    bindsym l move right 20px
 
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
 }
 
 bindsym $mod+m mode "move"
@@ -248,24 +248,22 @@ client.placeholder      $CL_BG      $CL_BG      $CL_WHITE $CL_BLACK  $CL_BG
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
-bar 
-{
+bar {
     font pango: koruri bold, awesome, 11
-	separator_symbol " "
-	position top
-	status_command i3status
+    separator_symbol " "
+    position top
+    status_command i3status
+    tray_output primary
 
-	colors 
-	{
-		background $CL_BG
-		statusline $CL_WHITE
-		separator $CL_WHITE 
+    colors {
+        background $CL_BG
+        statusline $CL_WHITE
+        separator $CL_WHITE 
 
-		focused_workspace $CL_BLACK $CL_CUR $CL_BG
-		inactive_workspace $CL_BG $CL_BG $CL_LIGHTGRAY
-		urgent_workspace $CL_ORANGE $CL_ORANGE $CL_BG
-	}
-
+        focused_workspace $CL_BLACK $CL_CUR $CL_BG
+        inactive_workspace $CL_BG $CL_BG $CL_LIGHTGRAY
+        urgent_workspace $CL_ORANGE $CL_ORANGE $CL_BG
+    }
 }
 
 # ScreenShot

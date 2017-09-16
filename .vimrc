@@ -1,7 +1,7 @@
 set number
 set title
 set expandtab
-set laststatus=4
+set laststatus=2
 set tabstop=2
 set autoindent
 set shiftwidth=4
