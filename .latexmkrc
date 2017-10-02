@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
-
-$latex            = 'platex -shell-escape -synctex=1 -halt-on-error';
-$latex_silent     = 'platex -shell-escape -synctex=1 -halt-on-error -interaction=batchmode';
+$latex            = 'uplatex -shell-escape -synctex=1 -halt-on-error';
+$latex_silent     = 'uplatex -shell-escape -synctex=1 -halt-on-error -interaction=batchmode';
 $bibtex           = 'pbibtex';
 $dvipdf           = 'dvipdfmx %O -o %D %S';
 $makeindex        = 'mendex %O -o %D %S';

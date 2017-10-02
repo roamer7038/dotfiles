@@ -267,8 +267,8 @@ bar {
 }
 
 # ScreenShot
-bindsym Ctrl+Print exec import -window root ~/$(date +%F_%H%M%S_%N).png
-bindsym --release Shift+Print exec import ~/$(date +%F_%H%M%S_%N).png
+bindsym Ctrl+Print exec import -window root ~/Pictures/$(date +%F_%H%M%S_%N).png
+bindsym --release Shift+Print exec import ~/Pictures/$(date +%F_%H%M%S_%N).png
 
 # Brightness Ctrl
 bindsym XF86MonBrightnessDown exec "xbacklight -dec 5"

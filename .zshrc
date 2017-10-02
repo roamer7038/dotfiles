@@ -99,4 +99,4 @@ case ${OSTYPE} in
 esac
 
 # 同期したくない固有設定
-[[ -e ~/.zsh_option ]] && source .zsh_option
+[[ -e ~/.zsh_extra ]] && source ~/.zsh_extra
