@@ -11,7 +11,7 @@ set t_Co=256
 set clipboard=unnamedplus
 set hlsearch
 set cursorline
-set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
+set fileencodings=utf-8,iso-2022-jp,euc-jp,sjis
 
 let s:dein_dir = expand('~/.vim/dein')
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
@@ -42,12 +42,13 @@ call dein#add('thinca/vim-quickrun')
 call dein#add('kentarosasaki/vim-emacs-bindings')
 call dein#add('fuenor/im_control.vim')
 
-call dein#add('othree/html5.vim', { 'on_ft': ['html'] })
-call dein#add('mattn/emmet-vim', { 'on_ft': ['html', 'css'] })
-call dein#add('hail2u/vim-css3-syntax', { 'on_ft': ['html', 'css'] })
-" call dein#add('jelera/vim-javascript-syntax', { 'on_ft': 'javascript' })
-call dein#add('othree/yajs.vim', { 'on_ft': 'javascript' })
-" call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript', 'jsx'] })
+call dein#add('othree/html5.vim', { 'on_ft': ['html', 'javascript', 'javascript.jsx'] })
+call dein#add('mattn/emmet-vim', { 'on_ft': ['html', 'css', 'javascript', 'javascript.jsx'] })
+call dein#add('hail2u/vim-css3-syntax', { 'on_ft': ['html', 'css', 'javascript', 'javascript.jsx'] })
+call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.jsx'] })
+call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
+call dein#add('othree/javascript-libraries-syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
+call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('plasticboy/vim-markdown', { 'on_ft': 'markdown' })
 call dein#add('kannokanno/previm', { 'on_ft': 'markdown' })
 call dein#add('tyru/open-browser.vim', { 'on_ft': 'markdown' })
