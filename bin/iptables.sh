@@ -1,0 +1,19 @@
+#!/bin/sh
+
+IPTABLES="/sbin/iptables"
+
+$IPTABLES -F
+$IPTABLES -t nat -F
+$IPTABLES -t mangle -F
+
+$IPTABLES -P INPUT DROP
+$IPTABLES -P FORWARD ACCEPT
+$IPTABLES -P OUTPUT ACCEPT
+
+$IPTABLES -A INPUT -i lo -j ACCEPT
+$IPTABLES -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+$IPTABLES -A INPUT -p icmp -j ACCEPT
+# $IPTABLES -A INPUT -p tcp --dport 22 -j ACCEPT
+# $IPTABLES -A INPUT -p tcp --dport 80 -j ACCEPT
+# $IPTABLES -A INPUT -p tcp --dport 8080 -j ACCEPT

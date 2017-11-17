@@ -4,6 +4,8 @@ shopt -s histappend
 shopt -s checkwinsize
 shopt -s cdspell
 shopt -s dotglob
+complete -c man which
+complete -cf sudo
 
 HISTCONTROL=ignoreboth
 HISTSIZE=1000

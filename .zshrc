@@ -33,6 +33,7 @@ setopt equals
 setopt share_history
 setopt hist_ignore_all_dups
 setopt hist_reduce_blanks
+setopt auto_list
 setopt auto_menu
 setopt auto_param_keys
 setopt magic_equal_subst
@@ -40,15 +41,23 @@ setopt globdots
 setopt hist_save_no_dups
 setopt rm_star_wait
 setopt prompt_subst
+setopt brace_ccl
 
+eval `dircolors`
+zstyle ':completion:*:default' list-colors ${LS_COLORS}
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
+zstyle ':completion:*' use-cache true
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' ignore-parents parent pwd ..
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
                    /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
-zstyle ':vcs_info:*' formats '%K{022}%F{250} %b %f%k '
-zstyle ':vcs_info:*' actionformats '%K{124}%F{250} %a %f%k%K{022}%F{250} %b %f%k '
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' stagedstr "+"
+zstyle ':vcs_info:git:*' unstagedstr "-"
+zstyle ':vcs_info:*' formats '%K{022}%F{250} %b%u%c %f%k '
+zstyle ':vcs_info:*' actionformats '%K{124}%F{250} %a %f%k%K{022}%F{250} %b%u%c %f%k '
 
 precmd() { vcs_info }
 
@@ -69,6 +78,8 @@ alias sudo='sudo '
 
 alias -g L='| less'
 alias -g G='| grep'
+
+bindkey "^[[Z" reverse-menu-complete
 
 # C で標準出力をクリップボードにコピーする
 if which pbcopy >/dev/null 2>&1 ; then
@@ -98,5 +109,8 @@ case ${OSTYPE} in
         ;;
 esac
 
-# 同期したくない固有設定
-[[ -e ~/.zsh_extra ]] && source ~/.zsh_extra
+if [ -z $TMUX ]; then
+  tmux -2
+fi
+[ -n "$RANGER_LEVEL" ] && RPROMPT='%K{054}%F{250}%B Ranger %b%f%k'"$RPROMPT"
+
