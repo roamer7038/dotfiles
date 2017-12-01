@@ -109,8 +109,5 @@ case ${OSTYPE} in
         ;;
 esac
 
-if [ -z $TMUX ]; then
-  tmux -2
-fi
 [ -n "$RANGER_LEVEL" ] && RPROMPT='%K{054}%F{250}%B Ranger %b%f%k'"$RPROMPT"
 
