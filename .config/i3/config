@@ -303,6 +303,9 @@ exec --no-startup-id volumeicon
 for_window [class="[.]*"] border pixel 3 
 for_window [window_role="GtkFileChooserDialog"] resize set 720 480
 
+# Mouse Settings
+mouse_warping none
+
 # dislay settings
 # exec shell_script of external file
 exec --no-startup-id $HOME/.config/i3/monitor.sh
