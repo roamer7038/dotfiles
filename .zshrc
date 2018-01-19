@@ -106,6 +106,8 @@ case ${OSTYPE} in
         ;;
     linux*)
         alias ls='ls -F --color=auto'
+        stty start undef
+        stty stop undef
         ;;
 esac
 
