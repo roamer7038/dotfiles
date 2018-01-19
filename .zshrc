@@ -9,6 +9,7 @@ autoload -Uz compinit
 compinit -u
 autoload -Uz vcs_info
 
+export GOPATH=$HOME/.go
 [[ -d ~/.rbenv  ]] && \
     export PATH=${HOME}/.rbenv/bin:${PATH} && \
     eval "$(rbenv init -)"
