@@ -1,4 +1,5 @@
 [global_config]
+  borderless = True
   enabled_plugins = APTURLHandler, LaunchpadCodeURLHandler, LaunchpadBugURLHandler
   extra_styling = False
   homogeneous_tabbar = False
@@ -60,6 +61,7 @@
   [[default]]
     [[[child1]]]
       parent = window0
+      profile = Flat
       type = Terminal
     [[[window0]]]
       parent = ""
@@ -69,6 +71,17 @@
   [[default]]
     background_darkness = 0.8
     background_type = transparent
+    cursor_color = "#aaaaaa"
+    cursor_color_fg = False
+    font = Ricty 17
+    icon_bell = False
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#0000ee:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#5c5cff:#ff00ff:#00ffff:#ffffff"
+    scroll_on_output = True
+    scrollbar_position = hidden
+    show_titlebar = False
+    use_system_font = False
+  [[Flat]]
+    background_color = "#282c34"
     cursor_color = "#aaaaaa"
     cursor_color_fg = False
     font = Ricty 17
