@@ -317,12 +317,10 @@ exec --no-startup-id dropbox
 for_window [class="[.]*"] border pixel 3 
 for_window [window_role="GtkFileChooserDialog"] resize set 720 480
 
+hide_edge_borders smart
+
 # Mouse Settings
 mouse_warping none
-
-# i3-gaps 
-# smart_borders on
-# smart_gaps on
 
 # dislay settings
 # exec shell_script of external file
