@@ -12,7 +12,7 @@ ln -sf $PWD/.gitconfig ~/.gitconfig
 
 ## nox on Linux Server 
 getopts "nox" opts
-if [ $opts = "r" ]; then
+if [ $opts = "nox" ]; then
   ln -sf $PWD/.vimrc.nox ~/.vimrc
   exit 1
 fi
