@@ -27,7 +27,7 @@ cask 'brackets'
 cask 'cheatsheet'
 cask 'dropbox'
 cask 'discord'
-cask 'franz'
+# cask 'franz'
 cask 'google-chrome'
 cask 'google-japanese-ime'
 cask 'iterm2-beta'
@@ -35,14 +35,14 @@ cask 'java'
 cask 'keepingyouawake'
 cask 'kindle'
 cask 'karabiner'
-cask 'mactex'
-cask 'macdown'
-cask 'macvim'
+# cask 'mactex'
+# cask 'macdown'
+# cask 'macvim'
 cask 'minecraft'
 cask 'night-owl'
-cask 'phpstorm'
+# cask 'phpstorm'
 cask 'scroll-reverser'
-cask 'skype'
+# cask 'skype'
 cask 'slack'
 cask 'sublime-text'
 cask 'the-unarchiver'
@@ -65,7 +65,7 @@ cask 'qlcolorcode'
 #cask 'wacom-intuos-tablet'
 
 # AppStore Applications
-mas 'LINE', id: 539883307
+# mas 'LINE', id: 539883307
 mas 'TweetDeck', id: 485812721
 mas 'ForkLift', id: 412448059
 #mas 'Veertu', id: 1024069033
