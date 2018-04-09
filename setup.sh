@@ -11,8 +11,8 @@ ln -sf $PWD/.zshrc ~/.zshrc
 ln -sf $PWD/.gitconfig ~/.gitconfig
 
 ## nox on Linux Server 
-getopts "nox" opts
-if [ $opts = "nox" ]; then
+getopts "s" opts
+if [ $opts = "s" ]; then
   ln -sf $PWD/.vimrc.nox ~/.vimrc
   exit 1
 fi
