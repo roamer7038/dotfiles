@@ -14,7 +14,7 @@ ln -sf $PWD/.gitconfig ~/.gitconfig
 getopts "s" opts
 if [ $opts = "s" ]; then
   ln -sf $PWD/.vimrc.nox ~/.vimrc
-  exit 1
+  exit 0
 fi
 
 case ${OSTYPE} in
