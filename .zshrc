@@ -10,12 +10,9 @@ compinit -u
 autoload -Uz vcs_info
 
 export GOPATH=$HOME/.go
-[[ -d ~/.rbenv  ]] && \
-    export PATH=${HOME}/.rbenv/bin:${PATH} && \
-    eval "$(rbenv init -)"
-
-[[ -d ~/.nodebrew ]] && \
-    export PATH=$HOME/.nodebrew/current/bin:$PATH
+[[ -d ~/.anyenv ]] && \
+    export PATH=$HOME/.anyenv/bin:$PATH && \
+    eval "$(anyenv init -)"
 
 bindkey -e
 
