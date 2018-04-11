@@ -42,8 +42,8 @@ case ${OSTYPE} in
     mkdir -p ~/.config/i3status
     ln -sf $PWD/.config/i3status/config ~/.config/i3status/config
     ## Terminal Emulator
-    mkdir -p ~/.config/termite
-    ln -sf $PWD/.config/termite/config ~/.config/termite/config
+    mkdir -p ~/.config/terminator
+    ln -sf $PWD/.config/terminator/config ~/.config/terminator/config
     ## Other Software
     mkdir -p ~/.config/dunst
     ln -sf $PWD/.config/dunst/dunstrc ~/.config/dunst/dunstrc
