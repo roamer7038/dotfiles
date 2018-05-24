@@ -9,7 +9,10 @@ autoload -Uz compinit
 compinit -u
 autoload -Uz vcs_info
 
-export GOPATH=$HOME/.go
+[[ -d ~/.go ]] && \
+  export GOPATH=$HOME/.go
+  export PATH=$PATH:$GOPATH/bin
+
 [[ -d ~/.anyenv ]] && \
     export PATH=$HOME/.anyenv/bin:$PATH && \
     eval "$(anyenv init -)"
@@ -109,5 +112,5 @@ case ${OSTYPE} in
         ;;
 esac
 
-[ -n "$RANGER_LEVEL" ] && RPROMPT='%K{054}%F{250}%B Ranger %b%f%k'"$RPROMPT"
-
+[ -n "$RANGER_LEVEL" ] && RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
+[ -n "$VIMRUNTIME" ] && RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
