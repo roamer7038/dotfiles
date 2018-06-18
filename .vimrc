@@ -52,6 +52,8 @@ call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.j
 call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/javascript-libraries-syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript', 'javascript.jsx'] })
+call dein#add('fatih/vim-go', { 'on_ft': ['go'] })
+call dein#add('nsf/gocode', {'rtp': 'vim/'}) 
 call dein#add('plasticboy/vim-markdown', { 'on_ft': 'markdown' })
 call dein#add('kannokanno/previm', { 'on_ft': 'markdown' })
 call dein#add('tyru/open-browser.vim', { 'on_ft': 'markdown' })
@@ -90,3 +92,4 @@ augroup fileTypeIndent
   autocmd BufNewFile,BufRead *.html setlocal tabstop=2 softtabstop=2 shiftwidth=2
   autocmd BufNewFile,BufRead *.css setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
+
