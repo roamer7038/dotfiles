@@ -9,13 +9,16 @@ autoload -Uz compinit
 compinit -u
 autoload -Uz vcs_info
 
+[[ -d ~/.local/bin ]] && \
+  export PATH=$HOME/.local/bin:$PATH
+
 [[ -d ~/.go ]] && \
   export GOPATH=$HOME/.go
   export PATH=$PATH:$GOPATH/bin
 
 [[ -d ~/.anyenv ]] && \
-    export PATH=$HOME/.anyenv/bin:$PATH && \
-    eval "$(anyenv init -)"
+  export PATH=$HOME/.anyenv/bin:$PATH && \
+  eval "$(anyenv init -)"
 
 bindkey -e
 
