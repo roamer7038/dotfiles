@@ -43,6 +43,7 @@ call dein#add('airblade/vim-gitgutter')
 call dein#add('thinca/vim-quickrun')
 call dein#add('kentarosasaki/vim-emacs-bindings')
 call dein#add('fuenor/im_control.vim')
+call dein#add('vim-scripts/fcitx.vim')
 call dein#add('Yggdroot/indentLine')
 
 call dein#add('othree/html5.vim', { 'on_ft': ['html', 'javascript', 'javascript.jsx'] })
