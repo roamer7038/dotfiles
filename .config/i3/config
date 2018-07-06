@@ -311,7 +311,7 @@ exec --no-startup-id sh ~/.fehbg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id volumeicon
-exec --no-startup-id light-locker --lock-on-suspend
+exec --no-startup-id light-locker --late-locking
 exec --no-startup-id thunar --daemon
 
 # Window
