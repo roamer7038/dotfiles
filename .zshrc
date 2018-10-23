@@ -2,6 +2,7 @@ export LANG=ja_JP.UTF-8
 export LSCOLORS=Exfxcxdxbxegedabagacad
 export LESS='-i -M -R -x4'
 export EDITOR=vim
+export SYSTEMD_EDITOR="/usr/bin/vim" 
 
 autoload -Uz colors
 colors
@@ -110,8 +111,12 @@ case ${OSTYPE} in
         ;;
     linux*)
         alias ls='ls -F --color=auto'
+        alias grep='grep --color=auto'
+        alias fgrep='fgrep --color=auto'
+        alias egrep='egrep --color=auto'
         stty start undef
         stty stop undef
+        ttyctl -f
         ;;
 esac
 

@@ -45,6 +45,8 @@ call dein#add('kentarosasaki/vim-emacs-bindings')
 call dein#add('fuenor/im_control.vim')
 call dein#add('vim-scripts/fcitx.vim')
 call dein#add('Yggdroot/indentLine')
+call dein#add('tpope/vim-surround')
+call dein#add('terryma/vim-multiple-cursors')
 
 call dein#add('othree/html5.vim', { 'on_ft': ['html', 'javascript', 'javascript.jsx'] })
 call dein#add('mattn/emmet-vim', { 'on_ft': ['html', 'css', 'javascript', 'javascript.jsx'] })

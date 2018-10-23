@@ -325,4 +325,4 @@ mouse_warping none
 
 # dislay settings
 # exec shell_script of external file
-exec --no-startup-id $HOME/.config/i3/monitor.sh
+# exec --no-startup-id $HOME/.config/i3/monitor.sh

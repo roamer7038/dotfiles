@@ -1,4 +1,5 @@
 PS1='\[\e[1;32m\][\u@\h]\[\e[m\] \w \n\$ '
+export SYSTEMD_EDITOR="/usr/bin/vim" 
 
 shopt -s histappend
 shopt -s checkwinsize
@@ -19,27 +20,27 @@ alias mv='mv -i'
 alias mkdir='mkdir -p'
 
 case ${OSTYPE} in
-    darwin*)
-        export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-        if [ -f ~/.github_api_token ];then
-                . ~/.github_api_token
-        fi
-        export PATH=$HOME/.nodebrew/current/bin:$PATH
-        ;;
-    linux*)
-        export LSCOLORS=gxfxcxdxbxegedabagacad 
-        alias ls='ls --color=auto'
-        alias grep='grep --color=auto'
-        alias fgrep='fgrep --color=auto'
-        alias egrep='egrep --color=auto'
-        ;;
+  darwin*)
+    export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+    if [ -f ~/.github_api_token ];then
+      . ~/.github_api_token
+    fi
+    export PATH=$HOME/.nodebrew/current/bin:$PATH
+    ;;
+  linux*)
+    export LSCOLORS=gxfxcxdxbxegedabagacad 
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+    ;;
 esac
 
 if ! shopt -oq posix; then
-     if [ -f /usr/share/bash-completion/bash_completion ];then
-        . /usr/share/bash-completion/bash_completion
-     elif [ -f /etc/bash_completion ];then
-        . /etc/bash_completion
-     fi
+  if [ -f /usr/share/bash-completion/bash_completion ];then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ];then
+    . /etc/bash_completion
+  fi
 fi
 
