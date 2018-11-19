@@ -55,6 +55,7 @@ call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.j
 call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/javascript-libraries-syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript', 'javascript.jsx'] })
+call dein#add('mxw/vim-jsx', { 'on_ft': ['javascript', 'javascript.jsx']})
 call dein#add('fatih/vim-go', { 'on_ft': ['go'] })
 call dein#add('nsf/gocode', {'rtp': 'vim/'}) 
 call dein#add('plasticboy/vim-markdown', { 'on_ft': 'markdown' })
@@ -77,6 +78,7 @@ set splitbelow
 let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:vim_markdown_folding_disabled=1
 let IM_CtrlMode = 6
+let g:jsx_ext_required = 1
 
 nmap <Esc><Esc> :nohlsearch<CR><Esc>
 nmap <Leader>c <Plug>(caw:hatpos:toggle)

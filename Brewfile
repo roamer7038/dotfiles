@@ -5,48 +5,39 @@ tap 'caskroom/homebrew-cask'
 tap 'caskroom/versions'
 tap 'homebrew/binary'
 
-brew 'openssl'
-brew 'wget'
-brew 'git'
-brew 'gist'
+brew 'bash-completions'
 brew 'cmake'
 brew 'curl'
+brew 'git'
+brew 'gist'
+brew 'iproute2mac'
+brew 'jq'
 brew 'nmap'
 brew 'mas'
-brew 'jq'
+brew 'openssl'
 brew 'screenfetch'
-brew 'iproute2mac'
 brew 'tree'
 brew 'tmux'
 brew 'vim'
+brew 'wget'
 brew 'zsh'
 brew 'zsh-completions'
+
+# No Test 
+# tar, unzip, ranger, tcpdump, vscode, remmina, anyenv, golang, adobereader, nginx, cmus, docker, atool
 
 cask 'appcleaner'
 cask 'brackets'
 cask 'cheatsheet'
 cask 'dropbox'
 cask 'discord'
-# cask 'franz'
 cask 'google-chrome'
 cask 'google-japanese-ime'
 cask 'iterm2-beta'
-cask 'java'
 cask 'keepingyouawake'
-cask 'kindle'
 cask 'karabiner'
-# cask 'mactex'
-# cask 'macdown'
-# cask 'macvim'
-cask 'minecraft'
-cask 'night-owl'
-# cask 'phpstorm'
 cask 'scroll-reverser'
-# cask 'skype'
-cask 'slack'
-cask 'sublime-text'
 cask 'the-unarchiver'
-cask 'virtualbox'
 
 # QuickLook Plugins
 cask 'betterzipql'
@@ -57,15 +48,6 @@ cask 'quicklook-csv'
 cask 'qlstephen'
 cask 'qlcolorcode'
 
-#cask 'blu-ray-player'
-#cask 'lyrics-master'
-#cask 'magican'
-#cask 'transmisson'
-#cask 'parallels-desktop'
-#cask 'wacom-intuos-tablet'
-
 # AppStore Applications
-# mas 'LINE', id: 539883307
-mas 'TweetDeck', id: 485812721
-mas 'ForkLift', id: 412448059
-#mas 'Veertu', id: 1024069033
+# mas 'TweetDeck', id: 485812721
+# mas 'ForkLift', id: 412448059

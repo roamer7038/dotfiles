@@ -21,6 +21,9 @@ autoload -Uz vcs_info
   export PATH=$HOME/.anyenv/bin:$PATH && \
   eval "$(anyenv init -)"
 
+[[ -d ~/.yarn ]] && \
+  export PATH="$HOME/.yarn/bin:$PATH"
+
 bindkey -e
 
 HISTFILE=~/.zsh_history
