@@ -9,6 +9,7 @@ set smartindent
 set hidden
 set t_Co=256
 set clipboard=unnamedplus
+set backupcopy=yes
 set hlsearch
 set cursorline
 set fileencodings=utf-8,iso-2022-jp,euc-jp,sjis
@@ -51,6 +52,7 @@ call dein#add('terryma/vim-multiple-cursors')
 call dein#add('othree/html5.vim', { 'on_ft': ['html', 'javascript', 'javascript.jsx'] })
 call dein#add('mattn/emmet-vim', { 'on_ft': ['html', 'css', 'javascript', 'javascript.jsx'] })
 call dein#add('hail2u/vim-css3-syntax', { 'on_ft': ['html', 'css', 'javascript', 'javascript.jsx'] })
+call dein#add('gko/vim-coloresque')
 call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/javascript-libraries-syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })

@@ -21,11 +21,11 @@ case ${OSTYPE} in
   darwin*)
     xcode-select --install
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    echo 'Please enter GitHub API Token...'
-    read TOKEN
-    touch ~/.github_api_token
+    echo 'Please enter GitHub Username...'
+    read GITHUB_USERNAME 
+    TOKEN=$(curl -u $GITHUB_USERNAME -d '{"scopes":["repo"],"note":"'$(date +"%Y%m%d%I%M%S")'"}' https://api.github.com/authorizations | grep -w 'token' | awk -F '"' '{ print $4 }')
     echo 'export HOMEBREW_GITHUB_API_TOKEN="'$TOKEN'"' > ~/.github_api_token
-    source ~/.bashrc
+    exec $SHELL -l
     brew tap homebrew/bundle
     cd $PWD
     brew bundle
