@@ -96,6 +96,8 @@ call dein#add('plasticboy/vim-markdown', { 'on_ft': 'markdown' })
 call dein#add('kannokanno/previm', { 'on_ft': 'markdown' })
 call dein#add('tyru/open-browser.vim', { 'on_ft': 'markdown' })
 
+call dein#add('lervag/vimtex', { 'on_ft': ['tex', 'plaintex'] })
+
 call dein#end()
 
 if dein#check_install()
