@@ -44,6 +44,8 @@ case ${OSTYPE} in
     ## Terminal Emulator
     mkdir -p ~/.config/terminator
     ln -sf $PWD/.config/terminator/config ~/.config/terminator/config
+    mkdir -p ~/.config/alacritty
+    ln -sf $PWD/.config/alacritty/alacritty.yml ~/.config/alacritty/alacritty.yml
     ## Other Software
     mkdir -p ~/.config/dunst
     ln -sf $PWD/.config/dunst/dunstrc ~/.config/dunst/dunstrc

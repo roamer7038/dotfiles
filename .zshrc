@@ -117,6 +117,7 @@ case ${OSTYPE} in
         alias grep='grep --color=auto'
         alias fgrep='fgrep --color=auto'
         alias egrep='egrep --color=auto'
+        alias open='xdg-open'
         stty start undef
         stty stop undef
         ttyctl -f
