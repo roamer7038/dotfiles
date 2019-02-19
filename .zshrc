@@ -10,20 +10,6 @@ autoload -Uz compinit
 compinit -u
 autoload -Uz vcs_info
 
-[[ -d ~/.local/bin ]] && \
-  export PATH=$HOME/.local/bin:$PATH
-
-[[ -d ~/.go ]] && \
-  export GOPATH=$HOME/.go
-  export PATH=$PATH:$GOPATH/bin
-
-[[ -d ~/.anyenv ]] && \
-  export PATH=$HOME/.anyenv/bin:$PATH && \
-  eval "$(anyenv init -)"
-
-[[ -d ~/.yarn ]] && \
-  export PATH="$HOME/.yarn/bin:$PATH"
-
 bindkey -e
 
 HISTFILE=~/.zsh_history
@@ -50,10 +36,14 @@ setopt hist_save_no_dups
 setopt rm_star_wait
 setopt prompt_subst
 setopt brace_ccl
+setopt complete_in_word
+setopt list_packed
+setopt always_last_prompt
 
 eval `dircolors`
 zstyle ':completion:*:default' list-colors ${LS_COLORS}
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
+zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*' use-cache true
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' ignore-parents parent pwd ..
@@ -102,27 +92,59 @@ elif which putclip >/dev/null 2>&1 ; then
 fi
 
 case ${OSTYPE} in
-    darwin*)
-        export CLICOLOR=1
-        export HOMEBREW_CASK_OPTS="--appdir=/Applications"       
-        alias ls='ls -G -F'
-        alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
-        [[ -d /Applications/MacVim.app ]] && \
-            alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
-        [[ -f ~/.github_api_token ]] && \
-            source  ~/.github_api_token
-        ;;
-    linux*)
-        alias ls='ls -F --color=auto'
-        alias grep='grep --color=auto'
-        alias fgrep='fgrep --color=auto'
-        alias egrep='egrep --color=auto'
-        alias open='xdg-open'
-        stty start undef
-        stty stop undef
-        ttyctl -f
-        ;;
+  darwin*)
+    export CLICOLOR=1
+    export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+    alias ls='ls -G -F'
+    alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+    [[ -d /Applications/MacVim.app ]] && \
+      alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
+
+    [[ -f ~/.github_api_token ]] && \
+      source  ~/.github_api_token
+  ;;
+
+  linux*)
+    alias ls='ls -F --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+    alias open='xdg-open'
+    stty start undef
+    stty stop undef
+    ttyctl -f
+  ;;
 esac
 
-[ -n "$RANGER_LEVEL" ] && RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
-[ -n "$VIMRUNTIME" ] && RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
+[[ -d ~/.local/bin ]] && \
+  export PATH=$HOME/.local/bin:$PATH
+
+[[ -d ~/.go ]] && \
+  export GOPATH=$HOME/.go
+  export PATH=$PATH:$GOPATH/bin
+
+[[ -d ~/.anyenv ]] && \
+  export PATH=$HOME/.anyenv/bin:$PATH && \
+  eval "$(anyenv init -)"
+
+[[ -d ~/.yarn ]] && \
+  export PATH="$HOME/.yarn/bin:$PATH"
+
+[ -n "$RANGER_LEVEL" ] && \
+  RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
+
+[ -n "$VIMRUNTIME" ] && \
+  RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
+
+function ranger-cd {
+  tempfile="$(mktemp -t tmp.XXXXXX)"
+  /usr/bin/ranger --choosedir="$tempfile" "${@:-$(pwd)}"
+  test -f "$tempfile" &&
+    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+      cd -- "$(cat "$tempfile")"
+    fi
+    rm -f -- "$tempfile"
+}
+
+bindkey -s '^o' 'ranger-cd^M'
+alias ranger='ranger-cd'

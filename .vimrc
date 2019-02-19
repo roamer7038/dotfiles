@@ -80,7 +80,7 @@ call dein#add('gko/vim-coloresque')
 call dein#add('othree/html5.vim')
 call dein#add('hail2u/vim-css3-syntax')
 call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.jsx'] })
-call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript.jsx'] })
+call dein#add('maxmellon/vim-jsx-pretty', { 'on_ft': ['javascript', 'javascript.jsx'] })
 
 call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/es.next.syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
@@ -195,7 +195,7 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_javascript_checkers=['eslint']
 " Javascript以外は構文エラーチェックをしない
 let g:syntastic_mode_map = { 'mode': 'passive',
-                           \ 'active_filetypes': ['javascript'],
+                           \ 'active_filetypes': ['javascript', 'javascript.jsx'],
                            \ 'passive_filetypes': [] }
 
 "----------------------------------------------------------
