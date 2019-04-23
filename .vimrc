@@ -9,7 +9,7 @@ set ambiwidth=double
 set tabstop=2 
 set expandtab
 set autoindent 
-set smartindent 
+set smartindent
 set shiftwidth=2
 
 set showmatch
@@ -54,16 +54,12 @@ call dein#add('tyru/caw.vim')
 call dein#add('Shougo/neocomplete.vim')
 call dein#add('Shougo/neosnippet.vim')
 call dein#add('Shougo/neosnippet-snippets')
+call dein#add('w0rp/ale')
 
 call dein#add('tomasr/molokai')
 call dein#add('itchyny/lightline.vim')
 call dein#add('Yggdroot/indentLine')
 call dein#add('airblade/vim-gitgutter')
-
-call dein#add('ctrlpvim/ctrlp.vim')
-call dein#add('tacahiroy/ctrlp-funky')
-
-call dein#add('vim-syntastic/syntastic')
 
 call dein#add('francoiscabrol/ranger.vim')
 call dein#add('scrooloose/nerdtree')
@@ -145,20 +141,6 @@ if dein#is_sourced('neocomplete.vim')
 endif
 
 "----------------------------------------------------------
-" CtrlPの設定
-"----------------------------------------------------------
-let g:ctrlp_match_window = 'order:ttb,min:20,max:20,results:100'
-let g:ctrlp_show_hidden = 1
-let g:ctrlp_types = ['buf', 'fil']
-let g:ctrlp_extensions = ['funky'] 
-
-" CtrlPCommandLineの有効化
-command! CtrlPCommandLine call ctrlp#init(ctrlp#commandline#id())
-
-" CtrlPFunkyの有効化
-let g:ctrlp_funky_matchtype = 'path' 
-
-"----------------------------------------------------------
 " Quickrun設定
 "----------------------------------------------------------
 let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
@@ -176,27 +158,29 @@ let g:quickrun_config._ = {
 au FileType qf nnoremap <silent><buffer>q :quit<CR>
 
 "----------------------------------------------------------
-" Syntasticの設定
+" ALE設定
 "----------------------------------------------------------
-" Normalモード時にCtrl+Cでシンタックスチェック
-nnoremap <C-C> :w<CR>:SyntasticCheck<CR>
-" 構文エラー行に「>>」を表示
-let g:syntastic_enable_signs = 1
-" 他のVimプラグインと競合するのを防ぐ
-let g:syntastic_always_populate_loc_list = 1
-" 構文エラーリストを非表示
-let g:syntastic_auto_loc_list = 0
-" ファイルを開いた時に構文エラーチェックを実行しない
-let g:syntastic_check_on_open = 0
-" 「:wq」で終了する時も構文エラーチェックしない
-let g:syntastic_check_on_wq = 0
 
-" Javascript用. 構文エラーチェックにESLintを使用
-let g:syntastic_javascript_checkers=['eslint']
-" Javascript以外は構文エラーチェックをしない
-let g:syntastic_mode_map = { 'mode': 'passive',
-                           \ 'active_filetypes': ['javascript', 'javascript.jsx'],
-                           \ 'passive_filetypes': [] }
+let g:ale_enabled = 1
+let g:ale_fixers = {}
+let g:ale_fixers['javascript'] = ['prettier-eslint']
+
+" ファイルを開いたときにLintを実行する
+let g:ale_lint_on_enter = 1
+" let g:ale_lint_on_text_changed = 1
+
+" 保存時にPrettierを実行する
+let g:ale_fix_on_save = 1
+let g:ale_javascript_prettier_use_local_config = 1
+
+" ロケーションリストにエラーを表示する
+let g:ale_set_loclist = 1
+" QuickFixにエラーを表示する
+let g:ale_set_quickfix = 0
+let g:ale_open_list = 0
+
+nmap <silent> <Space>p <Plug>(ale_previous_wrap)
+nmap <silent> <Space>n <Plug>(ale_next_wrap)
 
 "----------------------------------------------------------
 "その他プラグイン設定
@@ -204,9 +188,6 @@ let g:syntastic_mode_map = { 'mode': 'passive',
 
 let g:vim_markdown_folding_disabled=1
 let g:jsx_ext_required = 1
-
-let g:prettier#config#semi = 'false'
-let g:prettier#config#bracket_spacing = 'true'
 
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
