@@ -101,9 +101,9 @@ if dein#check_install()
 endif
 
 colorscheme molokai
+filetype plugin indent on
 syntax on
 highlight Normal ctermbg=none
-filetype plugin indent on
 
 augroup fileTypeIndent
   autocmd!
