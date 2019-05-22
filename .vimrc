@@ -28,6 +28,7 @@ set wildmenu
 set laststatus=2
 set t_Co=256
 set history=5000
+set scrolloff=5
 
 set splitright 
 set splitbelow
@@ -44,7 +45,7 @@ execute 'set runtimepath^=' . s:dein_repo_dir
 call dein#begin(s:dein_dir)
 
 call dein#add('Shougo/dein.vim')
-call dein#add('Shougo/vimproc.vim', {'build' : 'make'})
+call dein#add('Shougo/vimproc.vim', { 'build': 'make' })
 
 call dein#add('kentarosasaki/vim-emacs-bindings')
 
@@ -82,12 +83,14 @@ call dein#add('othree/yajs.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/es.next.syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 call dein#add('othree/javascript-libraries-syntax.vim', { 'on_ft': ['javascript', 'javascript.jsx'] })
 
-call dein#add('leshill/vim-json', { 'on_ft': ['javascript', 'javascript.jsx', 'json']})
+call dein#add('prettier/vim-prettier', { 'build': 'yarn install' })
+call dein#add('ternjs/tern_for_vim', { 'build': 'yarn install', 'on_ft': ['javascript', 'javascript.jsx'] })
 
-call dein#add('prettier/vim-prettier', {'build' : 'yarn install'})
+call dein#add('leshill/vim-json', { 'on_ft': ['javascript', 'javascript.jsx', 'json'] })
+call dein#add('heavenshell/vim-jsdoc', { 'on_ft': ['javascript', 'javascript.jsx', 'typescript'] })
 
 call dein#add('fatih/vim-go', { 'on_ft': ['go'] })
-call dein#add('nsf/gocode', {'rtp': 'vim/'}) 
+call dein#add('nsf/gocode', { 'rtp': 'vim/' }) 
 call dein#add('plasticboy/vim-markdown', { 'on_ft': 'markdown' })
 call dein#add('kannokanno/previm', { 'on_ft': 'markdown' })
 call dein#add('tyru/open-browser.vim', { 'on_ft': 'markdown' })
@@ -140,8 +143,7 @@ if dein#is_sourced('neocomplete.vim')
     imap <expr><TAB> pumvisible() ? "<C-n>" : neosnippet#jumpable() ? "<Plug>(neosnippet_expand_or_jump)" : "<TAB>"
 endif
 
-"----------------------------------------------------------
-" Quickrun設定
+"---------------------------------------------------------- " Quickrun設定
 "----------------------------------------------------------
 let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:quickrun_config = get(g:, 'quickrun_config', {})
@@ -186,14 +188,26 @@ nmap <silent> <Space>n <Plug>(ale_next_wrap)
 "その他プラグイン設定
 "----------------------------------------------------------
 
-let g:vim_markdown_folding_disabled=1
-let g:jsx_ext_required = 1
+" Ternの設定
+" 補完にパラメータを追加する
+let g:tern_show_signature_in_pum = 1
+" 補完の詳細情報を別ウィンドウで表示するかどうか（動くとは言ってない）
+let g:tern_show_loc_after_rename = 0
+let tern#is_show_argument_hints_enabled = 0
+" 補完情報の更新頻度（'no', 'on_hold', 'on_move' and 'updatetime'）
+let g:tern_show_argument_hints = 'no'
 
+" コメントアウトの設定
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 
+" NERDTreeの設定
+let NERDTreeShowHidden = 1
 nnoremap <silent><Leader>e :NERDTreeToggle<CR>
 
+
+let g:vim_markdown_folding_disabled=1
+let g:jsx_ext_required = 1
 let IM_CtrlMode = 6
 inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
 
