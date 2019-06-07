@@ -147,4 +147,3 @@ function ranger-cd {
 }
 
 bindkey -s '^o' 'ranger-cd^M'
-alias ranger='ranger-cd'
