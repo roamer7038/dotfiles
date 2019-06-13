@@ -143,7 +143,8 @@ if dein#is_sourced('neocomplete.vim')
     imap <expr><TAB> pumvisible() ? "<C-n>" : neosnippet#jumpable() ? "<Plug>(neosnippet_expand_or_jump)" : "<TAB>"
 endif
 
-"---------------------------------------------------------- " Quickrun設定
+"----------------------------------------------------------
+" Quickrun設定
 "----------------------------------------------------------
 let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:quickrun_config = get(g:, 'quickrun_config', {})
