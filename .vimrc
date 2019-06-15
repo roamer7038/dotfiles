@@ -74,6 +74,8 @@ call dein#add('terryma/vim-multiple-cursors')
 call dein#add('mattn/emmet-vim')
 call dein#add('gko/vim-coloresque')
 
+call dein#add('skanehira/translate.vim', { 'build': 'go get github.com/skanehira/gtran'})
+
 call dein#add('othree/html5.vim')
 call dein#add('hail2u/vim-css3-syntax')
 call dein#add('pangloss/vim-javascript', { 'on_ft': ['javascript', 'javascript.jsx'] })
@@ -206,6 +208,8 @@ vmap <Leader>c <Plug>(caw:hatpos:toggle)
 let NERDTreeShowHidden = 1
 nnoremap <silent><Leader>e :NERDTreeToggle<CR>
 
+" Translateの設定
+noremap <silent><Leader>t :Translate<CR>
 
 let g:vim_markdown_folding_disabled=1
 let g:jsx_ext_required = 1
