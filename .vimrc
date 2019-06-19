@@ -162,6 +162,9 @@ let g:quickrun_config._ = {
 
 au FileType qf nnoremap <silent><buffer>q :quit<CR>
 
+let g:quickrun_config.yarn = {'exec': 'yarn start'}
+let g:quickrun_config.esmodules = {'exec': 'node --experimental-modules --es-module-specifier-resolution=node %s'}
+
 "----------------------------------------------------------
 " ALE設定
 "----------------------------------------------------------
@@ -215,4 +218,3 @@ let g:vim_markdown_folding_disabled=1
 let g:jsx_ext_required = 1
 let IM_CtrlMode = 6
 inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
-
