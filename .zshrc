@@ -79,23 +79,12 @@ alias -g G='| grep'
 
 bindkey "^[[Z" reverse-menu-complete
 
-# C で標準出力をクリップボードにコピーする
-if which pbcopy >/dev/null 2>&1 ; then
-    # Mac
-    alias -g C='| pbcopy'
-elif which xsel >/dev/null 2>&1 ; then
-    # Linux
-    alias -g C='| xsel --input --clipboard'
-elif which putclip >/dev/null 2>&1 ; then
-    # Cygwin
-    alias -g C='| putclip'
-fi
-
 case ${OSTYPE} in
   darwin*)
     export CLICOLOR=1
     export HOMEBREW_CASK_OPTS="--appdir=/Applications"
     alias ls='ls -G -F'
+    alias C='pbcopy'
     alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
     [[ -d /Applications/MacVim.app ]] && \
       alias vi='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
@@ -110,6 +99,7 @@ case ${OSTYPE} in
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
     alias open='xdg-open'
+    alias C='xsel --input --clipboard'
     stty start undef
     stty stop undef
     ttyctl -f
