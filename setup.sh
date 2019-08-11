@@ -32,7 +32,6 @@ case ${OSTYPE} in
     ;;
   linux*)
     ## X Window System
-    ln -sf $PWD/.Xdefaults ~/.Xdefaults
     ln -sf $PWD/.Xmodmap ~/.Xmodmap
     ln -sf $PWD/.xprofile ~/.xprofile
     ln -sf $PWD/.compton.conf ~/.compton.conf
