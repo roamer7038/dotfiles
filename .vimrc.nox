@@ -1,27 +1,43 @@
-set number
-set title
+set encoding=utf-8
+scriptencoding utf-8
+
+set fileencoding=utf-8
+set fileencodings=utf-8,iso-2022-jp,ucs-boms,utf-8,euc-jp,sjis,cp932
+set fileformats=unix,dos,mac
+set ambiwidth=double 
+
+set tabstop=2 
 set expandtab
-set laststatus=2
-set tabstop=2
-set autoindent
-set shiftwidth=2
+set autoindent 
 set smartindent
-set hidden
-set t_Co=256
-set clipboard=unnamedplus
+set shiftwidth=2
+
+set showmatch
 set hlsearch
+set incsearch
+nmap <Esc><Esc> :nohlsearch<CR><Esc>
+
+set number
+set ruler
+set title
+set hidden
+set backupcopy=yes
+set clipboard=unnamedplus
 set cursorline
-set fileencodings=utf-8,iso-2022-jp,euc-jp,sjis
+set wildmenu
+set laststatus=2
+set t_Co=256
+set history=5000
+set scrolloff=5
+set nofoldenable
+
+set splitright 
+set splitbelow
 
 colorscheme desert
 syntax on
 highlight Normal ctermbg=none
 filetype plugin indent on
-
-set splitright 
-set splitbelow
-
-nmap <Esc><Esc> :nohlsearch<CR><Esc>
 
 augroup fileTypeIndent
     autocmd!
