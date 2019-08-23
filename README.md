@@ -37,6 +37,13 @@ If the option `-nox` is added when executing `setup.sh`, `.vimrc` without plug-i
 
 ## Setup Applications
 
+### Zsh
+
+Recommended to use Z Shell as a login shell.
+```
+chsh -s $(which zsh)
+```
+
 ### Homebrew
 
 The missing package manager for macOS (or Linux). https://brew.sh/
