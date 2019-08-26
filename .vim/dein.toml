@@ -40,7 +40,9 @@ repo = 'itchyny/lightline.vim'
 
 [[plugins]] 
 repo = 'Yggdroot/indentLine'
-hook_add = 'set conceallevel=0'
+hook_add = '''
+set conceallevel=0
+'''
 
 [[plugins]] 
 repo = 'airblade/vim-gitgutter'
@@ -133,6 +135,10 @@ hook_add = 'let g:go_def_mapping_enabled = 0'
 [[plugins]]
 repo = 'cespare/vim-toml'
 on_of = 'toml'
+
+[[plugins]]
+repo = 'elzr/vim-json'
+hook_add = 'let g:vim_json_syntax_conceal = 0'
 
 [[plugins]] 
 repo = 'mattn/emmet-vim'
