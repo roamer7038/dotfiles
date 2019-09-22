@@ -178,7 +178,7 @@ bindsym $mod+Shift+w exec "feh --randomize --bg-fill ~/.wallpaper/*"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l exec --no-startup-id light-locker-command -l && sleep 1, mode "default"
+    bindsym l exec --no-startup-id dm-tool lock && sleep 1, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
     bindsym s exec --no-startup-id systemctl suspend, mode "default"
     bindsym h exec --no-startup-id systemctl hibernate, mode "default"
@@ -311,7 +311,6 @@ exec --no-startup-id sh ~/.fehbg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id volumeicon
-exec --no-startup-id light-locker --late-locking
 exec --no-startup-id thunar --daemon
 
 # Window
