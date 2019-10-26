@@ -176,9 +176,10 @@ bindsym $mod+Shift+w exec "feh --randomize --bg-fill ~/.wallpaper/*"
 # custom i3 out of X sesssion menu
 # bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit' -b 'Lock' 'dm-tool lock && sleep 1'"
 
+set $screen_lock /usr/bin/i3lock-fancy-rapid 5 3 || i3lock -c 000000 || light-locker-command -l || dm-tool lock
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l exec --no-startup-id light-locker-command -l && sleep 1, mode "default"
+    bindsym l exec --no-startup-id xset dpms force suspend && $screen_lock && sleep 1, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
     bindsym s exec --no-startup-id systemctl suspend, mode "default"
     bindsym h exec --no-startup-id systemctl hibernate, mode "default"
@@ -322,6 +323,3 @@ hide_edge_borders smart
 # Mouse Settings
 mouse_warping none
 
-# dislay settings
-# exec shell_script of external file
-# exec --no-startup-id $HOME/.config/i3/monitor.sh
