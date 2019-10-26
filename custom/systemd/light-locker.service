@@ -1,0 +1,13 @@
+# /etc/systemd/user/light-locker.service
+
+[Unit]
+Description=Light-Locker daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/light-locker --late-locking 
+Environment=DISPLAY=:0;XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0
+Restart=always
+
+[Install]
+WantedBy=default.target
