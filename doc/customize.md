@@ -33,6 +33,13 @@ add Mod4 = Super_R
 xset r rate 300 30
 ```
 
+### 自動画面オフの時間を変更する
+
+```
+xset s 300 300 # 5分
+xset dpms 300 300
+```
+
 ### ThinkPadのタッチパッドを無効にする
 ```
 synclient TouchpadOff=1
