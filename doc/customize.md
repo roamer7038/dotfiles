@@ -62,3 +62,5 @@ exec --no-startup-id $HOME/.config/i3/monitor.sh
 ```
 xrandr --output DP-0 --primary --auto --output DVI-D-0 --auto --right-of DP-0
 ```
+
+一部環境でi3からの起動で不具合が生じる．その場合，xprofileからmonitor.shを読み込ませる．

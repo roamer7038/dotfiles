@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Where this script is running
 PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
@@ -9,11 +9,11 @@ for file in ${DOTFILES[@]}; do
   ln -s $PWD/$file $HOME/$file
 done
 
-# Vim's config
-# With option the "-nox", the ".vim.nox" is duplicated.
+# Vim's config, no plugins option
+# With option the "-n", the ".vim.nox" is duplicated.
 # By default, the ".vim" directory is created and the files are duplicated.
-getopts "nox" opts
-if [ $opts = "nox" ]; then
+getopts "n" opts
+if [ $opts = "n" ]; then
   ln -sf $PWD/.vimrc.nox ~/.vimrc
   exit 0
 else
@@ -30,19 +30,23 @@ case ${OSTYPE} in
     ;;
   linux*)
     # X Window System's config
-    XCONFIG=(.Xmodmap .xprofile .compton.conf)
-    for file in ${XCONFIG[@]}; do
-      ln -s $PWD/$file $HOME/$file
-    done
+    if type "xset" > /dev/null 2>&1; then
+      XCONFIG=(.Xmodmap .xprofile .compton.conf)
+      for file in ${XCONFIG[@]}; do
+        ln -s $PWD/$file $HOME/$file
+      done
+    fi
 
     # Application's config
-    mkdir -p $HOME/.config
-    APPCONFDIR=(i3 i3status terminator alacritty dunst)
-    for dir in ${APPCONFDIR[@]}; do
-      mkdir -p $HOME/.config/$dir
-      APPCONF=($(ls $PWD/.config/$dir))
-      for file in ${APPCONF[@]}; do
-        ln -sf $PWD/.config/$dir/$file $HOME/.config/$dir/$file
+    if type "i3" > /dev/null 2>&1; then
+      mkdir -p $HOME/.config
+      APPCONFDIR=(i3 i3status terminator alacritty dunst)
+      for dir in ${APPCONFDIR[@]}; do
+        mkdir -p $HOME/.config/$dir
+        APPCONF=($(ls $PWD/.config/$dir))
+        for file in ${APPCONF[@]}; do
+          ln -sf $PWD/.config/$dir/$file $HOME/.config/$dir/$file
+        done
       done
-    done
+    fi
 esac

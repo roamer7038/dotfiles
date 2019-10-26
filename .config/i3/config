@@ -323,3 +323,6 @@ hide_edge_borders smart
 # Mouse Settings
 mouse_warping none
 
+# Minecraft Japanese Input (required: zenity xclip xdotool)
+bindsym $mod+t exec "~/.config/i3/minecraft-input.sh"
+
