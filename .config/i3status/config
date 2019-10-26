@@ -25,6 +25,7 @@ order += "wireless _first_"
 order += "ethernet _first_"
 order += "run_watch VPNC"
 order += "cpu_usage"
+order += "cpu_temperature 0"
 order += "disk /"
 order += "battery all"
 order += "tztime local"
@@ -83,3 +84,9 @@ run_watch VPNC {
   pidfile = "/var/run/vpnc/pid"
   format_down=""
 }
+
+cpu_temperature 0 {
+  format = "  %degrees ° C"
+    path = "/sys/class/hwmon/hwmon0/temp1_input"
+}
+
