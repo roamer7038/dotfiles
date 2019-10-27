@@ -1,0 +1,12 @@
+[Unit]
+Description=Lock the screen automatically after a timeout
+
+[Service]
+Type=simple
+User=roki
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/xss-lock /usr/bin/i3lock-fancy-rapid 5 3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
