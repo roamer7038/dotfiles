@@ -10,8 +10,13 @@ greeterと呼ばれるアドオンを使用して，画面ロック機能のカ�
 個人での利用範囲であれば，自動ログインを有効にして別のロッカーソフトウエアを自動起動させることで，併用が可能．
 その場合は`/etc/lightdm/lightdm.conf`の以下の項目を有効にする．
 ```
-autologin-user=roki
-autologin-session=i3
+autologin-user=username
+autologin-session=session
+```
+またパスワードを入力しないで自動でログインするためにはユーザが`autologin`グループに入っている必要がある．
+```
+groupadd -r autologin
+gpasswd -a username autologin
 ```
 
 ### Light-Locker
