@@ -3,7 +3,7 @@ Description=Lock the screen on resume from suspend
 Before=sleep.target suspend.target
 
 [Service]
-User=roki
+User=USERNAME
 Type=forking
 Environment=DISPLAY=:0
 

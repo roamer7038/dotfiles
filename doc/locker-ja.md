@@ -16,7 +16,7 @@ autologin-session=session
 またパスワードを入力しないで自動でログインするためにはユーザが`autologin`グループに入っている必要がある．
 ```
 groupadd -r autologin
-gpasswd -a username autologin
+usermod -aG autologin username
 ```
 
 ### Light-Locker

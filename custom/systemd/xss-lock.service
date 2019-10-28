@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=roki
+User=USERNAME
 Environment=DISPLAY=:0
 ExecStart=/usr/bin/xss-lock /usr/bin/i3lock-fancy-rapid 5 3
 Restart=always

@@ -1,5 +1,5 @@
 if type "i3lock" > /dev/null 2>&1; then
-  /usr/bin/i3lock -i /home/roki/.wallpaper/screenlock.png -c 000000
+  /usr/bin/i3lock -i $HOME/.wallpaper/screenlock.png -c 000000
 fi
 
 if type "synclient" > /dev/null 2>&1; then
