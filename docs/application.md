@@ -1,6 +1,17 @@
 # Additional Application Setup
 
-### Yay
+### Homebrew
+
+The missing package manager for macOS (or Linux). https://brew.sh/
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+```
+or
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+## Yay
 
 An AUR Helper.
 ```
@@ -9,11 +20,11 @@ cd yay
 makepkg -si
 ```
 
-### anyenv
+## anyenv
 
 All in one for \*\*env https://anyenv.github.io
 
-#### Install
+### Install
 
 Manual git checkout:
 ```
@@ -33,7 +44,7 @@ yay -S anyenv
 anyenv init
 ```
 
-#### env install
+### env install
 
 example:
 ```
@@ -42,18 +53,18 @@ exec $SHELL -l
 nodenv install ...
 ```
 
-#### env update
+### env update
 
 ```
 anyenv install --init https://github.com/foo/anyenv-install.git
 anyenv install --update
 ```
 
-### ranger
+## ranger
 
 ranger is a text-based file manager written in Python.
 
-#### PDF preview
+### PDF preview
 Edit the `~/.config/ranger/rc.conf`
 ```
 # Use one of the supported image preview protocols

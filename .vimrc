@@ -85,6 +85,10 @@ augroup fileTypeIndent
   autocmd BufNewFile,BufRead *.css setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
 
+augroup fileTypeExtensions
+  autocmd BufRead,BufNewFile,BufReadPre *.ts set filetype=typescript
+augroup END
+
 augroup closeTags
   autocmd!
   autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
