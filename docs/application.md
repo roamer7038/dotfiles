@@ -1,4 +1,4 @@
-# Application Setup
+# Additional Application Setup
 
 ### Yay
 
@@ -73,8 +73,3 @@ fi
 
 To use it, you need to install `w3m` and` poppler`.
 
-### Screen Locker
-
-Set up an application to lock the session.
-
-more: [ja](./locker-ja.md)
