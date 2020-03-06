@@ -1,5 +1,23 @@
+[core]
+  filemode = false
+  editor = vim
+
 [user]
 	name = roamer7038
 	email = okayado7038@gmail.com
+
 [color]
-    ui = true
+  ui = true
+
+[merge]
+  tool = vimdiff
+
+[alias]
+  st = status
+  co = commit
+  br = branch
+  sw = switch
+  ch = checkout
+
+[credential]
+  helper = cache --timeout 86400
