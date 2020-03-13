@@ -108,19 +108,19 @@ case ${OSTYPE} in
   ;;
 esac
 
-[[ -d ~/.local/bin ]] && \
+[ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
 
-[[ executable('go') ]] && \
+[ type go > /dev/null 2>&1 ] && \
   export GOPATH=$HOME/.go && \
   export GOBIN=$GOPATH/bin && \
   export PATH=$PATH:$GOBIN
 
-[[ -d ~/.anyenv ]] && \
+[ -d ~/.anyenv ] && \
   export PATH=$HOME/.anyenv/bin:$PATH && \
   eval "$(anyenv init -)"
 
-[[ -d ~/.yarn ]] && \
+[ -d ~/.yarn ] && \
   export PATH="$HOME/.yarn/bin:$PATH"
 
 [ -n "$RANGER_LEVEL" ] && \

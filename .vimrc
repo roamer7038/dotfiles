@@ -1,27 +1,35 @@
 "----------------------------------------------------------
-" プラグイン管理
+" プラグイン管理（Vim8以降に依存する）
 "----------------------------------------------------------
 
-let s:dein_dir = expand('~/.vim/dein')
-let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+if v:version >= 800 && executable('make') && executable('yarn')
+  let s:dein_dir = expand('~/.vim/dein')
+  let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 
-if !isdirectory(s:dein_repo_dir)
-  execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
-endif
+  if !isdirectory(s:dein_repo_dir)
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+  endif
 
-execute 'set runtimepath^=' . s:dein_repo_dir
+  execute 'set runtimepath^=' . s:dein_repo_dir
 
-if dein#load_state(s:dein_dir)
-  call dein#begin(s:dein_dir)
+  if dein#load_state(s:dein_dir)
+    call dein#begin(s:dein_dir)
 
-  call dein#load_toml('~/.vim/dein.toml')
+    call dein#load_toml('~/.vim/dein.toml')
 
-  call dein#end()
-  call dein#save_state()
-endif
+    call dein#end()
+    call dein#save_state()
+  endif
 
-if dein#check_install()
-  call dein#install()
+  if dein#check_install()
+    call dein#install()
+  endif
+
+  set breakindent
+  colorscheme molokai
+
+else
+  colorscheme slate
 endif
 
 "----------------------------------------------------------
@@ -64,7 +72,6 @@ set nofoldenable
 set splitright 
 set splitbelow
 
-colorscheme molokai
 filetype plugin indent on
 syntax on
 highlight Normal ctermbg=none
