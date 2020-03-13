@@ -111,7 +111,7 @@ esac
 [ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
 
-[ type go > /dev/null 2>&1 ] && \
+type go > /dev/null 2>&1 && \
   export GOPATH=$HOME/.go && \
   export GOBIN=$GOPATH/bin && \
   export PATH=$PATH:$GOBIN
