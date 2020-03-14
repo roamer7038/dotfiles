@@ -77,7 +77,8 @@ alias sudo='sudo '
 alias -g L='| less'
 alias -g G='| grep'
 
-alias ssht='(){ssh -t $1 "tmux -u a || tmux -u new-session"}'
+function ssht { ssh -t $1 "tmux -u a || tmux -u new-session" }
+compdef _ssh_hosts ssht
 
 bindkey "^[[Z" reverse-menu-complete
 
