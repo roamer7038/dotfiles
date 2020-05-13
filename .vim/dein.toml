@@ -83,7 +83,8 @@ inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
 
 [[plugins]] 
 repo = 'neoclide/coc.nvim'
-build = 'yarn install --frozen-lockfile'
+merged = 0
+rev = 'release'
 hook_add = '''
 function! s:check_back_space() abort
   let col = col('.') - 1
