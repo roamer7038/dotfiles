@@ -309,7 +309,7 @@ bindsym Mod1+r exec "xset r rate 300 30; xmodmap ~/.Xmodmap"
 # exec autostart
 exec --no-startup-id xmodmap $HOME/.Xmodmap
 exec --no-startup-id fcitx
-exec --no-startup-id compton -b
+exec --no-startup-id picom -b --no-use-damage --config ~/.picom.conf
 exec --no-startup-id sh ~/.fehbg
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
