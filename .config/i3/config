@@ -112,28 +112,28 @@ bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
 # custom workspaced
-set $ws1  "11: "
-set $ws2  "12: "
-set $ws3  "13: "
-set $ws4  "14: "
-set $ws5  "15: " 
-set $ws6  "16: "
-set $ws7  "17: "
-set $ws8  "18: "
-set $ws9  "19: "
-set $ws10 "20: "
+# set $ws1  "11: "
+# set $ws2  "12: "
+# set $ws3  "13: "
+# set $ws4  "14: "
+# set $ws5  "15: " 
+# set $ws6  "16: "
+# set $ws7  "17: "
+# set $ws8  "18: "
+# set $ws9  "19: "
+# set $ws10 "20: "
 
 # workspaces from 11-20
-bindsym Mod1+1 workspace $ws1
-bindsym Mod1+2 workspace $ws2
-bindsym Mod1+3 workspace $ws3
-bindsym Mod1+4 workspace $ws4
-bindsym Mod1+5 workspace $ws5
-bindsym Mod1+6 workspace $ws6
-bindsym Mod1+7 workspace $ws7
-bindsym Mod1+8 workspace $ws8
-bindsym Mod1+9 workspace $ws9
-bindsym Mod1+0 workspace $ws10
+# bindsym Mod1+1 workspace $ws1
+# bindsym Mod1+2 workspace $ws2
+# bindsym Mod1+3 workspace $ws3
+# bindsym Mod1+4 workspace $ws4
+# bindsym Mod1+5 workspace $ws5
+# bindsym Mod1+6 workspace $ws6
+# bindsym Mod1+7 workspace $ws7
+# bindsym Mod1+8 workspace $ws8
+# bindsym Mod1+9 workspace $ws9
+# bindsym Mod1+0 workspace $ws10
 
 bindsym $mod+Ctrl+Right workspace next
 bindsym $mod+Ctrl+l workspace next
@@ -153,16 +153,16 @@ bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 # move focused container to workspace
-bindsym Mod1+Shift+1 move container to workspace $ws1
-bindsym Mod1+Shift+2 move container to workspace $ws2
-bindsym Mod1+Shift+3 move container to workspace $ws3
-bindsym Mod1+Shift+4 move container to workspace $ws4
-bindsym Mod1+Shift+5 move container to workspace $ws5
-bindsym Mod1+Shift+6 move container to workspace $ws6
-bindsym Mod1+Shift+7 move container to workspace $ws7
-bindsym Mod1+Shift+8 move container to workspace $ws8
-bindsym Mod1+Shift+9 move container to workspace $ws9
-bindsym Mod1+Shift+0 move container to workspace $ws10
+# bindsym Mod1+Shift+1 move container to workspace $ws1
+# bindsym Mod1+Shift+2 move container to workspace $ws2
+# bindsym Mod1+Shift+3 move container to workspace $ws3
+# bindsym Mod1+Shift+4 move container to workspace $ws4
+# bindsym Mod1+Shift+5 move container to workspace $ws5
+# bindsym Mod1+Shift+6 move container to workspace $ws6
+# bindsym Mod1+Shift+7 move container to workspace $ws7
+# bindsym Mod1+Shift+8 move container to workspace $ws8
+# bindsym Mod1+Shift+9 move container to workspace $ws9
+# bindsym Mod1+Shift+0 move container to workspace $ws10
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
