@@ -287,9 +287,9 @@ bar {
 bindsym Ctrl+Print exec import -window root ~/Pictures/$(date +%F_%H%M%S_%N).png
 bindsym --release Shift+Print exec import ~/Pictures/$(date +%F_%H%M%S_%N).png
 
-# Brightness Ctrl
-bindsym XF86MonBrightnessDown exec "xbacklight -dec 5"
-bindsym XF86MonBrightnessUp exec "xbacklight -inc 5"
+# Brightness Ctrl (Add the user to the 'video' group.)
+bindsym XF86MonBrightnessDown exec light -U 5 || xbacklight -dec 5
+bindsym XF86MonBrightnessUp exec light -A 5 || xbacklight -inc 5
 
 ## Sound control
 # Pulse Audio controls
