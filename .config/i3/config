@@ -177,7 +177,7 @@ bindsym $mod+Shift+w exec "sh ~/.fehbg"
 # custom i3 out of X sesssion menu
 # bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit' -b 'Lock' 'dm-tool lock && sleep 1'"
 
-set $screen_lock /usr/bin/i3lock-fancy-rapid 5 3 || i3lock -c 000000 || light-locker-command -l || dm-tool lock
+set $screen_lock i3lock -n -i .wallpaper/screenlock.png -c 000000 || light-locker-command -l || dm-tool lock
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $screen_lock && sleep 1, mode "default"
