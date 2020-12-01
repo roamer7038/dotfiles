@@ -1,0 +1,9 @@
+[Unit]
+Description=Change wallpaper
+
+[Service]
+Type=oneshot
+ExecStart=/home/user/.fehbg
+
+[Install]
+WantedBy = multi-user.target

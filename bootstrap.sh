@@ -31,7 +31,7 @@ case ${OSTYPE} in
   linux*)
     # X Window System's config
     if type "xset" > /dev/null 2>&1; then
-      XCONFIG=(.Xmodmap .xprofile .compton.conf .picom.conf)
+      XCONFIG=(.Xmodmap .xprofile .picom.conf)
       for file in ${XCONFIG[@]}; do
         ln -s $PWD/$file $HOME/$file
       done
