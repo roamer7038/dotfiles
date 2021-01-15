@@ -1,0 +1,20 @@
+#!/bin/sh
+
+IPTABLES=`which iptables`
+
+$IPTABLES -F
+$IPTABLES -X
+$IPTABLES -t nat -F
+$IPTABLES -t nat -X
+$IPTABLES -t mangle -F
+$IPTABLES -t mangle -X
+
+$IPTABLES -P INPUT DROP
+$IPTABLES -P FORWARD DROP
+$IPTABLES -P OUTPUT ACCEPT
+
+$IPTABLES -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+$IPTABLES -A INPUT -m conntrack --ctstate INVALID -j DROP
+
+$IPTABLES -A INPUT -i lo -j ACCEPT
+$IPTABLES -A INPUT -p icmp -j ACCEPT

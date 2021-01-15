@@ -177,7 +177,7 @@ bindsym $mod+Shift+w exec "sh ~/.fehbg"
 # custom i3 out of X sesssion menu
 # bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit' -b 'Lock' 'dm-tool lock && sleep 1'"
 
-set $screen_lock i3lock -n -i .wallpaper/screenlock.png -c 000000 || light-locker-command -l || dm-tool lock
+set $screen_lock i3lock -n -i ~/.wallpaper/screenlock.png -c 000000 || light-locker-command -l || dm-tool lock
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $screen_lock && sleep 1, mode "default"
@@ -303,9 +303,6 @@ bindsym $mod+Shift+o move scratchpad
 # Show the first scratchpad window
 bindsym $mod+o scratchpad show
 
-# Reload Keyboard Settings
-bindsym Mod1+r exec "xset r rate 300 30; xmodmap ~/.Xmodmap"
-
 # exec autostart
 exec --no-startup-id xmodmap $HOME/.Xmodmap
 exec --no-startup-id fcitx
@@ -315,6 +312,11 @@ exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id volumeicon
 exec --no-startup-id thunar --daemon
+exec --no-startup-id i3lock -n -i ~/.wallpaper/screenlock.png -c 000000
+exec --no-startup-id xset r rate 300 30; xset s 300 300; xset dpms 300 300 300
+
+# exec --no-startup-id synclient TouchpadOff=1
+# exec --no-startup-id nvidia-settings -a "[gpu:0]/GPUFanControlState=1" -a "[fan:0]/GPUTargetFanSpeed=1"
 
 # Window
 for_window [class="[.]*"] border pixel 3 
@@ -326,5 +328,5 @@ hide_edge_borders smart
 mouse_warping none
 
 # Minecraft Japanese Input (required: zenity xclip xdotool)
-bindsym $mod+t exec "~/.config/i3/minecraft-input.sh"
+bindsym $mod+t exec "~/dotfiles/bin/minecraft-input.sh"
 
