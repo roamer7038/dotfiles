@@ -2,7 +2,7 @@
 
 set -xue
 
-PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
+PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); cd ../; pwd)
 
 #==============
 # Basic dotfiles
@@ -39,9 +39,9 @@ if [ $opts = "a" ]; then
   APPCONFDIR=(terminator dunst)
   for dir in ${APPCONFDIR[@]}; do
     mkdir -p $HOME/.config/$dir
-    APPCONFIG=($(ls $PWD/.config/$dir))
+    APPCONFIG=($(ls $PWD/etc/$dir))
     for file in ${APPCONFIG[@]}; do
-      ln -sf $PWD/.config/$dir/$file $HOME/.config/$dir/$file
+      ln -sf $PWD/etc/$dir/$file $HOME/.config/$dir/$file
     done
   done
 fi
