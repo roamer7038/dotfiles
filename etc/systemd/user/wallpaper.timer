@@ -1,8 +1,0 @@
-[Unit]
-Description=Change wallpaper
-
-[Timer]
-OnCalendar=*:00:00,30
-
-[Install]
-WantedBy=timers.target

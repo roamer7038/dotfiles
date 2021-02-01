@@ -15,8 +15,8 @@
 # If the above line is not correctly displayed, fix your editor first!
 
 general {
-    colors = true 
-    interval = 5
+  colors = true 
+  interval = 5
 }
 
 order += "ipv6"
@@ -57,7 +57,7 @@ cpu_usage {
 
 cpu_temperature 0 {
   format = " %degrees ° C"
-  path = "/sys/class/hwmon/hwmon0/temp1_input"
+  path = "/sys/class/thermal/thermal_zone0/temp"
 }
 
 memory {
@@ -88,5 +88,5 @@ tztime local {
 volume master {
 	format = " %volume"
 	format_muted = "[ %volume]"
-	device = "pulse:0"
+	device = "pulse"
 }

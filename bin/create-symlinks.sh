@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xue
+set -xe
 
 PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); cd ../; pwd)
 
