@@ -2,3 +2,7 @@ export DefaultIMModule=fcitx
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
+
+export QT_SCALE_FACTOR=1.5
+export GDK_SCALE=1.5
+export ELM_SCALE=1.5
