@@ -117,7 +117,7 @@ type go > /dev/null 2>&1 && \
   export GOBIN=$GOPATH/bin && \
   export PATH=$PATH:$GOBIN
 
-[ -d ~/.anyenv ] && \
+[ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
   export PATH=$HOME/.anyenv/bin:$PATH && \
   eval "$(anyenv init -)"
 
