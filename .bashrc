@@ -41,8 +41,6 @@ case ${OSTYPE} in
     alias egrep='egrep --color=auto'
     alias open='xdg-open'
     alias C='xsel --input --clipboard'
-    stty start undef
-    stty stop undef
   ;;
 esac
 
