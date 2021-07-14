@@ -3,45 +3,77 @@
 set -xe
 
 PWD=$(cd $(dirname ${BASH_SOURCE:-$0}); cd ../; pwd)
+I3WM=()
 
-#==============
-# Basic dotfiles
-#==============
-DOTFILES=(.bashrc .zshrc .tmux.conf .vimrc .gitconfig .latexmkrc)
-for file in ${DOTFILES[@]}; do
-  ln -sf $PWD/$file $HOME/$file
+function usage {
+  cat <<EOM
+Usage: $(basename "$0") [OPTION]...
+  -h          Display help.
+  -a          Create symlinks for i3wm configs (use with -c).
+  -c          Create symlinks for gui app configs.
+  -d          Create symlinks for basic dotfiles.
+  -v          Create symlinks for vim configs.
+  -x          Create symlinks for x11 configs.
+EOM
+  exit 2
+}
+
+while getopts "acdvxh" OPT
+do
+  case $OPT in
+    a) 
+      #==============
+      # i3 window manager
+      #==============
+      I3WM=(i3 i3status)
+      ;;
+    c)
+      #==============
+      # GUI Application Configs
+      #==============
+      APPCONFDIR=(terminator dunst ${I3WM[@]})
+      for dir in ${APPCONFDIR[@]}; do
+        mkdir -p $HOME/.config/$dir
+        CONF=($(ls $PWD/config/$dir))
+        for file in ${CONF[@]}; do
+          ln -sf $PWD/config/$dir/$file $HOME/.config/$dir/$file
+        done
+      done
+      ;;
+    d)
+      #==============
+      # Minimum dotfiles
+      #==============
+      DOTFILES=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
+      for file in ${DOTFILES[@]}; do
+        ln -sf $PWD/$file $HOME/$file
+      done
+      ;;
+    v)
+      #==============
+      # Vim
+      #==============
+      VIMCONF=($(ls $PWD/.vim))
+      ln -sf $PWD/.vimrc $HOME/.vimrc
+      mkdir -p $HOME/.vim
+      for file in ${VIMCONF[@]}; do
+        ln -sf $PWD/.vim/$file $HOME/.vim/$file
+      done
+      ;;
+    x)
+      #==============
+      # X Window System
+      #==============
+      XCONF=(.Xmodmap .xprofile .picom.conf)
+      for file in ${XCONF[@]}; do
+        ln -sf $PWD/$file $HOME/$file
+      done
+      ;;
+    h)
+      usage
+      ;;
+    /?)
+      usage
+      ;;
+  esac
 done
-
-#==============
-# Vim
-#==============
-VIMCONF=($(ls $PWD/.vim))
-mkdir -p $HOME/.vim
-for file in ${VIMCONF[@]}; do
-  ln -sf $PWD/.vim/$file $HOME/.vim/$file
-done
-
-#==============
-# X Window System
-#==============
-if type "xset" > /dev/null 2>&1; then
-  XCONFIG=(.Xmodmap .xprofile .picom.conf)
-  for file in ${XCONFIG[@]}; do
-    ln -sf $PWD/$file $HOME/$file
-  done
-fi
-
-#==============
-# Application Configs
-#==============
-getopts "a" opts
-if [ $opts = "a" ]; then
-  APPCONFDIR=(terminator dunst)
-  for dir in ${APPCONFDIR[@]}; do
-    mkdir -p $HOME/.config/$dir
-    APPCONFIG=($(ls $PWD/etc/$dir))
-    for file in ${APPCONFIG[@]}; do
-      ln -sf $PWD/etc/$dir/$file $HOME/.config/$dir/$file
-    done
-  done
-fi

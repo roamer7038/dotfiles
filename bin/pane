@@ -2,7 +2,6 @@
 #
 # Pane Splitter for TMUX @rksz
 #
-#########################################
 
 usage() {
     CMDNAME=`basename $0`

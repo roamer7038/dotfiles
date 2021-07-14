@@ -1,44 +1,30 @@
 # dotfiles
 
-This repository manages and provides various configuration files. For example, `bash`,` zsh`, `vim`,` tmux`, and `git`, etc.... In addition, it holds configuration files managed by text, including GUI applications.
+roamer7038's dotfiles.
 
-## Setup Dotfiles
+## Installation
 
-If `bootstrap.sh` is executed, symbolic links of various setup files are created.
-First, clone this repository in your home directory.
+
+minimum setup (ex. server):
+
 ```
-git clone https://github.com/roamer7038/dotfiles.git
-cd dotfiles/
-./bootstrap.sh
+make
 ```
 
-If the option `-n` is added when executing `bootstrap.sh`, `.vimrc` without plug-in is copied.
-When run without any options, a `.vimrc` with the plugin will be placed.
-Automatic installation of plug-ins starts as soon as you start Vim. At that time, the following commands are required.
+i3wm + vim (`nodejs`, `yarn` are required):
 
-* make
-* go (Only the translation plugin depends.)
-* nodejs
-* yarn (nodejs package manager)
+```
+make i3
+make develop
+```
 
-If you are a Golang user, execute the following command `:GoInstallBinaries` after starting Vim.
-
-## Setup additionally
-
-### Git config
+### Git
 
 Edit `.gitconfig` and change it to your username and Email.
 ```
 [user]
 	name = username
 	email = your@example.com
-```
-
-### Login shell 
-
-Recommended to use Z Shell as a login shell.
-```
-chsh -s $(which zsh)
 ```
 
 ### SSH public key authentication
