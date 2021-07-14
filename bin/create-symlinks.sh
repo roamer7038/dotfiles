@@ -46,6 +46,9 @@ do
       #==============
       DOTFILES=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
       for file in ${DOTFILES[@]}; do
+        if [ "$file" = ".bashrc" ] && [ -e $HOME/.bashrc ]; then
+          continue
+        fi
         ln -sf $PWD/$file $HOME/$file
       done
       ;;
