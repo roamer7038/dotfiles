@@ -31,7 +31,7 @@ do
       #==============
       # GUI Application Configs
       #==============
-      APPCONFDIR=(terminator dunst ${I3WM[@]})
+      APPCONFDIR=(terminator dunst ranger ${I3WM[@]})
       for dir in ${APPCONFDIR[@]}; do
         mkdir -p $HOME/.config/$dir
         CONF=($(ls $PWD/config/$dir))
