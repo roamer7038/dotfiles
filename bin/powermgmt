@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# Screen Saver: 
-# timeout, cycle
-xset s 300 300
-
-# DPMS
-# Standby, Suspend, Off
-xset dpms 300 300 300

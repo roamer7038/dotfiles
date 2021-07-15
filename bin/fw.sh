@@ -18,3 +18,15 @@ $IPTABLES -A INPUT -m conntrack --ctstate INVALID -j DROP
 
 $IPTABLES -A INPUT -i lo -j ACCEPT
 $IPTABLES -A INPUT -p icmp -j ACCEPT
+
+# Example: 
+# $IPTABLES -A INPUT -p tcp --dport 22 -j ACCEPT
+# $IPTABLES -A INPUT -s 192.168.1.0/24 -p tcp -j ACCEPT
+
+# Display the configuration in the console.
+$IPTABLES -L
+
+# Persistence of configuration
+# Arch Linux:
+# iptables-save > /etc/iptables/iptables.rules
+# systemctl enable --now iptables

@@ -1,7 +1,15 @@
 #!/bin/bash
 #
 # Multiple ssh @mikeda
+# Edited @roamer7038
 #
+
+if [ $# = 0 ]; then
+  echo "usage: $(basename "$0") <destination>"
+  echo "examples: $(basename "$0") 192.168.1.{1-4}"
+  echo "          $(basename "$0") 192.168.1.1 192.168.1.2"
+  exit 1
+fi
 
 if [ -n "$SESSION_NAME" ];then
   session=$SESSION_NAME

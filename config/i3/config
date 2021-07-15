@@ -301,5 +301,4 @@ exec --no-startup-id thunar --daemon
 # If you need a command to run also when restarting i3 you should use the exec_always keyword.
 # Executes scripts for environment variables and configuration.
 exec_always --no-startup-id sh ~/.fehbg
-exec_always --no-startup-id sh ./.kbdmgmt
-exec_always --no-startup-id sh ~/.powermgmt
+exec_always --no-startup-id sh ./.xinit.sh
