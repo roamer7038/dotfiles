@@ -101,10 +101,13 @@ inoremap <silent><expr> <TAB>
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
+nmap <silent> gl :<C-u>CocList<cr>
+nmap <silent> gy :<C-u>call CocAction('doHover')<cr>
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gt <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+nmap <silent> g=  <Plug>(coc-format)
 '''
 hook_post_update = '''
 call coc#add_extension('coc-lists', 'coc-prettier', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver')
@@ -155,6 +158,7 @@ repo = 'mattn/emmet-vim'
 [[plugins]] 
 repo = 'heavenshell/vim-jsdoc'
 on_ft = ['javascript', 'javascript.jsx', 'typescript']
+build = 'make install'
 
 [[plugins]] 
 repo = 'kannokanno/previm'
