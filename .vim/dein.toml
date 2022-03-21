@@ -107,32 +107,27 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gt <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-nmap <silent> g=  <Plug>(coc-format)
+nmap <silent> g= <Plug>(coc-format)
 '''
 hook_post_update = '''
-call coc#add_extension('coc-lists', 'coc-prettier', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver')
+call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-deno', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver')
+'''
+build = '''
+go install golang.org/x/tools/gopls@latest
+npm i -g bash-language-server
 '''
 
 [[plugins]] 
 repo = 'thinca/vim-quickrun'
 hook_add = '''
-let g:quickrun_config = {'_': {'hook/time/enable': '4', 'split': 'botright 8sp'}}
 let g:quickrun_config = get(g:, 'quickrun_config', {})
 let g:quickrun_config._ = {
-  \ 'runner'    : 'vimproc',
+  \ 'runner' : 'vimproc',
   \ 'runner/vimproc/updatetime' : 60,
-  \ 'outputter' : 'error',
-  \ 'outputter/error/success' : 'buffer',
-  \ 'outputter/error/error'   : 'quickfix',
-  \ 'outputter/buffer/split'  : ':rightbelow 8sp',
-  \ 'outputter/buffer/close_on_empty' : 1,
+  \ 'outputter/buffer/opener': 'new',
+  \ 'outputter/buffer/into': 1,
+  \ 'outputter/buffer/close_on_empty': 1,
   \ }
-
-au FileType qf nnoremap <silent><buffer>q :quit<CR>
-
-let g:quickrun_config.yarn = {'exec': 'yarn start'}
-let g:quickrun_config.es = {'exec': 'node --experimental-modules --es-module-specifier-resolution=node %s'}
-let g:quickrun_config.ts = {'exec': 'ts-node %s'}
 '''
 
 [[plugins]] 
@@ -167,9 +162,3 @@ on_ft = 'markdown'
 [[plugins]] 
 repo = 'tyru/open-browser.vim'
 on_ft = 'markdown' 
-
-[[plugins]] 
-repo = 'skanehira/translate.vim'
-build = 'go get github.com/skanehira/gtran'
-hook_add = 'noremap <silent><Leader>t :Translate<CR>'
-

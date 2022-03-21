@@ -3,6 +3,10 @@ export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 
+export GDK_SCALE=1
+export GDK_DPI_SCALE=1
+export QT_AUTO_SCREEN_SET_FACTOR=0
 export QT_SCALE_FACTOR=1.5
-export GDK_SCALE=1.5
-export ELM_SCALE=1.5
+export QT_FONT_DPI=96
+
+export LIBVA_DRIVER_NAME=iHD

@@ -117,6 +117,9 @@ type go > /dev/null 2>&1 && \
   export GOBIN=$GOPATH/bin && \
   export PATH=$PATH:$GOBIN
 
+type ruby > /dev/null 2>&1 && \
+  export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
+
 [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
   export PATH=$HOME/.anyenv/bin:$PATH && \
   eval "$(anyenv init -)"
