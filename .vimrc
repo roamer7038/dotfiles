@@ -94,6 +94,7 @@ augroup END
 
 augroup fileTypeExtensions
   autocmd BufRead,BufNewFile,BufReadPre *.ts set filetype=typescript
+  autocmd BufRead,BufNewFile,BufReadPre *.tsx set filetype=typescriptreact
 augroup END
 
 augroup closeTags

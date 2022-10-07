@@ -93,13 +93,20 @@ function! s:check_back_space() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-inoremap <silent><expr> <TAB>
-  \ pumvisible() ? "\<C-n>" :
-  \ <SID>check_back_space() ? "\<TAB>" :
-  \ coc#refresh()
+" autocomplete
+" inoremap <silent><expr> <C-j> coc#pum#visible() ? coc#pum#next(1) : "\<C-j>"
+" inoremap <silent><expr> <C-k> coc#pum#visible() ? coc#pum#prev(1) : "\<C-k>"
+inoremap <silent><expr> <Enter> coc#pum#visible() ? coc#pum#confirm() : "\<Enter>"
+" inoremap <silent><expr> <Esc> coc#pum#visible() ? coc#pum#cancel() : "\<Esc>"
+" inoremap <silent><expr> <C-h> coc#pum#visible() ? coc#pum#cancel() : "\<C-h>"
 
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" <Tab>で次、<S+Tab>で前
+inoremap <silent><expr> <TAB>
+  \ coc#pum#visible() ? coc#pum#next(1):
+  \ <SID>check_back_space() ? "\<Tab>" :
+  \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<S-TAB>" " "\<C-h>"
+inoremap <silent><expr> <c-space> coc#refresh()
 
 nmap <silent> gl :<C-u>CocList<cr>
 nmap <silent> gy :<C-u>call CocAction('doHover')<cr>
@@ -140,6 +147,10 @@ let g:go_fmt_command = "goimports"
 '''
 
 [[plugins]]
+repo = 'hashivim/vim-terraform'
+on_ft = ['terraform', 'terraform-vars']
+
+[[plugins]]
 repo = 'cespare/vim-toml'
 on_of = 'toml'
 
@@ -152,7 +163,7 @@ repo = 'mattn/emmet-vim'
 
 [[plugins]] 
 repo = 'heavenshell/vim-jsdoc'
-on_ft = ['javascript', 'javascript.jsx', 'typescript']
+on_ft = ['javascript', 'javascript.jsx', 'typescript', 'typescriptreact']
 build = 'make install'
 
 [[plugins]] 

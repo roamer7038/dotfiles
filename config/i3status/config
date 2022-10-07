@@ -37,12 +37,12 @@ ipv6 {
 }
 
 wireless _first_ {
-	format_up = " %ip (%essid)"
+	format_up = " %ip (%essid) %frequency %quality %bitrate"
   format_down = ""
 }
 
 ethernet _first_ {
-	format_up = " %ip"
+	format_up = " %ip %speed"
 	format_down = ""
 }
 
