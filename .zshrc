@@ -106,11 +106,18 @@ case ${OSTYPE} in
     stty start undef
     stty stop undef
     ttyctl -f
+    # keyboard layout for WSLg (require: x11-xkb-utils)
+    type setxkbmap > /dev/null 2>&1 && \
+      setxkbmap -layout us
   ;;
 esac
 
 [ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
+
+[ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
+  export PATH=$HOME/.anyenv/bin:$PATH && \
+  eval "$(anyenv init -)"
 
 type go > /dev/null 2>&1 && \
   export GOPATH=$HOME/.go && \
@@ -119,10 +126,6 @@ type go > /dev/null 2>&1 && \
 
 type ruby > /dev/null 2>&1 && \
   export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
-
-[ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
-  export PATH=$HOME/.anyenv/bin:$PATH && \
-  eval "$(anyenv init -)"
 
 [ -d ~/.yarn ] && \
   export PATH="$HOME/.yarn/bin:$PATH"

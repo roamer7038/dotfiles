@@ -69,6 +69,7 @@ repo = 'terryma/vim-multiple-cursors'
 
 [[plugins]] 
 repo = 'vim-scripts/fcitx.vim'
+if = 'filereadable("/usr/bin/fcitx")'
 
 [[plugins]] 
 repo = 'fuenor/im_control.vim'
