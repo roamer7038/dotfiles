@@ -36,10 +36,14 @@ nnoremap <silent><Leader>q :NERDTreeSteppedClose<CR>
 repo = 'tomasr/molokai'
 hook_add = '''
 let g:molokai_original = 1
-set background=dark
 augroup colorschemeSetting
   autocmd!
   autocmd VimEnter * ++nested colorscheme molokai
+	autocmd Colorscheme * highlight Normal ctermbg=none
+	autocmd Colorscheme * highlight NonText ctermbg=none
+	autocmd Colorscheme * highlight LineNr ctermbg=none
+	autocmd Colorscheme * highlight Folded ctermbg=none
+	autocmd Colorscheme * highlight EndOfBuffer ctermbg=none
 augroup END
 '''
 
