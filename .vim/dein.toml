@@ -34,6 +34,14 @@ nnoremap <silent><Leader>q :NERDTreeSteppedClose<CR>
 
 [[plugins]] 
 repo = 'tomasr/molokai'
+hook_add = '''
+let g:molokai_original = 1
+set background=dark
+augroup colorschemeSetting
+  autocmd!
+  autocmd VimEnter * ++nested colorscheme molokai
+augroup END
+'''
 
 [[plugins]] 
 repo = 'itchyny/lightline.vim'
