@@ -106,9 +106,13 @@ case ${OSTYPE} in
     stty start undef
     stty stop undef
     ttyctl -f
+
+    # WSL2
+    if [[ "$(uname -r)" == *microsoft* ]]; then
     # keyboard layout for WSLg (require: x11-xkb-utils)
-    type setxkbmap > /dev/null 2>&1 && \
-      setxkbmap -layout us
+      type setxkbmap > /dev/null 2>&1 && \
+        setxkbmap -layout us
+    fi
   ;;
 esac
 
