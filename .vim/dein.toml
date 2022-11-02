@@ -130,12 +130,15 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> g= <Plug>(coc-format)
 '''
 hook_post_update = '''
-call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-deno', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver')
+call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-deno', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-pyright')
 '''
 build = '''
+npm install -g bash-language-server
+npm install -g dockerfile-language-server-nodejs
 go install golang.org/x/tools/gopls@latest
-npm i -g bash-language-server
 '''
+# :CocInstall coc-clangd
+# :CocCommand clangd.install
 
 [[plugins]] 
 repo = 'thinca/vim-quickrun'
