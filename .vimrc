@@ -26,8 +26,6 @@ if v:version >= 800 && executable('make') && executable('yarn')
   endif
 
   set breakindent
-  colorscheme molokai
-
 else
   colorscheme slate
 endif
