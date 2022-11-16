@@ -1,22 +1,80 @@
 # dotfiles
 
-roamer7038's dotfiles.
+roamer7038's Linux Desktop/Server Environment Configuration.
+
+The following basic software is assumed.
+- Vim
+- Tmux
+- Zsh
+
+The desktop environment is i3wm.
 
 ## Installation
 
+Setup requires the `make` command.
+Generates a symbolic link to the configuration file in the home directory.
 
-minimum setup (ex. server):
+#### Minimum Setup
+
+Generates symbolic links to minimal configuration files.
+(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
 
 ```
-make
+make minimum
 ```
 
-i3wm + vim (`nodejs`, `yarn` are required):
+#### Basic Setup
+
+In addition to minimum setup, it generates symbolic links to additional application configuration files.
+To enable the vim plugin, `vim8` or later, `golang`, `nodejs`, `npm`, and `yarn` are required.
+(minimum + terminator, dunst, ranger, vim (+plugins))
 
 ```
-make i3
-make develop
+make basic
 ```
+
+#### Full Setup
+
+
+In addition to the basics setup, enable i3wm settings. (basic + i3wm)
+
+```
+make full
+```
+
+## Add Development Environment
+
+### anyenv
+
+Install additional programming language execution environments.
+[anyenv](https://github.com/anyenv/anyenv) can add multiple versions of multiple programming languages to your userland.
+
+```
+git clone https://github.com/anyenv/anyenv ~/.anyenv
+~/.anyenv/bin/anyenv init
+anyenv install --init
+```
+
+Add the execution path.
+
+```
+export PATH="$HOME/.anyenv/bin:$PATH"
+```
+
+...and more.
+
+```
+anyenv install rbenv
+anyenv install pyenv
+anyenv install nodenv
+exec $SHELL -l
+
+rbenv install ...
+pyenv install ...
+nodenv install ...
+```
+
+## Customize
 
 ### Git
 
