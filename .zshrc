@@ -1,4 +1,4 @@
-export LANG=ja_JP.UTF-8
+# export LANG=ja_JP.UTF-8
 export LSCOLORS=Exfxcxdxbxegedabagacad
 export LESS='-i -M -R -x4'
 export EDITOR=vim
@@ -119,10 +119,6 @@ esac
 [ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
 
-[ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
-  export PATH=$HOME/.anyenv/bin:$PATH && \
-  eval "$(anyenv init -)"
-
 type go > /dev/null 2>&1 && \
   export GOPATH=$HOME/.go && \
   export GOBIN=$GOPATH/bin && \
@@ -130,6 +126,13 @@ type go > /dev/null 2>&1 && \
 
 type ruby > /dev/null 2>&1 && \
   export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
+
+[ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
+  export PATH=$HOME/.anyenv/bin:$PATH && \
+  export GOENV_GOPATH_PREFIX=$HOME/.go && \
+  eval "$(anyenv init -)"
+  # type go > /dev/null 2>&1 && \
+  # export GOPATH=`echo $GOPATH | sed -e 's/go/.go/g'`
 
 [ -d ~/.yarn ] && \
   export PATH="$HOME/.yarn/bin:$PATH"

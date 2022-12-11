@@ -2,7 +2,7 @@
 " プラグイン管理（Vim8以降に依存する）
 "----------------------------------------------------------
 
-if v:version >= 800 && executable('make') && executable('yarn')
+if v:version >= 800 && executable('make') && executable('npm')
   let s:dein_dir = expand('~/.vim/dein')
   let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 

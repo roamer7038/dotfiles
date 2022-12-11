@@ -135,8 +135,9 @@ call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownl
 build = '''
 npm install -g bash-language-server
 npm install -g dockerfile-language-server-nodejs
-go install golang.org/x/tools/gopls@latest
 '''
+# go install golang.org/x/tools/gopls@latest
+#
 # :CocInstall coc-clangd
 # :CocCommand clangd.install
 
