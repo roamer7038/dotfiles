@@ -74,6 +74,9 @@ pyenv install ...
 nodenv install ...
 ```
 
+> rbenv requires the following packages:
+`apt install -y build-essential libssl-dev zlib1g-dev libyaml`
+
 ## Customize
 
 ### Git
