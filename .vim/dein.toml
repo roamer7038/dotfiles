@@ -90,6 +90,9 @@ let IM_CtrlMode = 6
 inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
 '''
 
+[[plugins]]
+repo = 'github/copilot.vim'
+
 #----------------------------------------------------
 # 言語支援系プラグイン
 #----------------------------------------------------
