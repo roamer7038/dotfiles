@@ -8,7 +8,7 @@ sudo apt update
 sudo apt remove vim vim-runtime gvim
 
 # Install dependencies
-sudo apt install git make build-essential unzip
+sudo apt install git make build-essential ncurses-dev unzip
 
 # Download vim source
 wget https://github.com/vim/vim/archive/master.zip
