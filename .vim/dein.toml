@@ -2,37 +2,41 @@
 # 動作支援系プラグイン
 #----------------------------------------------------
 
-[[plugins]] 
+[[plugins]]
 repo = 'Shougo/dein.vim'
 
-[[plugins]] 
+[[plugins]]
 repo = 'Shougo/vimproc.vim'
 build = 'make'
 
-[[plugins]] 
-repo = 'scrooloose/nerdtree'
+[[plugins]]
+repo = 'preservim/nerdtree'
 hook_add = '''
-let NERDTreeShowHidden = 1
-
+" KEYMAPを設定
 nnoremap sn gt
 nnoremap sp gT
-nnoremap st :<C-u>tabnew<CR>
-nnoremap sq :<C-u>q<CR>
+" nnoremap st :<C-u>tabnew<CR>
+" nnoremap sq :<C-u>q<CR>
 nnoremap sQ :<C-u>bd<CR>
-'''
+nnoremap <silent><Leader>e :NERDTreeFocus<CR>
+nnoremap <silent><Leader>q :NERDTreeClose<CR>
 
-[[plugins]]
-repo = 'jistr/vim-nerdtree-tabs'
-hook_add = '''
-nnoremap <silent><Leader>e :NERDTreeSteppedOpen<CR>
-nnoremap <silent><Leader>q :NERDTreeSteppedClose<CR>
+" NERDTreeが最後のウィンドウになったら自動で閉じる
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" バッファが置き換わらないようにする
+autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
+  \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
+
+" タブ間で同じNERDTreeを共有する
+autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
 '''
 
 #----------------------------------------------------
 # 視覚支援系プラグイン
 #----------------------------------------------------
 
-[[plugins]] 
+[[plugins]]
 repo = 'tomasr/molokai'
 hook_add = '''
 let g:molokai_original = 1
@@ -47,38 +51,49 @@ augroup colorschemeSetting
 augroup END
 '''
 
-[[plugins]] 
+[[plugins]]
 repo = 'itchyny/lightline.vim'
 
-[[plugins]] 
+[[plugins]]
 repo = 'Yggdroot/indentLine'
 hook_add = '''
-set conceallevel=0
+" set conceallevel=0
+let g:indentLine_faster = 1
+nmap <silent><Leader>i :<C-u>IndentLinesToggle<CR>
 '''
 
-[[plugins]] 
+[[plugins]]
+repo = 'bronson/vim-trailing-whitespace'
+
+[[plugins]]
 repo = 'airblade/vim-gitgutter'
 
-[[plugins]] 
+[[plugins]]
 repo = 'Xuyuanp/nerdtree-git-plugin'
 
 #----------------------------------------------------
 # 入力支援系プラグイン
 #----------------------------------------------------
 
-[[plugins]] 
+[[plugins]]
 repo = 'kentarosasaki/vim-emacs-bindings'
 
-[[plugins]] 
+[[plugins]]
 repo = 'tyru/caw.vim'
 hook_add = '''
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 '''
 
-[[plugins]] 
-repo = 'terryma/vim-multiple-cursors'
+# GitHubで要ログイン
+[[plugins]]
+repo = 'github/copilot.vim'
 
+# [[plugins]]
+# repo = 'terryma/vim-multiple-cursors'
+
+# Linux Desktopを利用している場合は以下のプラグインを有効にする
+#
 # [[plugins]]
 # repo = 'vim-scripts/fcitx.vim'
 # if = 'filereadable("/usr/bin/fcitx")'
@@ -90,14 +105,11 @@ repo = 'terryma/vim-multiple-cursors'
 # inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
 # '''
 
-[[plugins]]
-repo = 'github/copilot.vim'
-
 #----------------------------------------------------
 # 言語支援系プラグイン
 #----------------------------------------------------
 
-[[plugins]] 
+[[plugins]]
 repo = 'neoclide/coc.nvim'
 merged = 0
 rev = 'release'
@@ -108,13 +120,6 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
-
-" autocomplete
-" inoremap <silent><expr> <C-j> coc#pum#visible() ? coc#pum#next(1) : "\<C-j>"
-" inoremap <silent><expr> <C-k> coc#pum#visible() ? coc#pum#prev(1) : "\<C-k>"
-inoremap <silent><expr> <Enter> coc#pum#visible() ? coc#pum#confirm() : "\<Enter>"
-" inoremap <silent><expr> <Esc> coc#pum#visible() ? coc#pum#cancel() : "\<Esc>"
-" inoremap <silent><expr> <C-h> coc#pum#visible() ? coc#pum#cancel() : "\<C-h>"
 
 " <Tab>で次、<S+Tab>で前
 inoremap <silent><expr> <TAB>
@@ -133,7 +138,7 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> g= <Plug>(coc-format)
 '''
 hook_post_update = '''
-call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-deno', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-pyright')
+call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-pyright')
 '''
 build = '''
 npm install -g bash-language-server
@@ -144,7 +149,7 @@ npm install -g dockerfile-language-server-nodejs
 # :CocInstall coc-clangd
 # :CocCommand clangd.install
 
-[[plugins]] 
+[[plugins]]
 repo = 'thinca/vim-quickrun'
 hook_add = '''
 let g:quickrun_config = get(g:, 'quickrun_config', {})
@@ -155,12 +160,18 @@ let g:quickrun_config._ = {
   \ 'outputter/buffer/into': 1,
   \ 'outputter/buffer/close_on_empty': 1,
   \ }
-  
+
 nnoremap \r :cclose<CR>:write<CR>:QuickRun -mode n<CR>
 xnoremap \r :<C-U>cclose<CR>:write<CR>gv:QuickRun -mode v<CR>
 '''
 
-[[plugins]] 
+[[plugins]]
+repo = 'mattn/emmet-vim'
+
+# [[plugins]]
+# repo = 'sheerun/vim-polyglot'
+
+[[plugins]]
 repo = 'fatih/vim-go'
 on_ft = ['go']
 hook_add = '''
@@ -180,19 +191,17 @@ on_of = 'toml'
 [[plugins]]
 repo = 'elzr/vim-json'
 hook_add = 'let g:vim_json_syntax_conceal = 0'
+on_ft = 'json'
 
-[[plugins]] 
-repo = 'mattn/emmet-vim'
+#[[plugins]]
+#repo = 'heavenshell/vim-jsdoc'
+#on_ft = ['javascript', 'javascript.jsx', 'typescript', 'typescriptreact']
+#build = 'make install'
 
-[[plugins]] 
-repo = 'heavenshell/vim-jsdoc'
-on_ft = ['javascript', 'javascript.jsx', 'typescript', 'typescriptreact']
-build = 'make install'
-
-[[plugins]] 
+[[plugins]]
 repo = 'kannokanno/previm'
 on_ft = 'markdown'
 
-[[plugins]] 
+[[plugins]]
 repo = 'tyru/open-browser.vim'
-on_ft = 'markdown' 
+on_ft = 'markdown'
