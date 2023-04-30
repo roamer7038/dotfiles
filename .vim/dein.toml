@@ -79,16 +79,16 @@ vmap <Leader>c <Plug>(caw:hatpos:toggle)
 [[plugins]] 
 repo = 'terryma/vim-multiple-cursors'
 
-[[plugins]] 
-repo = 'vim-scripts/fcitx.vim'
-if = 'filereadable("/usr/bin/fcitx")'
-
-[[plugins]] 
-repo = 'fuenor/im_control.vim'
-hook_add = '''
-let IM_CtrlMode = 6
-inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
-'''
+# [[plugins]]
+# repo = 'vim-scripts/fcitx.vim'
+# if = 'filereadable("/usr/bin/fcitx")'
+#
+# [[plugins]]
+# repo = 'fuenor/im_control.vim'
+# hook_add = '''
+# let IM_CtrlMode = 6
+# inoremap <silent> <C-l> <C-r>=IMState('FixMode')<CR>
+# '''
 
 [[plugins]]
 repo = 'github/copilot.vim'
