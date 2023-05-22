@@ -24,6 +24,9 @@ nnoremap <silent><Leader>q :NERDTreeClose<CR>
 " NERDTreeが最後のウィンドウになったら自動で閉じる
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
+" NERDTreeのみの場合はタブを閉じる
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
 " タブ間で同じNERDTreeを共有する
 autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
 '''
@@ -134,14 +137,15 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> g= <Plug>(coc-format)
 '''
 hook_post_update = '''
-call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-clangd', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-pyright')
+call coc#add_extension('coc-lists', 'coc-prettier', 'coc-eslint', 'coc-markdownlint', 'coc-sh', 'coc-highlight', 'coc-yaml', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-pyright')
 '''
 build = '''
 npm install -g bash-language-server
 npm install -g dockerfile-language-server-nodejs
 '''
+# Goの補完が必要な場合は以下を実行
 # go install golang.org/x/tools/gopls@latest
-#
+# C++の補完が必要な場合は以下を実行
 # :CocInstall coc-clangd
 # :CocCommand clangd.install
 
@@ -152,13 +156,13 @@ let g:quickrun_config = get(g:, 'quickrun_config', {})
 let g:quickrun_config._ = {
   \ 'runner' : 'vimproc',
   \ 'runner/vimproc/updatetime' : 60,
+  \ 'outputter' : 'buffer',
   \ 'outputter/buffer/opener': 'new',
   \ 'outputter/buffer/into': 1,
   \ 'outputter/buffer/close_on_empty': 1,
   \ }
 
-nnoremap \r :cclose<CR>:write<CR>:QuickRun -mode n<CR>
-xnoremap \r :<C-U>cclose<CR>:write<CR>gv:QuickRun -mode v<CR>
+nnoremap <leader>r :QuickRun<CR>
 '''
 
 [[plugins]]

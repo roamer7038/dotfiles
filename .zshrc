@@ -119,20 +119,20 @@ esac
 [ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
 
-type go > /dev/null 2>&1 && \
-  export GOPATH=$HOME/.go && \
-  export GOBIN=$GOPATH/bin && \
-  export PATH=$PATH:$GOBIN
-
-type ruby > /dev/null 2>&1 && \
-  export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
-
 [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
   export PATH=$HOME/.anyenv/bin:$PATH && \
   export GOENV_GOPATH_PREFIX=$HOME/.go && \
   eval "$(anyenv init -)"
   # type go > /dev/null 2>&1 && \
   # export GOPATH=`echo $GOPATH | sed -e 's/go/.go/g'`
+
+# type go > /dev/null 2>&1 && \
+#   export GOPATH=$HOME/.go && \
+#   export GOBIN=$GOPATH/bin && \
+#   export PATH=$PATH:$GOBIN
+
+type ruby > /dev/null 2>&1 && \
+  export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
 
 [ -d ~/.yarn ] && \
   export PATH="$HOME/.yarn/bin:$PATH"
