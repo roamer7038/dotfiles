@@ -201,6 +201,9 @@ on_ft = 'json'
 [[plugins]]
 repo = 'kannokanno/previm'
 on_ft = 'markdown'
+hook_add = '''
+let g:previm_wsl_mode = 1
+'''
 
 [[plugins]]
 repo = 'tyru/open-browser.vim'
