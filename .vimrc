@@ -7,7 +7,7 @@ if v:version >= 800 && executable('make') && executable('npm')
   let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 
   if !isdirectory(s:dein_repo_dir)
-    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+    execute '!git clone --depth 1 https://github.com/Shougo/dein.vim' s:dein_repo_dir
   endif
 
   execute 'set runtimepath^=' . s:dein_repo_dir
@@ -15,7 +15,7 @@ if v:version >= 800 && executable('make') && executable('npm')
   if dein#load_state(s:dein_dir)
     call dein#begin(s:dein_dir)
 
-    call dein#load_toml('~/.vim/dein.toml')
+    call dein#load_toml('~/.vim/dein.toml', #{ type__depth: 1 })
 
     call dein#end()
     call dein#save_state()
