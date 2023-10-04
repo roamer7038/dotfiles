@@ -87,6 +87,10 @@ vmap <Leader>c <Plug>(caw:hatpos:toggle)
 # GitHubで要ログイン
 [[plugins]]
 repo = 'github/copilot.vim'
+hook_add = '''
+imap <silent><script><expr> <C-l> copilot#Accept("\<CR>")
+let g:copilot_no_tab_map = v:true
+'''
 
 # [[plugins]]
 # repo = 'terryma/vim-multiple-cursors'
