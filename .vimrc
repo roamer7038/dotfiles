@@ -40,11 +40,11 @@ scriptencoding utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8,iso-2022-jp,ucs-boms,utf-8,euc-jp,sjis,cp932
 set fileformats=unix,dos,mac
-set ambiwidth=double 
+set ambiwidth=double
 
-set tabstop=2 
+set tabstop=2
 set expandtab
-set autoindent 
+set autoindent
 set smartindent
 set shiftwidth=2
 
@@ -67,7 +67,7 @@ set history=5000
 set scrolloff=5
 set nofoldenable
 
-set splitright 
+set splitright
 set splitbelow
 
 filetype plugin indent on
@@ -81,15 +81,16 @@ highlight Normal ctermbg=none
 augroup fileTypeIndent
   autocmd!
   autocmd BufNewFile,BufRead *.sh setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd BufNewFile,BufRead *.js setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd BufNewFile,BufRead *.ts setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd BufNewFile,BufRead *.json setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd BufNewFile,BufRead *.html setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd BufNewFile,BufRead *.css setlocal tabstop=2 softtabstop=2 shiftwidth=2
   autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
+
+  autocmd BufNewFile,BufRead *.tex setlocal tabstop=4 softtabstop=4 shiftwidth=4
   autocmd BufNewFile,BufRead *.go setlocal tabstop=4 softtabstop=4 shiftwidth=4
   autocmd BufNewFile,BufRead *.py setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.js setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.ts setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.json setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.tex setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.html setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.css setlocal tabstop=4 softtabstop=4 shiftwidth=4
 augroup END
 
 augroup fileTypeExtensions
@@ -104,4 +105,3 @@ augroup closeTags
 augroup END
 
 au BufNewFile,BufRead *.toml setf toml
-
