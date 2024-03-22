@@ -2,7 +2,7 @@
 export LSCOLORS=Exfxcxdxbxegedabagacad
 export LESS='-i -M -R -x4'
 export EDITOR=vim
-export SYSTEMD_EDITOR="/usr/bin/vim" 
+export SYSTEMD_EDITOR="/usr/bin/vim"
 
 autoload -Uz colors
 colors
@@ -48,8 +48,7 @@ zstyle ':completion:*' use-cache true
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' ignore-parents parent pwd ..
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
-                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
 zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git:*' stagedstr "+"
@@ -101,7 +100,7 @@ case ${OSTYPE} in
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
-    alias open='xdg-open'
+    # alias open='xdg-open'
     alias C='xsel --input --clipboard'
     stty start undef
     stty stop undef
@@ -112,6 +111,9 @@ case ${OSTYPE} in
     # keyboard layout for WSLg (require: x11-xkb-utils)
       type setxkbmap > /dev/null 2>&1 && \
         setxkbmap -layout us
+
+      # Open Windows Explorer
+      function open() { /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1) }
     fi
   ;;
 esac
@@ -143,3 +145,4 @@ type ruby > /dev/null 2>&1 && \
 [ -n "$VIMRUNTIME" ] && \
   RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
 
+autoload -U +X bashcompinit && bashcompinit
