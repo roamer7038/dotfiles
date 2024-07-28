@@ -108,12 +108,16 @@ case ${OSTYPE} in
 
     # WSL2
     if [[ "$(uname -r)" == *microsoft* ]]; then
-    # keyboard layout for WSLg (require: x11-xkb-utils)
+      # keyboard layout for WSLg (require: x11-xkb-utils)
       type setxkbmap > /dev/null 2>&1 && \
         setxkbmap -layout us
 
+      # Add VSCode Path
+      export PATH=$PATH:/mnt/c/Users/roki/AppData/Local/Programs/Microsoft\ VS\ Code/bin
+
       # Open Windows Explorer
       function open() { /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1) }
+      alias explorer='open'
     fi
   ;;
 esac
