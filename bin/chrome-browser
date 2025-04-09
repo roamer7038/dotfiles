@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# chrome-browser (WSL2からWindowsのChromeを呼び出すラッパースクリプト)
+
+if [ -z "$1" ]; then
+	echo "Usage: chrome-browser <URL>"
+	exit 1
+fi
+
+url="$1"
+
+# URLに「://」がない場合はファイルパスとみなし、wslpathで変換
+if [[ ! "$url" =~ :// ]]; then
+	winpath="$(wslpath -w "$url")"
+else
+	winpath="$url"
+fi
+
+# 絶対パスでpowershell.exeを実行
+/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile \
+	-Command "Start-Process -FilePath 'C:\Program Files\Google\Chrome\Application\chrome.exe' -ArgumentList @('$winpath')"
+

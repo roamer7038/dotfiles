@@ -118,6 +118,9 @@ case ${OSTYPE} in
       # Open Windows Explorer
       function open() { /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1) }
       alias explorer='open'
+
+      # Set env BROWSER
+      export BROWSER="$HOME/dotfiles/bin/chrome-browser"
     fi
   ;;
 esac
