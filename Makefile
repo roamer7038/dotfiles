@@ -14,15 +14,15 @@ minimum:
 
 # vim (+plugins): requirement: golang, nodejs, npm/yarn
 develop:
-	${current_dir}/bin/create-symlinks.sh -v
+	${current_dir}/bin/create-symlinks.sh -v -l
 
 # minimum + develop + terminator dunst ranger 
 basic:
-	${current_dir}/bin/create-symlinks.sh -c -d -v
+	${current_dir}/bin/create-symlinks.sh -c -d -v -l
 
 # basic + i3wm
 full:
-	${current_dir}/bin/create-symlinks.sh -a -c -d -v -x
+	${current_dir}/bin/create-symlinks.sh -a -c -d -v -l -x
 	cp ${current_dir}/bin/xinit.sh ${HOME}/.xinit.sh
 
 # install:

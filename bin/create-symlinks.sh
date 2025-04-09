@@ -12,13 +12,14 @@ Usage: $(basename "$0") [OPTION]...
   -a          Create symlinks for i3wm configs (use with -c).
   -c          Create symlinks for gui app configs.
   -d          Create symlinks for basic dotfiles.
+  -l          Create symlinks for Claude configs.
   -v          Create symlinks for vim configs.
   -x          Create symlinks for x11 configs.
 EOM
   exit 2
 }
 
-while getopts "acdvxh" OPT
+while getopts "acdlvxh" OPT
 do
   case $OPT in
     a) 
@@ -61,6 +62,16 @@ do
       mkdir -p $HOME/.vim
       for file in ${VIMCONF[@]}; do
         ln -sf $PWD/.vim/$file $HOME/.vim/$file
+      done
+      ;;
+    l)
+      #==============
+      # Claude configs
+      #==============
+      mkdir -p $HOME/.claude
+      CLAUDECONF=($(ls $PWD/.claude))
+      for file in ${CLAUDECONF[@]}; do
+        ln -sf $PWD/.claude/$file $HOME/.claude/$file
       done
       ;;
     x)
