@@ -153,3 +153,15 @@ type ruby > /dev/null 2>&1 && \
   RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
 
 autoload -U +X bashcompinit && bashcompinit
+
+# Extends
+
+# Load scripts and environment variables from ~/.config/profile.d/
+if [ -d "$HOME/.config/profile.d" ]; then
+  for file in "$HOME"/.config/profile.d/*.{sh,zsh}(N); do
+    if [ -r "$file" ]; then
+      source "$file"
+    fi
+  done
+  unset file
+fi
