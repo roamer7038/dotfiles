@@ -125,9 +125,15 @@ case ${OSTYPE} in
   ;;
 esac
 
+# Add custom bin directories to PATH
 [ -d ~/.local/bin ] && \
   export PATH=$HOME/.local/bin:$PATH
 
+# Add snap bin directories to PATH
+[ -d ~/snap/bin ] && \
+  export PATH=$HOME/snap/bin:$PATH
+
+# Add anyenv to PATH
 [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ] && \
   export PATH=$HOME/.anyenv/bin:$PATH && \
   export GOENV_GOPATH_PREFIX=$HOME/.go && \
@@ -143,6 +149,7 @@ esac
 type ruby > /dev/null 2>&1 && \
   export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
 
+# Add yarn to PATH
 [ -d ~/.yarn ] && \
   export PATH="$HOME/.yarn/bin:$PATH"
 
