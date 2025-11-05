@@ -113,7 +113,7 @@ case ${OSTYPE} in
         setxkbmap -layout us
 
       # Add VSCode Path
-      export PATH=$PATH:/mnt/c/Users/roki/AppData/Local/Programs/Microsoft\ VS\ Code/bin
+      export PATH=$PATH:/mnt/c/Users/$USER/AppData/Local/Programs/Microsoft\ VS\ Code/bin
 
       # Open Windows Explorer
       function open() { /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1) }
@@ -138,13 +138,13 @@ esac
   export PATH=$HOME/.anyenv/bin:$PATH && \
   export GOENV_GOPATH_PREFIX=$HOME/.go && \
   eval "$(anyenv init -)"
-  # type go > /dev/null 2>&1 && \
-  # export GOPATH=`echo $GOPATH | sed -e 's/go/.go/g'`
+  type go > /dev/null 2>&1 && \
+    export GOPATH=`echo $GOPATH | sed -e 's/go/.go/g'`
 
-# type go > /dev/null 2>&1 && \
-#   export GOPATH=$HOME/.go && \
-#   export GOBIN=$GOPATH/bin && \
-#   export PATH=$PATH:$GOBIN
+type go > /dev/null 2>&1 && \
+  export GOPATH=$HOME/.go && \
+  export GOBIN=$GOPATH/bin && \
+  export PATH=$PATH:$GOBIN
 
 type ruby > /dev/null 2>&1 && \
   export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
