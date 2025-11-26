@@ -172,3 +172,10 @@ if [ -d "$HOME/.config/profile.d" ]; then
   done
   unset file
 fi
+
+# Load zsh auto suggestion plugin
+if [ -d "$HOME/.zsh/zsh-autosuggestions" ]; then
+  source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+fi
+
