@@ -1,39 +1,97 @@
 #!/bin/env make
 
-current_dir := $(shell pwd)
-install_dir := /usr/local/bin
+SCRIPT_DIR := $(shell pwd)
+INSTALL_DIR := /usr/local/bin
 
-all: basic
+# デフォルトターゲット
+all: help
 
-.ssh:
-	${current_dir}/bin/authorized_keys.sh
+# プリセットを使用したセットアップ
+minimal:
+	@echo "Setting up minimal configuration..."
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset minimal
 
-# .bashrc .zshrc .tmux.conf .gitconfig .latexmkrc
-minimum:
-	${current_dir}/bin/create-symlinks.sh -d
+standard:
+	@echo "Setting up standard configuration..."
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset standard
+	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
 
-# vim (+plugins): requirement: golang, nodejs, npm/yarn
-develop:
-	${current_dir}/bin/create-symlinks.sh -v -l
+desktop:
+	@echo "Setting up desktop environment..."
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset desktop
+	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
 
-# minimum + develop + terminator dunst ranger 
-basic:
-	${current_dir}/bin/create-symlinks.sh -c -d -v -l
-
-# basic + i3wm
 full:
-	${current_dir}/bin/create-symlinks.sh -a -c -d -v -l -x
-	cp ${current_dir}/bin/xinit.sh ${HOME}/.xinit.sh
+	@echo "Setting up full configuration..."
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset full
+	cp ${SCRIPT_DIR}/bin/xinit.sh ${HOME}/.xinit.sh
+	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
 
-# install:
-# 	ln -sf ${current_dir}/bin/pane ${install_dir}/pane
-# 	ln -sf ${current_dir}/bin/multissh ${install_dir}/multissh
+# ドライラン（確認用）
+dry-run-minimal:
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset minimal --dry-run
 
+dry-run-standard:
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset standard --dry-run
+
+dry-run-desktop:
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset desktop --dry-run
+
+dry-run-full:
+	${SCRIPT_DIR}/bin/create-symlinks.sh --preset full --dry-run
+
+# SSH設定
+.ssh:
+	${SCRIPT_DIR}/bin/authorized_keys.sh
+
+# anyenv のインストール（anyenv-update プラグイン含む）
 anyenv:
-	git clone https://github.com/anyenv/anyenv ~/.anyenv
-	# echo 'export PATH=$$HOME/.anyenv/bin:$$PATH' >> ~/.bash_profile
-	# bash -c '~/.anyenv/bin/anyenv init'
-	# anyenv install --init
-	#
-	# anyenv install nodenv
-	# anyenv install goenv
+	@if [ -d ~/.anyenv ]; then \
+		echo "anyenv is already installed"; \
+	else \
+		echo "Installing anyenv..."; \
+		git clone https://github.com/anyenv/anyenv ~/.anyenv; \
+		echo "Installing anyenv-update plugin..."; \
+		mkdir -p ~/.anyenv/plugins; \
+		git clone https://github.com/znz/anyenv-update.git ~/.anyenv/plugins/anyenv-update; \
+		echo ""; \
+		echo "anyenv installed successfully!"; \
+		echo "Next steps:"; \
+		echo "  1. Add 'export PATH=\"\$$HOME/.anyenv/bin:\$$PATH\"' to your shell profile"; \
+		echo "  2. Run: exec \$$SHELL -l"; \
+		echo "  3. Run: anyenv init"; \
+		echo "  4. Run: anyenv install --init"; \
+		echo "  5. Use 'anyenv update' to update all *env and plugins"; \
+	fi
+
+# Docker のインストール（Docker Engine + Lazydocker）
+docker:
+	@echo "Installing Docker and Lazydocker..."
+	${SCRIPT_DIR}/bin/install-docker.sh
+	@echo ""
+	@echo "Docker installation completed!"
+	@echo "Please log out and log back in for the changes to take effect."
+
+# ヘルプ
+help:
+	@echo "Available targets:"
+	@echo ""
+	@echo "Setup targets:"
+	@echo "  minimal      - Setup minimal configuration (basic dotfiles)"
+	@echo "  standard     - Setup standard configuration (minimal + vim + zsh plugins) [default]"
+	@echo "  desktop      - Setup desktop environment (standard + X11 + GUI apps)"
+	@echo "  full         - Setup full configuration (all settings including i3wm)"
+	@echo ""
+	@echo "Dry-run targets (preview without applying):"
+	@echo "  dry-run-minimal"
+	@echo "  dry-run-standard"
+	@echo "  dry-run-desktop"
+	@echo "  dry-run-full"
+	@echo ""
+	@echo "Other targets:"
+	@echo "  .ssh         - Setup SSH authorized_keys"
+	@echo "  anyenv       - Install anyenv with anyenv-update plugin"
+	@echo "  docker       - Install Docker Engine and Lazydocker"
+	@echo "  help         - Show this help message"
+
+.PHONY: all minimal standard desktop full dry-run-minimal dry-run-standard dry-run-desktop dry-run-full .ssh anyenv docker help

@@ -1,45 +1,106 @@
 #!/bin/bash
+# ============================================================
+# pane
+# ============================================================
 #
-# Pane Splitter for TMUX @rksz
+# 概要:
+#   tmuxのペインを指定した数だけ分割するツール
 #
+# 用途:
+#   複数のプロセスを並行して監視・操作したい場合
+#   ログファイルを同時に監視したい場合
+#   複数のサーバーで同じ作業を行いたい場合（multisshとの併用も可能）
+#
+# 機能:
+#   - 指定した数のペインを自動的に作成
+#   - ペインをタイル状に均等配置
+#   - オプションでsynchronize-panesモードを有効化可能
+#
+# 依存関係:
+#   - tmux
+#
+# 使用例:
+#   $ pane 4      # 4つのペインに分割
+#   $ pane -s 6   # 6つのペインに分割し、同期モードを有効化
+#
+# アルゴリズム:
+#   奇数回目の分割: 水平分割（左右に分割）
+#   偶数回目の分割: 垂直分割（上下に分割）
+#   これにより、バランスの取れたタイル配置を実現
+#
+# オプション:
+#   -s  synchronize-panesモードを有効化（全ペインに同じ入力を送信）
+#
+# 元作者: @rksz
+# 編集者: @roamer7038
+#
+# ============================================================
 
+# ヘルプメッセージの表示
 usage() {
-    CMDNAME=`basename $0`
-    echo "usage: $CMDNAME [-s] pane_num" 1>&2
+	CMDNAME=$(basename $0)
+	echo "usage: $CMDNAME [-s] pane_num" 1>&2
 }
 
+# メイン処理
 main() {
-    ## get options ##
-    while getopts :s opt
-    do
-      case $opt in
-        "s" ) readonly FLG_S="TRUE" ;;
-          * ) usage; exit 1 ;;
-      esac
-    done
+	###########################################################
+	# オプション解析
+	###########################################################
 
-    shift `expr $OPTIND - 1`
+	# -sオプションの有無を判定
+	while getopts :s opt; do
+		case $opt in
+		"s") readonly FLG_S="TRUE" ;; # 同期モードフラグを設定
+		*)
+			usage
+			exit 1
+			;;
+		esac
+	done
 
-    ## tmux pane split ##
-    if [ $1 ]; then
-      cnt_pane=1
-      while [ $cnt_pane -lt $1 ]
-      do
-        if [ $(( $cnt_pane & 1 )) ]; then
-            tmux split-window -h
-        else
-            tmux split-window -v
-        fi
-        tmux select-layout tiled 1>/dev/null
-        cnt_pane=$(( $cnt_pane + 1 ))
-      done
-    fi
+	# オプション以外の引数にシフト
+	shift $(expr $OPTIND - 1)
 
+	###########################################################
+	# tmuxペインの分割
+	###########################################################
 
-    #OPTION: start session with "synchronized-panes"
-    if [ "$FLG_S" = "TRUE" ]; then
-      tmux set-window-option synchronize-panes 1>/dev/null
-    fi
+	if [ $1 ]; then
+		# ペインカウンタを初期化（既に1つのペインが存在）
+		cnt_pane=1
+
+		# 指定された数になるまでペインを分割
+		while [ $cnt_pane -lt $1 ]; do
+			# ビット演算で奇数・偶数を判定
+			if [ $(($cnt_pane & 1)) ]; then
+				# 奇数回目: 水平分割（左右）
+				tmux split-window -h
+			else
+				# 偶数回目: 垂直分割（上下）
+				tmux split-window -v
+			fi
+
+			# ペインをタイル状に自動配置
+			# 1>/dev/null で出力を抑制
+			tmux select-layout tiled 1>/dev/null
+
+			# カウンタをインクリメント
+			cnt_pane=$(($cnt_pane + 1))
+		done
+	fi
+
+	###########################################################
+	# オプション処理: 同期モード
+	###########################################################
+
+	# -sオプションが指定されている場合、同期モードを有効化
+	if [ "$FLG_S" = "TRUE" ]; then
+		# synchronize-panesを有効化
+		# すべてのペインに同じキー入力が送信されるようになる
+		tmux set-window-option synchronize-panes 1>/dev/null
+	fi
 }
 
+# メイン処理を実行
 main "$@"

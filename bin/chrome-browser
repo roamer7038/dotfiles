@@ -1,6 +1,33 @@
 #!/usr/bin/env bash
-# chrome-browser (WSL2からWindowsのChromeを呼び出すラッパースクリプト)
+# ============================================================
+# chrome-browser
+# ============================================================
+#
+# 概要:
+#   WSL2環境からWindowsのGoogle Chromeを起動するラッパースクリプト
+#
+# 用途:
+#   WSL2内でファイルやURLをChromeで開く際に使用
+#   環境変数BROWSERに設定することで、様々なCLIツールから呼び出し可能
+#
+# 依存関係:
+#   - WSL2環境
+#   - Windows側にGoogle Chromeがインストール済み
+#   - wslpathコマンド（WSL2に標準搭載）
+#
+# 使用例:
+#   $ chrome-browser https://example.com
+#   $ chrome-browser /path/to/file.html
+#   $ export BROWSER="$HOME/dotfiles/bin/chrome-browser"
+#
+# 動作説明:
+#   1. 引数のURLまたはファイルパスを受け取る
+#   2. "://"を含まない場合はファイルパスとみなし、wslpathでWindows形式に変換
+#   3. PowerShellを経由してWindows側のChromeを起動
+#
+# ============================================================
 
+# 引数チェック
 if [ -z "$1" ]; then
 	echo "Usage: chrome-browser <URL>"
 	exit 1
@@ -8,14 +35,19 @@ fi
 
 url="$1"
 
-# URLに「://」がない場合はファイルパスとみなし、wslpathで変換
+# URLかファイルパスかを判定
+# "://"が含まれていればURL、なければファイルパスとして処理
 if [[ ! "$url" =~ :// ]]; then
+	# ファイルパスの場合、WSL形式からWindows形式に変換
+	# 例: /home/user/file.html -> C:\Users\user\file.html
 	winpath="$(wslpath -w "$url")"
 else
+	# URLの場合はそのまま使用
 	winpath="$url"
 fi
 
-# 絶対パスでpowershell.exeを実行
+# PowerShellを使ってWindowsのChromeを起動
+# -NoProfile: プロファイル読み込みをスキップして高速化
+# Start-Process: 新しいプロセスとしてChromeを起動
 /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile \
 	-Command "Start-Process -FilePath 'C:\Program Files\Google\Chrome\Application\chrome.exe' -ArgumentList @('$winpath')"
-
