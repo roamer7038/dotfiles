@@ -185,6 +185,18 @@ make docker
 	email = your@example.com
 ```
 
+### Zsh設定
+
+Zsh起動時に `~/.config/profile.d/`配下のスクリプト群を`source`で読み込みます。
+必要に応じてディレクトリを作成し、スクリプトを追加してください。
+
+例：プロキシ設定、環境変数設定など
+
+```bash
+mkdir -p ~/.config/profile.d
+echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/proxy.sh
+```
+
 ## ヘルプ
 
 利用可能なmakeターゲット一覧:
