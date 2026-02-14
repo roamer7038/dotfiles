@@ -241,8 +241,8 @@ esac
   export PATH=$HOME/.local/bin:$PATH
 
 # Snap パッケージのbinディレクトリ
-[ -d ~/snap/bin ] && \
-  export PATH=$HOME/snap/bin:$PATH
+[ -d /snap/bin ] && \
+  export PATH=/snap/bin:$PATH
 
 # anyenv（各言語のバージョン管理ツール）
 if [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ]; then
