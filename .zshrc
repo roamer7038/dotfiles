@@ -202,10 +202,10 @@ case ${OSTYPE} in
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
-    
+
     # クリップボードコピー用エイリアス
     alias C='xsel --input --clipboard'
-    
+
     # Ctrl+S/Qによる端末のフロー制御を無効化
     stty start undef
     stty stop undef
@@ -249,11 +249,6 @@ if [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ]; then
   export PATH=$HOME/.anyenv/bin:$PATH
   export GOENV_GOPATH_PREFIX=$HOME/.go
   eval "$(anyenv init -)"
-  
-  # Go言語のパス設定（anyenv経由でインストールされた場合）
-  if type go > /dev/null 2>&1; then
-    export GOPATH=$(echo $GOPATH | sed -e 's/go/.go/g')
-  fi
 fi
 
 # Go言語の環境変数設定（anyenv以外でインストールされた場合も考慮）
