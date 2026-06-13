@@ -208,33 +208,6 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR>    pumvisible() ? asyncomplete#close_popup() : "\<CR>"
 
 "----------------------------------------------------------
-" vim-quickrun
-"----------------------------------------------------------
-
-let g:quickrun_config = get(g:, 'quickrun_config', {})
-let g:quickrun_config._ = {
-  \ 'runner' : 'job',
-  \ 'runner/job/updatetime' : 60,
-  \ 'outputter' : 'buffer',
-  \ 'outputter/buffer/opener': 'new',
-  \ 'outputter/buffer/into': 1,
-  \ 'outputter/buffer/close_on_empty': 1,
-  \ }
-nnoremap <leader>r :QuickRun<CR>
-
-"----------------------------------------------------------
-" vim-json
-"----------------------------------------------------------
-
-let g:vim_json_syntax_conceal = 0
-
-"----------------------------------------------------------
-" previm（Markdown プレビュー）
-"----------------------------------------------------------
-
-let g:previm_wsl_mode = 1
-
-"----------------------------------------------------------
 " 言語別設定
 "----------------------------------------------------------
 
