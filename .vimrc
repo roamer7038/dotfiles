@@ -2,7 +2,7 @@
 " プラグイン管理（Vim8以降に依存する）
 "----------------------------------------------------------
 
-if v:version >= 800 && executable('make') && executable('npm')
+if v:version >= 900 && executable('make') && executable('npm')
   let s:dein_dir = expand('~/.vim/dein')
   let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 
@@ -74,34 +74,29 @@ filetype plugin indent on
 syntax on
 highlight Normal ctermbg=none
 
+if has('editorconfig')
+  set editorconfig
+endif
+
+augroup trailing_whitespace
+  autocmd!
+  autocmd BufWinEnter * match Error /\s\+$/
+augroup END
+
 "----------------------------------------------------------
 " 言語別設定
 "----------------------------------------------------------
 
 augroup fileTypeIndent
   autocmd!
-  autocmd BufNewFile,BufRead *.sh setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.js setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.ts setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.json setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.html setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.css setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
-
   autocmd BufNewFile,BufRead *.tex setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.go setlocal tabstop=4 softtabstop=4 shiftwidth=4
-  autocmd BufNewFile,BufRead *.py setlocal tabstop=4 softtabstop=4 shiftwidth=4
+  autocmd BufNewFile,BufRead *.go  setlocal tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
+  autocmd BufNewFile,BufRead *.py  setlocal tabstop=4 softtabstop=4 shiftwidth=4
 augroup END
 
 augroup fileTypeExtensions
-  autocmd BufRead,BufNewFile,BufReadPre *.ts set filetype=typescript
+  autocmd!
+  autocmd BufRead,BufNewFile,BufReadPre *.ts  set filetype=typescript
   autocmd BufRead,BufNewFile,BufReadPre *.tsx set filetype=typescriptreact
 augroup END
 
-augroup closeTags
-  autocmd!
-  autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
-  autocmd Filetype html inoremap <buffer> </ </<C-x><C-o>
-augroup END
-
-au BufNewFile,BufRead *.toml setf toml
