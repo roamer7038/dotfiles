@@ -309,21 +309,6 @@ create_vim_links() {
 	if [ -f "$vimrc_src" ]; then
 		create_symlink "$vimrc_src" "$vimrc_dest" ".vimrc"
 	fi
-
-	# .vimディレクトリ
-	local vim_dir="$DOTFILES_ROOT/.vim"
-	if [ -d "$vim_dir" ]; then
-		if [ "$DRY_RUN" != true ]; then
-			mkdir -p "$HOME/.vim"
-		fi
-
-		for file in "$vim_dir"/*; do
-			if [ -e "$file" ]; then
-				local filename=$(basename "$file")
-				create_symlink "$file" "$HOME/.vim/$filename" ".vim/$filename"
-			fi
-		done
-	fi
 }
 
 # X11設定のリンク作成

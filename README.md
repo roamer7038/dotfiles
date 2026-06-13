@@ -36,8 +36,11 @@ minimal + vim設定 + zshプラグイン
 make standard
 ```
 
-vimプラグインは dein を利用して管理されます。
-vim 8.0以降、nodejs、npmが必要です。
+vimプラグインは vim-plug を利用して管理されます。
+初回起動時に vim-plug と各プラグインを自動インストールするため、git と curl が必要です。
+言語ごとの補完・診断は vim-lsp + vim-lsp-settings で行います。
+対象言語のファイルを開き :LspInstallServer でサーバーを導入してください
+（サーバーにより node/npm や go 等のランタイムが別途必要）。
 
 #### desktop
 

@@ -4,10 +4,11 @@
 
 " vim-plug の自動インストール（curl が必要）
 let s:plug_file = expand('~/.vim/autoload/plug.vim')
+let s:bootstrap = 0
 if !filereadable(s:plug_file)
   silent execute '!curl -fLo ' . s:plug_file . ' --create-dirs '
     \ . 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  let s:bootstrap = 1
 endif
 
 call plug#begin('~/.vim/plugged')
@@ -27,21 +28,26 @@ Plug 'tpope/vim-fugitive'
 Plug 'kentarosasaki/vim-emacs-bindings'
 Plug 'tyru/caw.vim'
 
-"--- 言語支援系 ---
-Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-Plug 'thinca/vim-quickrun'
-Plug 'mattn/emmet-vim'
-Plug 'fatih/vim-go',           { 'for': 'go' }
-Plug 'hashivim/vim-terraform', { 'for': ['terraform', 'hcl'] }
-Plug 'cespare/vim-toml',       { 'for': 'toml' }
-Plug 'elzr/vim-json',          { 'for': 'json' }
-Plug 'kannokanno/previm',      { 'for': 'markdown' }
-Plug 'tyru/open-browser.vim',  { 'for': 'markdown' }
+"--- LSP ---
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 "--- EditorConfig ---
 Plug 'editorconfig/editorconfig-vim'
 
 call plug#end()
+
+" 初回起動時はここで同期インストールを完了させてから vimrc を読み直す。
+" これにより、後続の FileType / BufWinEnter などの autocmd が発火する時点で
+" プラグインが揃っており、未導入由来のエラーが出ない。
+if s:bootstrap
+  PlugInstall --sync
+  silent! close
+  source $MYVIMRC
+  finish
+endif
 
 set breakindent
 
@@ -147,30 +153,59 @@ nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 
 "----------------------------------------------------------
-" coc.nvim
+" vim-lsp
 "----------------------------------------------------------
 
-let g:coc_disable_startup_warning = 1
+" 各言語ファイルを開いて :LspInstallServer を実行
+" サーバーは ~/.local/share/vim-lsp-settings/servers/ に隔離インストールされる
 
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
+let g:lsp_diagnostics_echo_cursor  = 1
+let g:lsp_diagnostics_float_cursor = 1
+
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+
+  nmap <buffer> gd <Plug>(lsp-definition)
+  nmap <buffer> gt <Plug>(lsp-type-definition)
+  nmap <buffer> gi <Plug>(lsp-implementation)
+  nmap <buffer> gr <Plug>(lsp-references)
+  nmap <buffer> gy <Plug>(lsp-hover)
+  nmap <buffer> g= <Plug>(lsp-document-format)
+  nmap <buffer> gl <Plug>(lsp-document-diagnostics)
 endfunction
 
-inoremap <silent><expr> <TAB>
-  \ coc#pum#visible() ? coc#pum#next(1):
-  \ <SID>check_back_space() ? "\<Tab>" :
-  \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<S-TAB>"
-inoremap <silent><expr> <c-space> coc#refresh()
+augroup lsp_install
+  autocmd!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+  autocmd FileType * call s:notify_lsp_not_installed()
+augroup END
 
-nmap <silent> gl :<C-u>CocList<cr>
-nmap <silent> gy :<C-u>call CocAction('doHover')<cr>
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gt <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nmap <silent> g= <Plug>(coc-format)
+let s:lsp_checked_ft = {}
+
+function! s:notify_lsp_not_installed() abort
+  let l:ft = &filetype
+  if empty(l:ft) || has_key(s:lsp_checked_ft, l:ft) | return | endif
+  let s:lsp_checked_ft[l:ft] = 1
+
+  for l:conf in get(lsp_settings#settings(), l:ft, [])
+    if !has_key(l:conf, 'command') | continue | endif
+    if !isdirectory(lsp_settings#servers_dir() . '/' . l:conf.command)
+      echohl WarningMsg
+      echomsg '[LSP] ' . l:conf.command . ' is not installed. Run :LspInstallServer'
+      echohl None
+      return
+    endif
+  endfor
+endfunction
+
+"----------------------------------------------------------
+" asyncomplete
+"----------------------------------------------------------
+
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <CR>    pumvisible() ? asyncomplete#close_popup() : "\<CR>"
 
 "----------------------------------------------------------
 " vim-quickrun
@@ -186,14 +221,6 @@ let g:quickrun_config._ = {
   \ 'outputter/buffer/close_on_empty': 1,
   \ }
 nnoremap <leader>r :QuickRun<CR>
-
-"----------------------------------------------------------
-" vim-go
-"----------------------------------------------------------
-
-let g:go_def_mapping_enabled = 0
-let g:go_fmt_autosave        = 1
-let g:go_fmt_command         = "goimports"
 
 "----------------------------------------------------------
 " vim-json
@@ -223,17 +250,3 @@ augroup fileTypeExtensions
   autocmd BufRead,BufNewFile,BufReadPre *.ts  set filetype=typescript
   autocmd BufRead,BufNewFile,BufReadPre *.tsx set filetype=typescriptreact
 augroup END
-
-"----------------------------------------------------------
-" coc.nvim 初回セットアップ
-"----------------------------------------------------------
-
-" :CocInstall coc-lists coc-prettier coc-eslint coc-markdownlint
-"             coc-sh coc-highlight coc-yaml coc-html coc-json
-"             coc-css coc-tsserver coc-pyright
-"
-" npm install -g bash-language-server
-" npm install -g dockerfile-language-server-nodejs
-"
-" Go LSP:  go install golang.org/x/tools/gopls@latest
-" C++ LSP: :CocInstall coc-clangd && :CocCommand clangd.install
