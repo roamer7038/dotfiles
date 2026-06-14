@@ -44,6 +44,7 @@ ENABLE_VIM=false
 ENABLE_X11=false
 ENABLE_GUI=false
 ENABLE_I3WM=false
+ENABLE_AGENT=false
 DRY_RUN=false
 FORCE=false
 VERBOSE=false
@@ -95,9 +96,10 @@ Dotfiles setup script - Create symbolic links for configuration files
 
 PRESET OPTIONS:
   --preset minimal     Basic dotfiles only (.bashrc, .zshrc, .tmux.conf, etc.)
-  --preset standard    Minimal + Vim configuration
+  --preset standard    Minimal + Vim + AI agent configuration
   --preset desktop     Standard + X11 + GUI applications (excluding i3wm)
   --preset full        All configurations
+  --preset agent       AI agent configs only (for already-setup environments)
 
 INDIVIDUAL OPTIONS:
   --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig, .latexmkrc)
@@ -105,6 +107,7 @@ INDIVIDUAL OPTIONS:
   --x11, --xorg        X Window System configuration
   --gui                GUI application configs (terminator, dunst, ranger)
   --i3wm, --i3         i3 window manager configuration (auto-enables --gui)
+  --agent              AI agent configs (Claude Code: ~/.claude)
   --all                All configurations (same as --preset full)
 
 OTHER OPTIONS:
@@ -165,12 +168,17 @@ parse_options() {
 			ENABLE_I3WM=true
 			shift
 			;;
+		--agent)
+			ENABLE_AGENT=true
+			shift
+			;;
 		--all)
 			ENABLE_BASIC=true
 			ENABLE_VIM=true
 			ENABLE_X11=true
 			ENABLE_GUI=true
 			ENABLE_I3WM=true
+			ENABLE_AGENT=true
 			shift
 			;;
 		-n | --dry-run)
@@ -212,12 +220,14 @@ apply_preset() {
 	standard)
 		ENABLE_BASIC=true
 		ENABLE_VIM=true
+		ENABLE_AGENT=true
 		;;
 	desktop)
 		ENABLE_BASIC=true
 		ENABLE_VIM=true
 		ENABLE_X11=true
 		ENABLE_GUI=true
+		ENABLE_AGENT=true
 		;;
 	full)
 		ENABLE_BASIC=true
@@ -225,10 +235,14 @@ apply_preset() {
 		ENABLE_X11=true
 		ENABLE_GUI=true
 		ENABLE_I3WM=true
+		ENABLE_AGENT=true
+		;;
+	agent)
+		ENABLE_AGENT=true
 		;;
 	*)
 		log_error "Unknown preset: $PRESET"
-		echo "Available presets: minimal, standard, desktop, full"
+		echo "Available presets: minimal, standard, desktop, full, agent"
 		exit 1
 		;;
 	esac
@@ -362,6 +376,44 @@ create_gui_links() {
 	done
 }
 
+# AIエージェント設定のリンク作成
+create_agent_links() {
+	log_info "Creating AI agent configurations..."
+
+	# Claude Code (~/.claude)
+	# 将来的に他エージェントの設定を追加する場合はここに追記する
+	create_claude_agent_links
+}
+
+# Claude Code 設定のリンク作成
+create_claude_agent_links() {
+	local src_dir="$DOTFILES_ROOT/.claude"
+	local dest_dir="$HOME/.claude"
+
+	if [ ! -d "$src_dir" ]; then
+		log_verbose "Source directory not found: $src_dir"
+		return
+	fi
+
+	# settings.local.json はローカル専用（.gitignore対象）のためリンクしない
+	local files=(CLAUDE.md statusline-command.sh)
+
+	if [ "$DRY_RUN" != true ]; then
+		mkdir -p "$dest_dir"
+	fi
+
+	for file in "${files[@]}"; do
+		local src="$src_dir/$file"
+		local dest="$dest_dir/$file"
+
+		if [ -e "$src" ]; then
+			create_symlink "$src" "$dest" ".claude/$file"
+		else
+			log_verbose "Source file not found: $src"
+		fi
+	done
+}
+
 # メイン処理
 main() {
 	log_info "Dotfiles symlink creation script"
@@ -381,7 +433,8 @@ main() {
 	if [ "$ENABLE_BASIC" != true ] &&
 		[ "$ENABLE_VIM" != true ] &&
 		[ "$ENABLE_X11" != true ] &&
-		[ "$ENABLE_GUI" != true ]; then
+		[ "$ENABLE_GUI" != true ] &&
+		[ "$ENABLE_AGENT" != true ]; then
 		log_error "No configuration options specified"
 		echo "Use --help for usage information"
 		exit 1
@@ -398,6 +451,7 @@ main() {
 	[ "$ENABLE_VIM" = true ] && create_vim_links
 	[ "$ENABLE_X11" = true ] && create_x11_links
 	[ "$ENABLE_GUI" = true ] && create_gui_links
+	[ "$ENABLE_AGENT" = true ] && create_agent_links
 
 	echo
 	if [ "$DRY_RUN" = true ]; then
