@@ -226,6 +226,13 @@ case ${OSTYPE} in
       }
       alias explorer='open'
 
+      # PowerShell（pwsh 7優先、なければWindows PowerShellにフォールバック）
+      if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
+        alias powershell='/mnt/c/Program\ Files/PowerShell/7/pwsh.exe'
+      else
+        alias powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
+      fi
+
       # ブラウザ環境変数の設定
       export BROWSER="$HOME/dotfiles/bin/chrome-browser"
     fi
