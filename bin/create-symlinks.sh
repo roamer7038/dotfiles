@@ -201,16 +201,16 @@ main() {
   log_info "Repository: $DOTFILES_ROOT"
   echo
 
+  if [ ! -r "$LINKS_FILE" ]; then
+    log_error "Cannot read link definitions: $LINKS_FILE"
+    exit 1
+  fi
+
   parse_options "$@"
 
   if [ ${#SELECTED_TAGS[@]} -eq 0 ]; then
     log_error "No configuration options specified"
     echo "Use --help for usage information"
-    exit 1
-  fi
-
-  if [ ! -r "$LINKS_FILE" ]; then
-    log_error "Cannot read link definitions: $LINKS_FILE"
     exit 1
   fi
 
