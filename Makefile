@@ -1,57 +1,43 @@
 #!/bin/env make
 
-SCRIPT_DIR := $(shell pwd)
-INSTALL_DIR := /usr/local/bin
+SCRIPT_DIR  := $(shell pwd)
+SYMLINKS    := $(SCRIPT_DIR)/bin/create-symlinks.sh
+ZSH_PLUGINS := $(SCRIPT_DIR)/bin/install-zsh-plugins.sh
 
-# デフォルトターゲット
+PRESETS := minimal standard desktop full agent
+
 all: help
 
-# プリセットを使用したセットアップ
+# --- セットアップ ---
+
 minimal:
 	@echo "Setting up minimal configuration..."
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset minimal
+	$(SYMLINKS) --preset minimal
 
-standard:
-	@echo "Setting up standard configuration..."
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset standard
-	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
-
-desktop:
-	@echo "Setting up desktop environment..."
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset desktop
-	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
+standard desktop:
+	@echo "Setting up $@ configuration..."
+	$(SYMLINKS) --preset $@
+	$(ZSH_PLUGINS)
 
 full:
 	@echo "Setting up full configuration..."
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset full
-	cp ${SCRIPT_DIR}/bin/xinit.sh ${HOME}/.xinit.sh
-	${SCRIPT_DIR}/bin/install-zsh-plugins.sh
+	$(SYMLINKS) --preset full
+	cp $(SCRIPT_DIR)/bin/xinit.sh $(HOME)/.xinit.sh
+	$(ZSH_PLUGINS)
 
 agent:
 	@echo "Setting up AI agent configuration..."
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset agent
+	$(SYMLINKS) --preset agent
 
-# ドライラン（確認用）
-dry-run-minimal:
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset minimal --dry-run
+# プリセットごとの dry-run-<preset>（例: make dry-run-full）
+dry-run-%:
+	$(SYMLINKS) --preset $* --dry-run
 
-dry-run-standard:
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset standard --dry-run
+# --- 追加ツールのインストール ---
 
-dry-run-desktop:
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset desktop --dry-run
-
-dry-run-full:
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset full --dry-run
-
-dry-run-agent:
-	${SCRIPT_DIR}/bin/create-symlinks.sh --preset agent --dry-run
-
-# SSH設定
 .ssh:
-	${SCRIPT_DIR}/bin/authorized_keys.sh
+	$(SCRIPT_DIR)/bin/authorized_keys.sh
 
-# anyenv のインストール（anyenv-update プラグイン含む）
 anyenv:
 	@if [ -d ~/.anyenv ]; then \
 		echo "anyenv is already installed"; \
@@ -63,50 +49,53 @@ anyenv:
 		git clone https://github.com/znz/anyenv-update.git ~/.anyenv/plugins/anyenv-update; \
 		echo ""; \
 		echo "anyenv installed successfully!"; \
-		echo "Next steps:"; \
-		echo "  1. Add 'export PATH=\"\$$HOME/.anyenv/bin:\$$PATH\"' to your shell profile"; \
-		echo "  2. Run: exec \$$SHELL -l"; \
-		echo "  3. Run: anyenv init"; \
-		echo "  4. Run: anyenv install --init"; \
-		echo "  5. Use 'anyenv update' to update all *env and plugins"; \
+		echo "See docs/anyenv.md for the next steps."; \
 	fi
 
-# Docker のインストール（Docker Engine + Lazydocker）
 docker:
 	@echo "Installing Docker and Lazydocker..."
-	${SCRIPT_DIR}/bin/install-docker.sh
+	$(SCRIPT_DIR)/bin/install-docker.sh
 	@echo ""
 	@echo "Docker installation completed!"
 	@echo "Please log out and log back in for the changes to take effect."
 
-# bun のインストール
 bun:
 	@echo "Installing bun..."
-	${SCRIPT_DIR}/bin/install-bun.sh
+	$(SCRIPT_DIR)/bin/install-bun.sh
 
-# ヘルプ
+# --- 開発用 ---
+
+# シェルスクリプトを .editorconfig に合わせて整形する
+fmt:
+	@command -v shfmt >/dev/null 2>&1 || { \
+		echo "shfmt is not installed. Install it with:"; \
+		echo "  go install mvdan.cc/sh/v3/cmd/shfmt@latest"; \
+		exit 1; \
+	}
+	shfmt -w -i 2 bin shell
+
 help:
 	@echo "Available targets:"
 	@echo ""
 	@echo "Setup targets:"
-	@echo "  minimal      - Setup minimal configuration (basic dotfiles)"
-	@echo "  standard     - Setup standard configuration (minimal + vim + agent + zsh plugins) [default]"
-	@echo "  desktop      - Setup desktop environment (standard + X11 + GUI apps)"
-	@echo "  full         - Setup full configuration (all settings including i3wm)"
-	@echo "  agent        - Setup AI agent configuration only (~/.claude)"
+	@echo "  minimal      - Basic dotfiles only"
+	@echo "  standard     - minimal + Vim + AI agent + zsh plugins (recommended)"
+	@echo "  desktop      - standard + X11 + GUI apps"
+	@echo "  full         - desktop + i3wm"
+	@echo "  agent        - AI agent configs only (~/.claude)"
+	@echo "  dry-run-<preset>"
+	@echo "               - Preview a preset without applying it"
 	@echo ""
-	@echo "Dry-run targets (preview without applying):"
-	@echo "  dry-run-minimal"
-	@echo "  dry-run-standard"
-	@echo "  dry-run-desktop"
-	@echo "  dry-run-full"
-	@echo "  dry-run-agent"
+	@echo "Install targets:"
+	@echo "  .ssh         - Add GitHub public keys to ~/.ssh/authorized_keys"
+	@echo "  anyenv       - Install anyenv with the anyenv-update plugin"
+	@echo "  docker       - Install Docker Engine and Lazydocker"
+	@echo "  bun          - Install bun"
 	@echo ""
 	@echo "Other targets:"
-	@echo "  .ssh         - Setup SSH authorized_keys"
-	@echo "  anyenv       - Install anyenv with anyenv-update plugin"
-	@echo "  docker       - Install Docker Engine and Lazydocker"
-	@echo "  bun          - Install bun (JavaScript runtime & toolkit)"
-	@echo "  help         - Show this help message"
+	@echo "  fmt          - Format shell scripts with shfmt"
+	@echo "  help         - Show this message"
+	@echo ""
+	@echo "Run './bin/create-symlinks.sh --help' for per-file options."
 
-.PHONY: all minimal standard desktop full agent dry-run-minimal dry-run-standard dry-run-desktop dry-run-full dry-run-agent .ssh anyenv docker bun help
+.PHONY: all $(PRESETS) .ssh anyenv docker bun fmt help
