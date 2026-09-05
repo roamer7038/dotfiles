@@ -2,7 +2,7 @@
 #
 # dotfiles の配置状態を点検する。何も変更しない。
 # リンクの有無と向き先、リポジトリ外に残った古いコピー、依存コマンド、
-# Claude Code のフック設定、profile.d の権限を確認する。
+# Claude Code のフック設定を確認する。
 #
 #   doctor.sh [-v]
 #
@@ -227,29 +227,6 @@ check_claude_hooks() {
   fi
 }
 
-# --- profile.d の権限 ---
-
-check_profile_permissions() {
-  local dir="$HOME/.config/profile.d" f mode found=0
-
-  [ -d "$dir" ] || return 0
-
-  for f in "$dir"/*; do
-    [ -f "$f" ] || continue
-    mode=$(stat -c '%a' "$f" 2>/dev/null) || continue
-
-    # 所有者以外に読み取り権限があるか（下2桁が 0 以外）
-    case "$mode" in
-    *[1-7][0-7] | *[0-7][1-7])
-      warn "他ユーザから読める（chmod 600 を推奨）: $f (mode $mode)"
-      found=1
-      ;;
-    esac
-  done
-
-  [ "$found" -eq 0 ] && log_ok "profile.d の権限は適切"
-}
-
 # ============================================================
 # エントリポイント
 # ============================================================
@@ -264,7 +241,6 @@ check_stale_copies
 echo
 check_commands
 check_claude_hooks
-check_profile_permissions
 echo
 
 if [ "$NG_COUNT" -gt 0 ]; then

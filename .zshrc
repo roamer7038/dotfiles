@@ -104,7 +104,7 @@ ssht() {
 compdef _ssh_hosts ssht
 
 # ============================================================
-# 環境ごとの設定
+# OS ごとの設定
 # ============================================================
 
 # --- Linux ---
@@ -170,9 +170,9 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/s
 # 外部設定・プラグインの読み込み
 # ============================================================
 
-# 環境ごとの設定（プロキシ、APIキーなど）の置き場所
+# ~/.config/profile.d/ は環境ごとの設定を自由に置く場所。Bash も同じ場所を読む
 if [ -d "$HOME/.config/profile.d" ]; then
-  for file in "$HOME"/.config/profile.d/*.{sh,zsh}(N); do
+  for file in "$HOME"/.config/profile.d/*.(sh|zsh)(N); do
     [ -r "$file" ] && source "$file"
   done
   unset file

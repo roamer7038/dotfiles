@@ -115,7 +115,7 @@ make doctor   # 配置状態を点検する
 make check    # 構文・書式・ドライランを検査する
 ```
 
-`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定、`profile.d` の権限を見る。
+`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定を見る。
 
 `check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
 shfmt があれば整形差分も見る。
@@ -135,13 +135,20 @@ vim-plug が未導入の環境では、読み込むと導入が走ってしま�
 
 ### 環境ごとの設定
 
-Zsh は起動時に `~/.config/profile.d/` 配下の `*.sh` `*.zsh` を読み込む。
-プロキシや API キーなど、環境ごとに異なる設定はここに置く。
+`~/.config/profile.d/` はこの dotfiles が管理しない、利用者のための置き場所である。
+プロキシ設定や環境変数など、環境ごとに異なる設定をファイル単位で追加できる。
 
 ```bash
 mkdir -p ~/.config/profile.d
 echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/proxy.sh
 ```
+
+Bash と Zsh のどちらも、起動時にこのディレクトリ配下を名前順に読み込む。
+Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む。
+Bash 側が読むのは `.bashrc` を配置した場合に限る（既定ではシステムのものを残すため）。
+共通設定（`shell/common.sh`）より後に読み込むので、環境変数はここで上書きできる。
+ただし Zsh の補完の配色のように、読み込みより前に値を確定させる設定は上書きできない。
+読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない。
 
 ### Bash と Zsh の共通設定
 

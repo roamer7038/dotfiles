@@ -96,3 +96,15 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
+
+# --- 環境ごとの設定 ---
+
+# ~/.config/profile.d/ は環境ごとの設定を自由に置く場所。Zsh も同じ場所を読む。
+# 利用者の設定を最後に効かせるため、他の読み込みより後に置く。
+# Zsh 専用の *.zsh は対象にしない。glob がマッチしないと文字列のまま残るので -r で弾く
+if [ -d "$HOME/.config/profile.d" ]; then
+  for file in "$HOME"/.config/profile.d/*.sh; do
+    [ -r "$file" ] && . "$file"
+  done
+  unset file
+fi
