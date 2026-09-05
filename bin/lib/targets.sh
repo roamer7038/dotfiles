@@ -12,7 +12,7 @@ DOTFILES_SHELL_COMMON=shell/common.sh
 # bin/<name> -> $HOME/.local/bin/<name>
 # コマンドとして直接呼ぶものだけを挙げる。フックや設定ファイルから
 # 絶対パスで呼ばれるスクリプトは対象にしない。
-DOTFILES_COMMANDS=(pane multissh)
+DOTFILES_COMMANDS=(pane multissh wsl-chrome)
 
 # config/<dir>/* -> $HOME/.config/<dir>/*
 DOTFILES_GUI_DIRS=(terminator dunst ranger)

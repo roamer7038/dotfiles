@@ -49,7 +49,8 @@ PRESET OPTIONS:
 INDIVIDUAL OPTIONS:
   --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig,
                        .latexmkrc), the shared shell/common.sh, and the
-                       tmux helper commands (pane, multissh) in ~/.local/bin
+                       helper commands (pane, multissh, wsl-chrome) in
+                       ~/.local/bin
   --vim                Vim configuration files
   --x11, --xorg        X Window System configuration
   --gui                GUI application configs (terminator, dunst, ranger)

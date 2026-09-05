@@ -1,0 +1,415 @@
+#!/bin/bash
+#
+# WSL2 から Windows 側の Google Chrome を操作する。
+# 引数だけを渡せば従来どおり開き、サブコマンドを付けると
+# CDP（Chrome DevTools Protocol）を有効にした専用インスタンスを管理する。
+#
+#   wsl-chrome https://example.com    URL を開く
+#   wsl-chrome ./index.html           ファイルを Windows パスに変換して開く
+#   wsl-chrome debug [url]            CDP 有効の専用インスタンスを起動する
+#   wsl-chrome debug --headless [url] 画面に出さずに起動する
+#   wsl-chrome status                 接続先と開いているタブを表示する
+#   wsl-chrome stop                   専用インスタンスを終了する
+#
+# BROWSER に設定しておくと各種 CLI から呼ばれる（.zshrc 参照）。
+# debug で起動したインスタンスへは chrome-devtools-mcp から接続でき、
+# AI エージェントがページの表示や DOM を確認できる（docs/wsl-chrome.md 参照）。
+#
+# 環境変数
+#   WSL_CHROME_PORT         CDP のポートを固定する（既定は Chrome に選ばせる）
+#   WSL_CHROME_PROFILE      debug=専用プロファイル（既定）/ default=普段使い
+#   WSL_CHROME_HEADLESS     1 なら --headless を付けたのと同じ
+#   WSL_CHROME_WINDOW_SIZE  ヘッドレス時のビューポート（既定 1280,800）
+
+set -u
+
+PROFILE=${WSL_CHROME_PROFILE:-debug}
+HEADLESS=${WSL_CHROME_HEADLESS:-0}
+
+# ポートは既定では固定しない。Chrome に空きを選ばせ、プロファイル内の
+# DevToolsActivePort から読む。番号が衝突しようがなく、埋まったポートに
+# 当たって IPv6 のみで待ち受ける事故も起きない。
+# WSL_CHROME_PORT を指定したときだけ従来どおり固定する
+FIXED_PORT=${WSL_CHROME_PORT:-}
+
+# ヘッドレスにはウィンドウが無く、この指定がそのままビューポートになる。
+# 画面の大きさに左右されないぶん、スクリーンショットの寸法を再現できる
+WINDOW_SIZE=${WSL_CHROME_WINDOW_SIZE:-1280,800}
+
+# 専用プロファイルのディレクトリ名。stop で対象を絞るための目印も兼ねる
+PROFILE_DIR_NAME=wsl-chrome-debug
+
+# 実行時に解決する。resolve_profile と resolve_port が設定する
+PROFILE_WIN=""
+PROFILE_UNIX=""
+PORT=""
+CDP_URL=""
+
+POWERSHELL=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+NETSTAT=/mnt/c/Windows/System32/NETSTAT.EXE
+
+# ============================================================
+# 共通処理
+# ============================================================
+
+# --- 実行環境 ---
+
+die() {
+  echo "wsl-chrome: $*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOS'
+usage: wsl-chrome <url|path>          URL・ファイルを Windows の Chrome で開く
+       wsl-chrome debug [url]         CDP 有効の専用インスタンスを起動する
+       wsl-chrome debug --headless    画面に出さずに起動する
+       wsl-chrome status              接続先と開いているタブを表示する
+       wsl-chrome stop                専用インスタンスを終了する
+
+environment:
+       WSL_CHROME_PORT                CDP のポートを固定する（既定は自動）
+       WSL_CHROME_PROFILE             debug=専用プロファイル（既定）/ default=普段使い
+       WSL_CHROME_HEADLESS            1 なら --headless と同じ
+       WSL_CHROME_WINDOW_SIZE         ヘッドレス時のビューポート（既定 1280,800）
+EOS
+}
+
+# Windows のプログラムを起動できる環境かどうか
+require_wsl() {
+  case "$(uname -r)" in
+  *[Mm]icrosoft*) ;;
+  *) die "WSL2 でのみ動作する（Windows 側の Chrome を起動するため）" ;;
+  esac
+}
+
+# --- Windows 側のパスとプロセス ---
+
+find_chrome() {
+  local p appdata
+
+  for p in \
+    "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" \
+    "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"; do
+    if [ -x "$p" ]; then
+      echo "$p"
+      return 0
+    fi
+  done
+
+  # ユーザ単位でインストールした場合のみ cmd.exe を呼ぶ（起動が遅いため）
+  appdata=$(win_local_appdata_unix) || appdata=""
+  p="$appdata/Google/Chrome/Application/chrome.exe"
+  if [ -n "$appdata" ] && [ -x "$p" ]; then
+    echo "$p"
+    return 0
+  fi
+
+  die "chrome.exe が見つからない（Windows 側に Google Chrome を入れる）"
+}
+
+# %LOCALAPPDATA% を Windows 形式と WSL 形式でそれぞれ得る。
+# cmd.exe は作業ディレクトリが WSL 側だと警告を出すので捨てる
+win_local_appdata() {
+  /mnt/c/Windows/System32/cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r\n'
+}
+
+win_local_appdata_unix() {
+  local win
+  win=$(win_local_appdata) || return 1
+  [ -n "$win" ] || return 1
+  wslpath -u "$win" 2>/dev/null
+}
+
+# 専用プロファイルの位置を Windows 形式と WSL 形式の両方で確定する。
+# Chrome は WSL 側のパスを UNC と見なして --user-data-dir に受け付けないため
+# 置き場は Windows 側だが、DevToolsActivePort を読むには WSL 形式も要る。
+# cmd.exe の呼び出しは遅いので1回で済ませる
+resolve_profile() {
+  local appdata
+
+  # 普段使いのプロファイルは場所を特定しない（Chrome の管理下にある）
+  [ "$PROFILE" = default ] && return 0
+
+  appdata=$(win_local_appdata)
+  [ -n "$appdata" ] || die "%LOCALAPPDATA% を取得できない"
+
+  PROFILE_WIN="$appdata\\$PROFILE_DIR_NAME"
+  PROFILE_UNIX="$(wslpath -u "$appdata")/$PROFILE_DIR_NAME"
+}
+
+# Chrome は待ち受けを始めるとプロファイル直下の DevToolsActivePort に
+# ポートを書く。終了しても消えないので、値は必ず CDP への問い合わせで裏を取る
+read_active_port() {
+  local f="$PROFILE_UNIX/DevToolsActivePort"
+  [ -n "$PROFILE_UNIX" ] && [ -r "$f" ] || return 1
+  head -1 "$f" | tr -d '\r\n'
+}
+
+resolve_port() {
+  if [ -n "$FIXED_PORT" ]; then
+    PORT=$FIXED_PORT
+  else
+    PORT=$(read_active_port) || PORT=""
+  fi
+
+  if [ -n "$PORT" ]; then
+    CDP_URL="http://127.0.0.1:$PORT"
+  else
+    CDP_URL=""
+  fi
+}
+
+# 起動前に古い記録を消す。残っていると停止済みの番号を掴んでしまう
+forget_active_port() {
+  [ -n "$PROFILE_UNIX" ] && rm -f "$PROFILE_UNIX/DevToolsActivePort"
+}
+
+# 引数が URL でなければ Windows のパスに変換する（chrome.exe の引数用）
+to_win_arg() {
+  case "$1" in
+  *://* | about:*) echo "$1" ;;
+  *) wslpath -w "$1" ;;
+  esac
+}
+
+# 引数を URL に正規化する（CDP に渡す用）。
+# CDP はファイルのパスを受け付けないので file:// の形にする
+to_url() {
+  local win
+  case "$1" in
+  *://* | about:*)
+    echo "$1"
+    ;;
+  *)
+    win=$(wslpath -w "$1") || return 1
+    case "$win" in
+    # UNC パス（WSL 側のファイル）はスラッシュ2つで始まる
+    '\\'*) echo "file:${win//\\//}" ;;
+    *) echo "file:///${win//\\//}" ;;
+    esac
+    ;;
+  esac
+}
+
+# Chrome を切り離して起動する。呼び出し元は待たない
+launch_chrome() {
+  local chrome
+  chrome=$(find_chrome) || exit 1
+  nohup "$chrome" "$@" >/dev/null 2>&1 &
+  disown 2>/dev/null || true
+}
+
+# --- CDP の疎通 ---
+
+# CDP のエンドポイントが応答するか。ポートが未解決なら未起動と見なす
+cdp_ready() {
+  [ -n "$CDP_URL" ] || return 1
+  curl -sf --connect-timeout 1 --max-time 3 "$CDP_URL/json/version" >/dev/null 2>&1
+}
+
+# ポートを待ち受けているプロセスが Windows 側にいるか。
+# ミラーモードの WSL からは、空きポートへの接続が拒否ではなく
+# タイムアウトになるため、curl では空きと占有を区別できない
+port_taken() {
+  "$NETSTAT" -ano 2>/dev/null | grep -qE ":$PORT[^0-9].*LISTENING"
+}
+
+# 起動済みインスタンスに新しいタブを開く。ヘッドレスにはウィンドウが無く、
+# chrome.exe をもう一度起動しても引き継がれないため CDP を使う
+cdp_new_tab() {
+  local url
+  url=$(to_url "$1") || return 1
+  curl -sf --max-time 3 -X PUT "$CDP_URL/json/new?$url" >/dev/null
+}
+
+# 起動中のインスタンスがヘッドレスかどうか。
+# ヘッドレスの Chrome は User-Agent で HeadlessChrome を名乗る
+running_headless() {
+  curl -sf --connect-timeout 1 --max-time 3 "$CDP_URL/json/version" 2>/dev/null |
+    grep -q HeadlessChrome
+}
+
+mode_label() {
+  if [ "$1" = 1 ]; then echo ヘッドレス; else echo 通常; fi
+}
+
+# 占有しているプロセスを表示する（診断用）
+show_port_owner() {
+  "$NETSTAT" -ano 2>/dev/null | grep -E ":$PORT[^0-9].*LISTENING"
+}
+
+# ============================================================
+# サブコマンド
+# ============================================================
+
+cmd_open() {
+  local arg
+  arg=$(to_win_arg "$1") || die "パスを変換できない: $1"
+  launch_chrome "$arg"
+}
+
+cmd_debug() {
+  local url=${1:-about:blank}
+  local args=()
+  local i
+
+  if [ "$PROFILE" = default ] && [ -z "$FIXED_PORT" ]; then
+    die "普段使いのプロファイルでは DevToolsActivePort を読めない。WSL_CHROME_PORT を指定する"
+  fi
+
+  # プロファイルの指定は起動時と、起動済みインスタンスを探すときの両方で要る
+  [ -n "$PROFILE_WIN" ] && args+=(--user-data-dir="$PROFILE_WIN")
+
+  # 起動済みなら再利用する。ただしモードが違えば黙って別物を返さない
+  if cdp_ready; then
+    local running=0
+    running_headless && running=1
+
+    if [ "$running" != "$HEADLESS" ]; then
+      die "$(mode_label "$running") のインスタンスが起動している。切り替えるには wsl-chrome stop を実行する"
+    fi
+
+    if [ "$url" != about:blank ]; then
+      cdp_new_tab "$url" || die "タブを開けない: $url"
+    fi
+    echo "起動済み: $CDP_URL（$(mode_label "$HEADLESS")）"
+    return 0
+  fi
+
+  # 固定ポートを指定したときだけ、先に空きを確かめる。
+  # 自動採番では Chrome が空きを選ぶので確かめようがない
+  if [ -n "$FIXED_PORT" ] && port_taken; then
+    echo "wsl-chrome: ポート $FIXED_PORT は別のプロセスが使っている" >&2
+    show_port_owner >&2
+    die "WSL_CHROME_PORT を変えるか、指定を外して自動採番に任せる"
+  fi
+
+  if [ "$PROFILE" = default ]; then
+    echo "普段使いのプロファイルで起動する。既存の Chrome が動いていると" >&2
+    echo "デバッグポートは開かないため、先に Chrome を全て終了しておくこと" >&2
+  fi
+
+  forget_active_port
+
+  args+=(--remote-debugging-port="${FIXED_PORT:-0}" --no-first-run --no-default-browser-check)
+  [ "$HEADLESS" = 1 ] && args+=(--headless --window-size="$WINDOW_SIZE")
+
+  launch_chrome "${args[@]}" "$(to_win_arg "$url")"
+
+  # 自動採番ではポートも起動を待って判明するので、都度読み直す
+  for i in $(seq 1 20); do
+    resolve_port
+    cdp_ready && break
+    sleep 0.5
+  done
+
+  if ! cdp_ready; then
+    echo "wsl-chrome: Chrome が CDP を開かないまま起動した" >&2
+    [ -n "$FIXED_PORT" ] && show_port_owner >&2
+    exit 1
+  fi
+
+  echo "起動した: $CDP_URL（$(mode_label "$HEADLESS")）"
+  [ -n "$PROFILE_WIN" ] && echo "プロファイル: $PROFILE_WIN"
+  return 0
+}
+
+cmd_status() {
+  local version
+
+  if ! cdp_ready; then
+    echo "デバッグ用 Chrome は起動していない（wsl-chrome debug で起動する）"
+    return 1
+  fi
+
+  version=$(curl -s --max-time 2 "$CDP_URL/json/version")
+
+  echo "接続先: $CDP_URL"
+  # 指定ではなく、実際に動いているインスタンスのモードを見る
+  if running_headless; then
+    echo "モード: $(mode_label 1)"
+  else
+    echo "モード: $(mode_label 0)"
+  fi
+  if command -v jq >/dev/null 2>&1; then
+    echo "Chrome: $(echo "$version" | jq -r '.Browser')"
+  fi
+  if [ "$PROFILE" = default ]; then
+    echo "プロファイル: 普段使い"
+  else
+    echo "プロファイル: $PROFILE_WIN"
+  fi
+
+  echo "タブ:"
+  if command -v jq >/dev/null 2>&1; then
+    curl -s --max-time 2 "$CDP_URL/json/list" |
+      jq -r '.[] | select(.type == "page") | "  \(.title)\n    \(.url)"'
+  else
+    echo "  （一覧の表示には jq が必要）$CDP_URL/json/list"
+  fi
+}
+
+cmd_stop() {
+  if [ "$PROFILE" = default ]; then
+    die "普段使いのプロファイルでは終了させない（通常の Chrome ごと閉じるため）"
+  fi
+
+  # 専用プロファイルを参照しているプロセスだけを落とす。
+  # レンダラなどの子プロセスも同じ --user-data-dir を持つ
+  "$POWERSHELL" -NoProfile -Command \
+    "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe'\" |
+     Where-Object { \$_.CommandLine -like '*$PROFILE_DIR_NAME*' } |
+     ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }" \
+    >/dev/null 2>&1
+
+  # 番号の記録を残すと、別のプロセスが同じ番号を取ったときに誤認する
+  forget_active_port
+
+  echo "終了した: $PROFILE_DIR_NAME のインスタンス"
+}
+
+# ============================================================
+# エントリポイント
+# ============================================================
+
+require_wsl
+
+case "$PROFILE" in
+debug | default) ;;
+*) die "WSL_CHROME_PROFILE は debug か default を指定する（指定値: $PROFILE）" ;;
+esac
+
+# --headless はどの位置に書いても効くよう、先に取り除いてから解釈する
+ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+  --headless) HEADLESS=1 ;;
+  *) ARGS+=("$arg") ;;
+  esac
+done
+set -- "${ARGS[@]}"
+
+# 専用プロファイルの位置とポートを先に確定させる。
+# 開くだけの用途では要らないので、サブコマンドのときだけ解決する
+case "${1:-}" in
+debug | status | stop)
+  resolve_profile
+  resolve_port
+  ;;
+esac
+
+case "${1:-}" in
+"" | -h | --help)
+  usage
+  [ $# -eq 0 ] && exit 1
+  exit 0
+  ;;
+debug) cmd_debug "${2:-}" ;;
+status) cmd_status ;;
+stop) cmd_stop ;;
+*)
+  [ "$HEADLESS" = 1 ] && die "--headless は debug でのみ使える（開くだけの用途では意味が無い）"
+  cmd_open "$1"
+  ;;
+esac

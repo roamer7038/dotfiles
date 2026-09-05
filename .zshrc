@@ -130,7 +130,7 @@ if [[ "$(uname -r)" == *microsoft* ]]; then
     /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1)
   }
   alias explorer='open'
-  export BROWSER="$HOME/dotfiles/bin/chrome-browser"
+  export BROWSER="$HOME/dotfiles/bin/wsl-chrome"
 
   # pwsh 7 を優先し、無ければ Windows PowerShell にフォールバックする
   if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
