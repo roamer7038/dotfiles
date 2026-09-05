@@ -16,7 +16,7 @@ Linux デスクトップ／サーバ環境の設定ファイル群。
 
 | プリセット | 内容 |
 | --- | --- |
-| `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `shell/common.sh`）と、`~/.local/bin` へのコマンドリンク |
+| `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `config/profile.d/`）と、`~/.local/bin` へのコマンドリンク |
 | `standard` | minimal + Vim + Claude Code 設定 + zsh プラグイン（推奨） |
 | `desktop` | standard + X11 + GUI アプリケーション |
 | `full` | desktop + i3wm |
@@ -40,10 +40,10 @@ i3wm の設定は Arch Linux で確認したものだが、2025年時点で保�
 ```
 Makefile          セットアップの入口
 .editorconfig     エディタ共通の書式設定
-shell/common.sh   Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス）
 bin/              セットアップ用スクリプトと各種ユーティリティ
 bin/lib/          bin/ 配下で共有するログ出力と配置対象の定義
 config/           ~/.config 配下へ配置する設定
+config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス）
 docs/             個別機能のドキュメント
 .claude/          Claude Code の設定
 ```
@@ -133,27 +133,34 @@ vim-plug が未導入の環境では、読み込むと導入が走ってしま�
 	email = your@example.com
 ```
 
-### 環境ごとの設定
+### シェルの設定（profile.d）
 
-`~/.config/profile.d/` はこの dotfiles が管理しない、利用者のための置き場所である。
-プロキシ設定や環境変数など、環境ごとに異なる設定をファイル単位で追加できる。
+`.bashrc` と `.zshrc` は、起動時に `~/.config/profile.d/` 配下を名前順に読み込む。
+PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスはこの仕組みで配る。
+シェル固有の設定は各 rc 側に置く。
+
+```
+~/.config/profile.d/00-common.sh   dotfiles が置く共通設定（編集しない）
+~/.config/profile.d/*.sh           利用者が自由に置く設定
+```
+
+`00-common.sh` はリポジトリの `config/profile.d/00-common.sh` へのリンクで、名前順で最初に読まれる。
+プロキシ設定や環境ごとの環境変数は、利用者が同じディレクトリへファイルを足して指定する。
+`00-common.sh` より後に読まれるため、共通設定の値をここで上書きできる。
 
 ```bash
-mkdir -p ~/.config/profile.d
 echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/proxy.sh
 ```
 
-Bash と Zsh のどちらも、起動時にこのディレクトリ配下を名前順に読み込む。
-Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む。
-Bash 側が読むのは `.bashrc` を配置した場合に限る（既定ではシステムのものを残すため）。
-共通設定（`shell/common.sh`）より後に読み込むので、環境変数はここで上書きできる。
-ただし Zsh の補完の配色のように、読み込みより前に値を確定させる設定は上書きできない。
-読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない。
+読み込みには次の制約がある。
 
-### Bash と Zsh の共通設定
+- Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む
+- Bash 側が読むのは `.bashrc` を配置した場合に限る（既定ではシステムのものを残すため）
+- 読み込みより前に値を確定させる設定（Zsh の補完の配色など）は上書きできない
+- 読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない
 
-PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスは `shell/common.sh` にまとめてあり、`.bashrc` と `.zshrc` の双方から読み込む。
-配置先は `~/.config/shell/common.sh`。シェル固有の設定は各 rc 側に置く。
+以前は共通設定を `~/.config/shell/common.sh` へ配置していた。
+そこから移行する場合、古いリンクは `make doctor` がリンク切れとして報告するので `rm -r ~/.config/shell` で消す。
 
 ### Vim
 

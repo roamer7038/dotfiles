@@ -90,7 +90,7 @@ fmt:
 		echo "  sudo apt install shfmt"; \
 		exit 1; \
 	}
-	shfmt -w -i 2 bin shell
+	shfmt -w -i 2 bin config/profile.d
 
 help:
 	@echo "Available targets:"

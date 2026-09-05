@@ -67,7 +67,8 @@ check_syntax() {
   # rc ファイルは shebang を持たないので個別に見る
   zsh -n .zshrc || fail "zsh 構文エラー: .zshrc"
   bash -n .bashrc || fail "bash 構文エラー: .bashrc"
-  sh -n shell/common.sh || fail "sh 構文エラー: shell/common.sh"
+  sh -n config/profile.d/00-common.sh ||
+    fail "sh 構文エラー: config/profile.d/00-common.sh"
   n=$((n + 3))
 
   log_ok "シェル構文: $n ファイル"
@@ -135,7 +136,7 @@ check_shfmt() {
     return
   fi
 
-  diff=$(shfmt -d -i 2 bin shell 2>&1) || true
+  diff=$(shfmt -d -i 2 bin config/profile.d 2>&1) || true
   if [ -n "$diff" ]; then
     fail "shfmt の整形結果と差がある（make fmt で修正）"
     echo "$diff" | head -40

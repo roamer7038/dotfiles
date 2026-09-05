@@ -48,7 +48,7 @@ PRESET OPTIONS:
 
 INDIVIDUAL OPTIONS:
   --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig,
-                       .latexmkrc), the shared shell/common.sh, and the
+                       .latexmkrc), the shared config/profile.d, and the
                        helper commands (pane, multissh, wsl-chrome) in
                        ~/.local/bin
   --vim                Vim configuration files
@@ -210,6 +210,33 @@ resolve_dependencies() {
 # リンクの作成
 # ============================================================
 
+# 配置先ディレクトリを用意する。DRY-RUN では作らない。
+ensure_dir() {
+  [ "$DRY_RUN" = true ] && return 0
+  mkdir -p "$1"
+}
+
+# config/<dir>/ 配下を ~/.config/<dir>/ へ配置する
+link_config_dir() {
+  local dir="$1"
+  local src_dir="$DOTFILES_ROOT/config/$dir"
+  local dest_dir="$HOME/.config/$dir"
+  local file filename
+
+  if [ ! -d "$src_dir" ]; then
+    log_verbose "Source directory not found: $src_dir"
+    return
+  fi
+
+  ensure_dir "$dest_dir"
+
+  for file in "$src_dir"/*; do
+    [ -e "$file" ] || continue
+    filename=$(basename "$file")
+    create_symlink "$file" "$dest_dir/$filename" "$dir/$filename"
+  done
+}
+
 create_symlink() {
   local src="$1"
   local dest="$2"
@@ -259,16 +286,11 @@ create_basic_links() {
     fi
   done
 
-  # bash と zsh の共通設定は ~/.config/shell/ に置き、両方の rc から読み込む
-  local common_src="$DOTFILES_ROOT/$DOTFILES_SHELL_COMMON"
-  local common_dir="$HOME/.config/shell"
-
-  if [ -f "$common_src" ]; then
-    [ "$DRY_RUN" = true ] || mkdir -p "$common_dir"
-    create_symlink "$common_src" "$common_dir/common.sh" "shell/common.sh"
-  else
-    log_verbose "Source file not found: $common_src"
-  fi
+  # bash と zsh の共通設定は profile.d のドロップインとして置く
+  local dir
+  for dir in "${DOTFILES_SHELL_DIRS[@]}"; do
+    link_config_dir "$dir"
+  done
 }
 
 # コマンドとして直接呼ぶスクリプトを PATH の通った場所へ置く。
@@ -278,7 +300,7 @@ create_command_links() {
 
   local dest_dir="$HOME/.local/bin"
 
-  [ "$DRY_RUN" = true ] || mkdir -p "$dest_dir"
+  ensure_dir "$dest_dir"
 
   local cmd src
   for cmd in "${DOTFILES_COMMANDS[@]}"; do
@@ -328,25 +350,9 @@ create_gui_links() {
     app_dirs+=("${DOTFILES_I3WM_DIRS[@]}")
   fi
 
+  local dir
   for dir in "${app_dirs[@]}"; do
-    local src_dir="$DOTFILES_ROOT/config/$dir"
-    local dest_dir="$HOME/.config/$dir"
-
-    if [ ! -d "$src_dir" ]; then
-      log_verbose "Source directory not found: $src_dir"
-      continue
-    fi
-
-    if [ "$DRY_RUN" != true ]; then
-      mkdir -p "$dest_dir"
-    fi
-
-    for file in "$src_dir"/*; do
-      if [ -e "$file" ]; then
-        local filename=$(basename "$file")
-        create_symlink "$file" "$dest_dir/$filename" "$dir/$filename"
-      fi
-    done
+    link_config_dir "$dir"
   done
 }
 
@@ -368,9 +374,7 @@ create_claude_agent_links() {
 
   local files=("${DOTFILES_AGENT[@]}")
 
-  if [ "$DRY_RUN" != true ]; then
-    mkdir -p "$dest_dir"
-  fi
+  ensure_dir "$dest_dir"
 
   for file in "${files[@]}"; do
     local src="$src_dir/$file"

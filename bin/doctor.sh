@@ -87,9 +87,6 @@ check_links() {
     check_link "$HOME/$f" "$DOTFILES_ROOT/$f" "$f"
   done
 
-  check_link "$HOME/.config/shell/common.sh" \
-    "$DOTFILES_ROOT/$DOTFILES_SHELL_COMMON" "$DOTFILES_SHELL_COMMON"
-
   for f in "${DOTFILES_COMMANDS[@]}"; do
     check_link "$HOME/.local/bin/$f" "$DOTFILES_ROOT/bin/$f" "bin/$f"
   done
@@ -98,7 +95,8 @@ check_links() {
     check_link "$HOME/$f" "$DOTFILES_ROOT/$f" "$f"
   done
 
-  for d in "${DOTFILES_GUI_DIRS[@]}" "${DOTFILES_I3WM_DIRS[@]}"; do
+  for d in "${DOTFILES_SHELL_DIRS[@]}" "${DOTFILES_GUI_DIRS[@]}" \
+    "${DOTFILES_I3WM_DIRS[@]}"; do
     [ -d "$DOTFILES_ROOT/config/$d" ] || continue
     for f in "$DOTFILES_ROOT/config/$d"/*; do
       [ -e "$f" ] || continue

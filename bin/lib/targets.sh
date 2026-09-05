@@ -6,15 +6,15 @@ DOTFILES_BASIC=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
 DOTFILES_VIM=(.vimrc)
 DOTFILES_X11=(.Xmodmap .xprofile .picom.conf)
 
-# shell/common.sh -> $HOME/.config/shell/common.sh
-DOTFILES_SHELL_COMMON=shell/common.sh
-
 # bin/<name> -> $HOME/.local/bin/<name>
 # コマンドとして直接呼ぶものだけを挙げる。フックや設定ファイルから
 # 絶対パスで呼ばれるスクリプトは対象にしない。
 DOTFILES_COMMANDS=(pane multissh wsl-chrome)
 
 # config/<dir>/* -> $HOME/.config/<dir>/*
+# profile.d には bash と zsh の共通設定（00-common.sh）が入る。
+# 利用者が同じディレクトリに置いたファイルは名前順で後に読まれる。
+DOTFILES_SHELL_DIRS=(profile.d)
 DOTFILES_GUI_DIRS=(terminator dunst ranger)
 DOTFILES_I3WM_DIRS=(i3 i3status)
 

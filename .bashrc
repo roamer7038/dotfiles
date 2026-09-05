@@ -1,5 +1,5 @@
 # bash が非ログインの対話シェルとして起動したときに読み込まれる。
-# Zsh と共通の設定は shell/common.sh 側にある。
+# Zsh と共通の設定は config/profile.d/00-common.sh 側にある。
 
 # 対話シェルでなければ何もしない
 case $- in
@@ -85,22 +85,10 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # 外部設定の読み込み
 # ============================================================
 
-# --- 共通設定（Zsh と共有） ---
+# --- profile.d（Zsh と共有） ---
 
-# PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
-[ -r "$HOME/.config/shell/common.sh" ] && . "$HOME/.config/shell/common.sh"
-
-# --- その他 ---
-
-# less で書庫やバイナリも読めるようにする
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-[ -f ~/.bash_aliases ] && . ~/.bash_aliases
-
-# --- 環境ごとの設定 ---
-
-# ~/.config/profile.d/ は環境ごとの設定を自由に置く場所。Zsh も同じ場所を読む。
-# 利用者の設定を最後に効かせるため、他の読み込みより後に置く。
+# PATH・環境変数・配色・安全策のエイリアスは ~/.config/profile.d/ から読む。
+# dotfiles が置く 00-common.sh が先、利用者が置いたファイルが後になる。
 # Zsh 専用の *.zsh は対象にしない。glob がマッチしないと文字列のまま残るので -r で弾く
 if [ -d "$HOME/.config/profile.d" ]; then
   for file in "$HOME"/.config/profile.d/*.sh; do
@@ -108,3 +96,10 @@ if [ -d "$HOME/.config/profile.d" ]; then
   done
   unset file
 fi
+
+# --- その他 ---
+
+# less で書庫やバイナリも読めるようにする
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+[ -f ~/.bash_aliases ] && . ~/.bash_aliases

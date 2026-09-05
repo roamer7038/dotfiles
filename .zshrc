@@ -141,19 +141,25 @@ if [[ "$(uname -r)" == *microsoft* ]]; then
 fi
 
 # ============================================================
-# 共通設定と補完
+# 設定の読み込みと補完
 # ============================================================
 
-# --- 共通設定（bash と共有） ---
+# --- profile.d（bash と共有） ---
 
-# PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
-[ -r "$HOME/.config/shell/common.sh" ] && \
-  source "$HOME/.config/shell/common.sh"
+# PATH・環境変数・配色・安全策のエイリアスは ~/.config/profile.d/ から読む。
+# dotfiles が置く 00-common.sh が先、利用者が置いたファイルが後になる。
+# 後段の list-colors が LS_COLORS を必要とするため、補完設定より前に置く
+if [ -d "$HOME/.config/profile.d" ]; then
+  for file in "$HOME"/.config/profile.d/*.(sh|zsh)(N); do
+    [ -r "$file" ] && source "$file"
+  done
+  unset file
+fi
 
 # --- 補完 ---
 
 # list-colors は LS_COLORS を展開して覚えるため、それを設定する
-# common.sh（dircolors）より後に置く必要がある
+# 00-common.sh（dircolors）より後に置く必要がある
 zstyle ':completion:*:default' list-colors ${LS_COLORS}
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
 
@@ -167,16 +173,8 @@ zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
 # ============================================================
-# 外部設定・プラグインの読み込み
+# プラグインの読み込み
 # ============================================================
-
-# ~/.config/profile.d/ は環境ごとの設定を自由に置く場所。Bash も同じ場所を読む
-if [ -d "$HOME/.config/profile.d" ]; then
-  for file in "$HOME"/.config/profile.d/*.(sh|zsh)(N); do
-    [ -r "$file" ] && source "$file"
-  done
-  unset file
-fi
 
 # 入力中のコマンドを履歴から先読みして提案する
 if [ -d "$HOME/.zsh/zsh-autosuggestions" ]; then
