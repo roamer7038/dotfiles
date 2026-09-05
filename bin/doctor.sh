@@ -124,9 +124,11 @@ check_broken_links() {
       log_verbose "管理外の切れたリンク: $link -> $target"
       ;;
     esac
-  done < <(find "$HOME" -maxdepth 1 -xtype l 2>/dev/null
+  done < <(
+    find "$HOME" -maxdepth 1 -xtype l 2>/dev/null
     find "$HOME/.config" "$HOME/.local/bin" "$HOME/.claude" \
-      -maxdepth 2 -xtype l 2>/dev/null)
+      -maxdepth 2 -xtype l 2>/dev/null
+  )
 
   [ "$found" -eq 0 ] && log_ok "dotfiles 由来のリンク切れは無し"
 }

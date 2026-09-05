@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # リポジトリ全体の静的チェック。何も変更しない。
-# 構文、書式（.editorconfig 準拠）、Makefile のターゲット、
-# create-symlinks.sh のドライランを確認する。
+# 構文、書式（.editorconfig 準拠）、Makefile の全ターゲット、
+# create-symlinks.sh のドライラン、ドキュメントの相対リンク、
+# README の bin/ 一覧と実体の一致を確認する。
 #
 #   check.sh
 #
@@ -65,6 +66,13 @@ check_syntax() {
 }
 
 check_vim() {
+  # .vimrc は vim-plug が無ければ取得しに行くため、未導入の環境では
+  # 読み込んだ時点で変更が発生してしまう。その場合は飛ばす。
+  if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
+    log_skip "Vim 設定: vim-plug 未導入のため未確認（読み込むと導入が走る）"
+    return
+  fi
+
   if vim -Nu .vimrc -c 'qa!' >/dev/null 2>&1; then
     log_ok "Vim 設定: 読み込み可能"
   else
@@ -131,14 +139,21 @@ check_shfmt() {
 # --- 動作 ---
 
 check_make() {
-  local t
+  local t n=0
 
-  for t in minimal standard desktop full agent dry-run-full doctor check \
-    claude-hooks update fmt help; do
+  # 一覧を持たず .PHONY から取るので、ターゲットを増やしても追従する
+  for t in $(make --no-print-directory -p 2>/dev/null |
+    sed -n 's/^\.PHONY: //p' | tr ' ' '\n' | sort -u); do
     make -n "$t" >/dev/null 2>&1 || fail "make $t が解決できない"
+    n=$((n + 1))
   done
 
-  log_ok "Makefile: 全ターゲットが解決できる"
+  for t in minimal standard desktop full agent; do
+    make -n "dry-run-$t" >/dev/null 2>&1 || fail "make dry-run-$t が解決できない"
+    n=$((n + 1))
+  done
+
+  log_ok "Makefile: $n ターゲットが解決できる"
 }
 
 check_dry_run() {
@@ -176,6 +191,22 @@ check_docs() {
   fi
 }
 
+# bin/ にスクリプトを足して README に書き忘れる、を防ぐ
+check_bin_table() {
+  local f name missing=""
+
+  for f in $(git ls-files bin/ | grep -v '^bin/lib/'); do
+    name=$(basename "$f")
+    grep -q "^| \`$name\`" README.md || missing="$missing  $name"$'\n'
+  done
+
+  if [ -n "$missing" ]; then
+    fail "README の bin/ 一覧に無いスクリプト:"$'\n'"$missing"
+  else
+    log_ok "README: bin/ の一覧は実体と一致"
+  fi
+}
+
 # --- エントリポイント ---
 
 log_info "dotfiles: $DOTFILES_ROOT"
@@ -189,6 +220,7 @@ check_shfmt
 check_make
 check_dry_run
 check_docs
+check_bin_table
 echo
 
 if [ "$FAIL" -gt 0 ]; then

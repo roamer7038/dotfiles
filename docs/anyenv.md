@@ -39,8 +39,9 @@ nodenv install 18.0.0
 - rbenv でのビルドには依存パッケージが要る
 
   ```bash
-  apt install -y build-essential libssl-dev zlib1g-dev libyaml-dev
+  sudo apt install -y build-essential libssl-dev zlib1g-dev libyaml-dev
   ```
 
 - \*env を入れた後は必ずシェルを起動し直す
-- 全ての \*env とプラグインの更新は `anyenv update` で行う
+- 全ての \*env とプラグインの更新は `anyenv update` で行う。
+  `make update` からも呼ばれる

@@ -30,6 +30,11 @@ make standard           # 適用する
 上書きしたい場合やファイル単位で選びたい場合は
 `./bin/create-symlinks.sh --help` を参照。
 
+`.bashrc` はシステム既定を残すため、既定ではリンクしない
+（置き換えるなら `./bin/create-symlinks.sh --basic --force`）。
+`full` だけはリンクに加えて `bin/xinit.sh` を `~/.xinit.sh` へコピーする。
+リンクではないので、変更したら `make full` をやり直す必要がある。
+
 i3wm の設定は Arch Linux で確認したものだが、2025年時点で保守しておらず
 そのままでは動作しない可能性がある。
 
@@ -38,7 +43,7 @@ i3wm の設定は Arch Linux で確認したものだが、2025年時点で保�
 ```
 Makefile          セットアップの入口
 .editorconfig     エディタ共通の書式設定
-shell/common.sh   Bash と Zsh で共有する設定（PATH、配色、エイリアス）
+shell/common.sh   Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス）
 bin/              セットアップ用スクリプトと各種ユーティリティ
 bin/lib/          bin/ 配下で共有するログ出力と配置対象の定義
 config/           ~/.config 配下へ配置する設定
@@ -81,6 +86,12 @@ docs/             個別機能のドキュメント
 | `make bun` | bun | — |
 | `make claude-hooks` | Claude Code のフック設定 | [docs/tmux-claude-status.md](docs/tmux-claude-status.md) |
 
+特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
+
+```bash
+./bin/authorized_keys.sh username
+```
+
 ## 更新
 
 導入済みのものをまとめて更新する。未導入のものは飛ばす。dotfiles 自体は
@@ -99,12 +110,6 @@ make update
 
 `-n` を付けると実行内容だけを表示する。
 
-特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
-
-```bash
-./bin/authorized_keys.sh username
-```
-
 ## 点検
 
 どちらも読み取り専用で、何も変更しない。
@@ -114,12 +119,16 @@ make doctor   # 配置状態を点検する
 make check    # 構文・書式・ドライランを検査する
 ```
 
-`doctor` はリンクの有無と向き先、リンク切れ、リポジトリ外に残った古いコピー、
-依存コマンド、Claude Code のフック設定、`profile.d` の権限を見る。
+`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に
+残った古いコピー、依存コマンド、Claude Code のフック設定、`profile.d` の権限を
+見る。
 
 `check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、
-CRLF、末尾改行）、Makefile のターゲット、全プリセットのドライラン、
-ドキュメントの相対リンクを確認する。shfmt があれば整形差分も見る。
+CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、
+ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
+shfmt があれば整形差分も見る。
+vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は
+飛ばす。
 
 ## カスタマイズ
 
@@ -145,8 +154,9 @@ echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/p
 
 ### Bash と Zsh の共通設定
 
-PATH の構築、配色、上書き確認のエイリアスは `shell/common.sh` にまとめてあり、
-`.bashrc` と `.zshrc` の双方から読み込む。シェル固有の設定は各 rc 側に置く。
+PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスは
+`shell/common.sh` にまとめてあり、`.bashrc` と `.zshrc` の双方から読み込む。
+配置先は `~/.config/shell/common.sh`。シェル固有の設定は各 rc 側に置く。
 
 ### Vim
 
