@@ -30,7 +30,11 @@ fi
 # --- 設定 ---
 
 # 状態ごとのウィンドウステータスのスタイル
-STYLE_RUNNING="bg=colour24,fg=colour255"
+# 実行中は着色しない（空文字＝グローバル設定のまま）
+# スピナーがステータスバー上で唯一動く要素なので、色を足さなくても見つかる
+# 塗りつぶすとアクティブなウィンドウより目立ってしまうため、
+# 色は操作を促したい承認待ち・完了のためだけに使う
+STYLE_RUNNING=""
 STYLE_WAITING="bg=colour136,fg=colour232"
 STYLE_DONE="bg=colour22,fg=colour255"
 
@@ -161,12 +165,25 @@ repaint_window() {
 
 # ウィンドウに状態に応じた色と書式を設定する（none なら解除）
 apply_window() {
-  local win=$1 state=$2 style="" opt base fmt mark
+  local win=$1 state=$2 style="" mark="" opt base fmt
 
+  # 状態ごとの配色と、ウィンドウ名の後ろに出す印を決める
+  # 実行中は回転するスピナー、承認待ち・完了は静止アイコン
   case "$state" in
-  waiting) style=$STYLE_WAITING ;;
-  "done") style=$STYLE_DONE ;;
-  running) style=$STYLE_RUNNING ;;
+  waiting)
+    style=$STYLE_WAITING
+    mark=$ICON_WAITING
+    ;;
+  "done")
+    style=$STYLE_DONE
+    mark=$ICON_DONE
+    ;;
+  running)
+    style=$STYLE_RUNNING
+    if [ "$SPINNER" = "on" ]; then
+      mark="#($SELF --spinner)"
+    fi
+    ;;
   esac
 
   for opt in window-status-style window-status-activity-style; do
@@ -186,23 +203,11 @@ apply_window() {
   # 反転がこのスクリプトの背景色を打ち消してしまうため
   # 上の window-status-activity-style の設定は、利用者が個別に監視を
   # 戻した場合に色が反転しないようにするための保険として残している
-  if [ -n "$style" ]; then
-    tmux set-window-option -t "$win" monitor-activity off 2>/dev/null
-  else
-    tmux set-window-option -u -t "$win" monitor-activity 2>/dev/null
-  fi
-
-  # 状態を示す印をウィンドウ名の後ろに出す
-  # 実行中は回転するスピナー、承認待ち・完了は静止アイコン
-  mark=""
+  # 判断は配色ではなく状態で行う。実行中は着色しないため、配色の有無で
+  # 判断すると監視が戻ってしまい # と反転が出てしまう
   case "$state" in
-  running)
-    if [ "$SPINNER" = "on" ]; then
-      mark="#($SELF --spinner)"
-    fi
-    ;;
-  waiting) mark=$ICON_WAITING ;;
-  "done") mark=$ICON_DONE ;;
+  none | "") tmux set-window-option -u -t "$win" monitor-activity 2>/dev/null ;;
+  *) tmux set-window-option -t "$win" monitor-activity off 2>/dev/null ;;
   esac
 
   # 非アクティブ用(window-status-format)とアクティブ用
