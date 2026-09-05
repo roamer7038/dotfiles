@@ -29,7 +29,8 @@ make standard           # 適用する
 
 上書きしたい場合やファイル単位で選びたい場合は `./bin/create-symlinks.sh --help` を参照。
 
-`.bashrc` はシステム既定を残すため、既定ではリンクしない（置き換えるなら `./bin/create-symlinks.sh --basic --force`）。
+`.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしているため、他のファイルと同じく配置対象に含める。
+既存ファイルは上書きしないので、置き換えるなら `./bin/create-symlinks.sh --basic --force` を使う。
 `full` だけはリンクに加えて `bin/xinit.sh` を `~/.xinit.sh` へコピーする。
 リンクではないので、変更したら `make full` をやり直す必要がある。
 

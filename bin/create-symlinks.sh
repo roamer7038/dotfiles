@@ -73,7 +73,7 @@ EXAMPLES:
 
 NOTES:
   - i3wm configuration requires GUI configs, so --gui is auto-enabled with --i3wm
-  - Existing .bashrc will be skipped by default (use --force to overwrite)
+  - Existing files are skipped by default (use --force to overwrite)
   - Use --dry-run to preview changes before applying them
 
 EOM
@@ -272,12 +272,6 @@ create_basic_links() {
   for file in "${DOTFILES_BASIC[@]}"; do
     local src="$DOTFILES_ROOT/$file"
     local dest="$HOME/$file"
-
-    # .bashrcは特別扱い（システムデフォルトを保持）
-    if [ "$file" = ".bashrc" ] && [ -e "$HOME/.bashrc" ] && [ "$FORCE" != true ]; then
-      log_skip ".bashrc (preserving system default, use --force to overwrite)"
-      continue
-    fi
 
     if [ -f "$src" ]; then
       create_symlink "$src" "$dest" "$file"

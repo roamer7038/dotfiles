@@ -79,11 +79,6 @@ check_links() {
   local f d
 
   for f in "${DOTFILES_BASIC[@]}"; do
-    # .bashrc は既定でシステムのものを残すため、実体ファイルでも異常ではない
-    if [ "$f" = ".bashrc" ] && [ ! -L "$HOME/.bashrc" ] && [ -e "$HOME/.bashrc" ]; then
-      log_verbose ".bashrc: システム既定を使用中（--force で置き換え可能）"
-      continue
-    fi
     check_link "$HOME/$f" "$DOTFILES_ROOT/$f" "$f"
   done
 
