@@ -4,7 +4,7 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
 #
-# リポジトリが無い状態で curl から実行されるため bin/lib/ には依存しない。
+# リポジトリが無い状態で curl から実行されるため、他のスクリプトに依存しない。
 # clone 以降は Makefile と既存スクリプトへ委譲する。
 # Docker はシステムへの影響が大きいため導入せず、最後に案内するだけにする。
 

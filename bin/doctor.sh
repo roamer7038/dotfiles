@@ -12,6 +12,7 @@ set -u
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+LINKS_FILE="$DOTFILES_ROOT/links"
 
 # ============================================================
 # 準備と共通処理
@@ -35,7 +36,6 @@ log_skip() { echo "$Y[SKIP]$N $*"; }
 log_warn() { echo "$Y[WARN]$N $*"; }
 log_error() { echo "$R[ERROR]$N $*" >&2; }
 log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
-source "$SCRIPT_DIR/lib/targets.sh"
 
 WARN_COUNT=0
 NG_COUNT=0
@@ -84,32 +84,30 @@ check_link() {
 check_links() {
   log_info "配置状態を確認しています..."
 
-  local f d
+  if [ ! -r "$LINKS_FILE" ]; then
+    ng "配置対象の定義が読めない: $LINKS_FILE"
+    return
+  fi
 
-  for f in "${DOTFILES_BASIC[@]}"; do
-    check_link "$HOME/$f" "$DOTFILES_ROOT/$f" "$f"
-  done
+  local src dest tag file name
 
-  for f in "${DOTFILES_COMMANDS[@]}"; do
-    check_link "$HOME/.local/bin/$f" "$DOTFILES_ROOT/bin/$f" "bin/$f"
-  done
+  while read -r src dest tag; do
+    case "$src" in '' | '#'*) continue ;; esac
+    dest="$HOME/${dest#\~/}"
 
-  for f in "${DOTFILES_VIM[@]}" "${DOTFILES_X11[@]}"; do
-    check_link "$HOME/$f" "$DOTFILES_ROOT/$f" "$f"
-  done
-
-  for d in "${DOTFILES_SHELL_DIRS[@]}" "${DOTFILES_GUI_DIRS[@]}" \
-    "${DOTFILES_I3WM_DIRS[@]}"; do
-    [ -d "$DOTFILES_ROOT/config/$d" ] || continue
-    for f in "$DOTFILES_ROOT/config/$d"/*; do
-      [ -e "$f" ] || continue
-      check_link "$HOME/.config/$d/$(basename "$f")" "$f" "config/$d/$(basename "$f")"
-    done
-  done
-
-  for f in "${DOTFILES_AGENT[@]}"; do
-    check_link "$HOME/.claude/$f" "$DOTFILES_ROOT/.claude/$f" ".claude/$f"
-  done
+    case "$src" in
+    */)
+      for file in "$DOTFILES_ROOT/$src"*; do
+        [ -e "$file" ] || continue
+        name=$(basename "$file")
+        check_link "${dest%/}/$name" "$file" "$src$name"
+      done
+      ;;
+    *)
+      check_link "$dest" "$DOTFILES_ROOT/$src" "$src"
+      ;;
+    esac
+  done <"$LINKS_FILE"
 
   log_ok "リンク済み $LINKED 件 / 未配置 $UNLINKED 件"
 }
