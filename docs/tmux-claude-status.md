@@ -28,7 +28,7 @@ make claude-hooks
 | 要件 | 確認方法 | 備考 |
 | --- | --- | --- |
 | `.tmux.conf` が配置されている | `make minimal` 以上のプリセット | 既読化のフックと `focus-events on` がここにある |
-| `jq` が入っている | `jq --version` | `make claude-hooks` が使う |
+| `jq` が入っている | `jq --version` | `make claude-hooks` が使う。状態表示でも使うが、無い場合は文字列の一致で代用する |
 
 `agent` プリセット（Claude Code 設定のみ）では `.tmux.conf` が配置されない。
 その場合は既読化が働かず「承認待ち」「完了」が消えないので、[既読化のフック](#既読化のフック)を自分の `.tmux.conf` に写す。
@@ -63,6 +63,12 @@ make claude-hooks
     "UserPromptSubmit": [
       { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
     ],
+    "PreToolUse": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
+    ],
+    "PostToolUse": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
+    ],
     "Notification": [
       { "matcher": "permission_prompt|elicitation_dialog|elicitation_url_dialog|agent_needs_input", "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" waiting", "timeout": 5 } ] }
     ],
@@ -78,6 +84,9 @@ make claude-hooks
 
 `Notification` の `matcher` は必須。
 省略すると入力を促すもの以外の通知（放置すると届く `idle_prompt` など）まで拾ってしまい、「完了」の表示がすぐ「承認待ち」に化ける。
+
+`PreToolUse` と `PostToolUse` には `matcher` を付けない。
+ツールを1つでも呼んでいれば本体が動いている証拠なので、種類で区別する理由がない。
 
 ### 既読化のフック
 
@@ -113,12 +122,13 @@ stateDiagram-v2
     state "完了" as done
 
     [*] --> none
-    none --> running: UserPromptSubmit
-    done --> running: UserPromptSubmit
-    waiting --> running: UserPromptSubmit
+    none --> running: UserPromptSubmit / PreToolUse / PostToolUse
+    done --> running: UserPromptSubmit / PreToolUse / PostToolUse
+    waiting --> running: UserPromptSubmit / PreToolUse / PostToolUse
     running --> waiting: Notification（承認・入力要求）
-    running --> done: Stop
-    waiting --> done: Stop
+    running --> done: Stop（バックグラウンド作業なし）
+    waiting --> done: Stop（バックグラウンド作業なし）
+    running --> running: Stop（バックグラウンド作業あり）
     waiting --> none: 既読化
     done --> none: 既読化
     running --> none: SessionEnd
@@ -126,6 +136,8 @@ stateDiagram-v2
     done --> none: SessionEnd
 ```
 
+- 「実行中」に戻す入口は3つ。ユーザが入力した時（`UserPromptSubmit`）と、ツールを呼ぶ時（`PreToolUse`）と、ツールが終わった時（`PostToolUse`）
+- バックグラウンド作業が残っている間の `Stop` は「完了」にしない。判断には `Stop` の入力に含まれる `background_tasks` を使う（[後述](#バックグラウンド作業が残っている間は完了にしない)）
 - 「承認待ち」にするのは承認ダイアログや入力要求の通知だけ。通知の種類は `matcher` で絞る（[追加される内容](#追加される内容)）
 - 既読化はウィンドウを選んだ時（`after-select-window`）とペインからフォーカスが外れた時（`pane-focus-out`）に走る。対象は「承認待ち」「完了」だけで、「実行中」は残るのでスピナーは回り続ける
 - `SessionEnd`（Claude Code の終了）はどの状態からでも「なし」に戻す。強制終了などでフックが動かなかった場合も、記録したプロセスが消えていれば次にスクリプトが動いた時点で解除される
@@ -176,12 +188,38 @@ tmux の外、または tmux が無い環境では何もせず正常終了する
 | 何も表示されない | `make doctor` でフック設定を確認する。`jq` が無いと `make claude-hooks` が失敗している |
 | 承認待ち・完了が消えない | `.tmux.conf` の既読化フックと `focus-events on` が入っているか確認する（[既読化のフック](#既読化のフック)） |
 | ウィンドウに `#` が残る | 一度そのウィンドウを開く。tmux は実際に表示したときにしかフラグを落とさない |
+| 実行中の印が消えない | バックグラウンド作業が残っていないか確認する。`Stop` は `background_tasks` に動いているものが無くなるまで「完了」にしない |
 | 状態が残ったまま戻らない | 状態ファイルを消す（`rm -rf "$XDG_RUNTIME_DIR/tmux-claude-status"`）か、tmux サーバを終了する |
 | ステータスバーの更新が速いままになった | `tmux show -gv status-interval` を確認する。1 のままなら `tmux set -g status-interval 10` で戻す |
 
 ## 仕組み
 
 以下は設計上の判断の記録。実装の詳細は`bin/tmux-claude-status.sh` のコメントを参照。
+
+### ツール呼び出しでも「実行中」に戻す
+
+バックグラウンド作業の完了で本体が再開するとき、ユーザは何も入力していないので `UserPromptSubmit` は発火しない。
+状態を「実行中」に戻せるのはツール関連のイベントだけなので、`PreToolUse` と `PostToolUse` の両方を使う。
+
+`PreToolUse` は時間のかかるツールでも、その開始時点で「実行中」にできる。
+`PostToolUse` は承認ダイアログを承認した直後に効く。
+承認そのものを知らせるイベントが無いため、これが無いと承認して作業が再開しても「承認待ち」の印が残ったままになる。
+
+ツールを呼ぶたびにフックが走るので、既に「実行中」が記録されている場合は状態ファイルを読んだだけで終了する。
+tmux を起動するのは状態が実際に動くときだけで、通常のターンの途中では1回も起動しない。
+
+### バックグラウンド作業が残っている間は完了にしない
+
+`Stop` はメインエージェントが応答を終えた時点で発火する。
+このときバックグラウンドのシェルやサブエージェントが動いていることがあり、そのまま「完了」にすると誤報になる。
+
+`Stop` の入力には、このセッションのバックグラウンド作業を並べた `background_tasks` が含まれる。
+その中に動いているもの（`status` が `running` か `pending`）があれば、「完了」にせず「実行中」を維持する。
+作業が終わると Claude Code がエージェントを呼び直し、空の `background_tasks` を持つ `Stop` が改めて届くので、そこで「完了」になる。
+
+判定は `jq` があれば `jq` で行い、無ければ文字列の一致で代用する。
+このスクリプトの実行時に `jq` を必須にしないため。
+`background_tasks` を返さない古い Claude Code では判定が常に偽になり、従来どおり `Stop` がそのまま「完了」になる。
 
 ### 実行中を着色しない
 
