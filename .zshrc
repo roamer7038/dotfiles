@@ -78,30 +78,14 @@ PROMPT="%F{034}%B[%n@%m]%b%f %F{075}%3~%f
 RPROMPT='%B${vcs_info_msg_0_}%b%{${reset_color}%}%F{178}%B[%*]%b%f%{${reset_color}%}'
 
 # ============================================================
-# エイリアスと関数
+# エイリアス
 # ============================================================
 
-# --- エイリアス ---
+# 共通のエイリアスは 00-common.sh 側にある。ここは zsh 固有の記法のみ。
 
-alias l='ls'
-alias s='ls'
-alias ks='ls'
-alias la='ls -a'
-alias ll='ls -l'
-
-# 末尾の空白が「次の語もエイリアス展開せよ」の指示になる
-alias sudo='sudo '
-
+# グローバルエイリアス（コマンドの途中でも展開される）
 alias -g L='| less'
 alias -g G='| grep'
-
-# --- 関数 ---
-
-# SSH 先の tmux セッションに繋ぐ（無ければ作る）
-ssht() {
-  ssh -t $1 "tmux -u a || tmux -u new-session"
-}
-compdef _ssh_hosts ssht
 
 # ============================================================
 # OS ごとの設定
@@ -150,6 +134,9 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' ignore-parents parent pwd ..
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+
+# 00-common.sh の ssht にホスト名の補完を効かせる
+compdef _ssh_hosts ssht
 
 # ============================================================
 # プラグインの読み込み

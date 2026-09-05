@@ -14,6 +14,9 @@ export SYSTEMD_EDITOR=/usr/bin/vim
 # -R: 色のエスケープを解釈 / -x4: タブ幅4
 export LESS='-i -M -R -x4'
 
+# less で書庫やバイナリも読めるようにする
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
 # BSD ls 用の配色（GNU ls は後段の dircolors が設定する LS_COLORS を使う）
 export LSCOLORS=Exfxcxdxbxegedabagacad
 
@@ -76,6 +79,15 @@ fi
 # エイリアス
 # ============================================================
 
+alias l='ls'
+alias s='ls'
+alias ks='ls'
+alias la='ls -a'
+alias ll='ls -l'
+
+# 末尾の空白が「次の語もエイリアス展開せよ」の指示になる
+alias sudo='sudo '
+
 # 上書き・削除の前に確認する
 alias rm='rm -i'
 alias cp='cp -i'
@@ -85,6 +97,16 @@ alias mkdir='mkdir -p'
 
 # 標準入力をクリップボードへ
 alias C='xsel --input --clipboard'
+
+# ============================================================
+# 関数
+# ============================================================
+
+# SSH 先の tmux セッションに繋ぐ（無ければ作る）
+# zsh 側で compdef によりホスト名の補完を効かせている
+ssht() {
+  ssh -t "$1" "tmux -u a || tmux -u new-session"
+}
 
 # ============================================================
 # OS ごとの設定
