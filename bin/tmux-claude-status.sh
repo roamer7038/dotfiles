@@ -186,15 +186,20 @@ apply_window() {
   fi
 
   # 実行中だけウィンドウ名の後ろにスピナーを出す
+  # 非アクティブ用(window-status-format)とアクティブ用
+  # (window-status-current-format)の両方に付ける
+  # ウィンドウを行き来しても表示が途切れず、コピーモード中など
+  # Claude Code の画面が見えていないときも状態が分かる
   # 書式はグローバル設定を実行時に読んで組み立てるので、
-  # .tmux.conf の window-status-format を変えても追従する
-  if [ "$state" = "running" ] && [ "$SPINNER" = "on" ]; then
-    base=$(tmux show-options -gv window-status-format 2>/dev/null) || base=""
-    tmux set-window-option -t "$win" window-status-format \
-      "$base#($SELF --spinner)" 2>/dev/null
-  else
-    tmux set-window-option -u -t "$win" window-status-format 2>/dev/null
-  fi
+  # .tmux.conf 側を変えても追従する
+  for opt in window-status-format window-status-current-format; do
+    if [ "$state" = "running" ] && [ "$SPINNER" = "on" ]; then
+      base=$(tmux show-options -gv "$opt" 2>/dev/null) || base=""
+      tmux set-window-option -t "$win" "$opt" "$base#($SELF --spinner)" 2>/dev/null
+    else
+      tmux set-window-option -u -t "$win" "$opt" 2>/dev/null
+    fi
+  done
 }
 
 # 実行中のウィンドウが1つでも存在するか
