@@ -165,7 +165,8 @@ check_make() {
     n=$((n + 1))
   done
 
-  for t in minimal standard desktop agent; do
+  # プリセットの一覧も Makefile の PRESETS から取る（プリセット定義は Makefile だけにある）
+  for t in $(sed -n 's/^PRESETS[[:space:]]*:=[[:space:]]*//p' Makefile); do
     make -n "dry-run-$t" >/dev/null 2>&1 || fail "make dry-run-$t が解決できない"
     n=$((n + 1))
   done
@@ -176,7 +177,8 @@ check_make() {
 check_dry_run() {
   local p
 
-  for p in minimal standard desktop agent; do
+  # プリセットの一覧は Makefile の PRESETS から取る（プリセット定義は Makefile だけにある）
+  for p in $(sed -n 's/^PRESETS[[:space:]]*:=[[:space:]]*//p' Makefile); do
     make "dry-run-$p" >/dev/null 2>&1 || fail "make dry-run-$p が失敗"
   done
 
@@ -226,7 +228,7 @@ check_bin_table() {
 # --- links の書式 ---
 
 check_links_file() {
-  local src dest tag extra line=0 n=0 s_dir d_dir
+  local src dest tag extra line=0 n=0 s_dir d_dir fail_before=$FAIL
 
   while read -r src dest tag extra; do
     line=$((line + 1))
@@ -252,14 +254,16 @@ check_links_file() {
     n=$((n + 1))
   done <links
 
-  log_ok "links: $n 件の配置対象"
+  if [ "$FAIL" -eq "$fail_before" ]; then
+    log_ok "links: $n 件の配置対象"
+  fi
 }
 
 # links のタグと Makefile のプリセット定義が食い違っていないかを見る。
 # links 自身からタグ集合を作ると自分自身との照合になり何も検出できないため、
 # 独立した情報源である Makefile の TAGS_* と突き合わせる
 check_tags() {
-  local in_links in_make t
+  local in_links in_make t fail_before=$FAIL
 
   in_links=$(awk '$1 !~ /^#/ && NF == 3 { print $3 }' links | sort -u)
   in_make=$(sed -n 's/^TAGS_[a-z]*[[:space:]]*:=[[:space:]]*//p' Makefile |
@@ -275,7 +279,9 @@ check_tags() {
       fail "Makefile のプリセットが使うタグ $t が links に無い"
   done
 
-  log_ok "タグ: links と Makefile のプリセット定義が一致"
+  if [ "$FAIL" -eq "$fail_before" ]; then
+    log_ok "タグ: links と Makefile のプリセット定義が一致"
+  fi
 }
 
 # ============================================================
