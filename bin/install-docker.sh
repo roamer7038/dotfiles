@@ -1,40 +1,14 @@
 #!/bin/bash
-# ============================================================
-# install-docker.sh
-# ============================================================
 #
-# 概要:
-#   Docker EngineとLazydockerを自動インストールするスクリプト
-#
-# 用途:
-#   新しいLinuxサーバー・マシンにDockerをセットアップ
-#   Dockerの便利なTUIツール（Lazydocker）も同時にインストール
-#
-# 依存関係:
-#   - curl
-#   - bash
-#   - インターネット接続
-#
-# インストールされるもの:
-#   1. Docker Engine（公式インストールスクリプト使用）
-#   2. Lazydocker（DockerコンテナのTUI管理ツール）
-#
-# 使用例:
-#   $ ./install-docker.sh
-#
-# 注意事項:
-#   - インストール後、Dockerを使用するにはログアウト/ログインが必要です
-#   - 現在のユーザーがdockerグループに追加されます
-#
-# ============================================================
+# Docker Engine（公式スクリプト）と Lazydocker を導入する。
+# 実行ユーザを docker グループに追加するため、反映にはログアウトが要る。
+# 手順の詳細は docs/docker.md を参照。
 
 set +xe
 
 echo "Starting Docker installation..."
 
-###########################################################
-# Docker Engine のインストール
-###########################################################
+# --- Docker Engine のインストール ---
 
 echo "Installing Docker Engine..."
 
@@ -49,9 +23,7 @@ rm -f get-docker.sh
 
 echo "Docker Engine installation completed."
 
-###########################################################
-# Lazydocker のインストール
-###########################################################
+# --- Lazydocker のインストール ---
 
 echo "Installing Lazydocker..."
 
@@ -65,9 +37,7 @@ sudo mv $HOME/.local/bin/lazydocker /usr/local/bin
 
 echo "Lazydocker installation completed."
 
-###########################################################
-# ユーザーをdockerグループに追加
-###########################################################
+# --- ユーザーをdockerグループに追加 ---
 
 echo "Adding current user to docker group..."
 
@@ -77,9 +47,7 @@ sudo gpasswd -a $USER docker
 
 echo "User added to docker group."
 
-###########################################################
-# 完了メッセージ
-###########################################################
+# --- 完了メッセージ ---
 
 echo ""
 echo "============================================"

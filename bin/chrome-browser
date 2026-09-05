@@ -1,33 +1,9 @@
 #!/usr/bin/env bash
-# ============================================================
-# chrome-browser
-# ============================================================
 #
-# 概要:
-#   WSL2環境からWindowsのGoogle Chromeを起動するラッパースクリプト
-#
-# 用途:
-#   WSL2内でファイルやURLをChromeで開く際に使用
-#   環境変数BROWSERに設定することで、様々なCLIツールから呼び出し可能
-#
-# 依存関係:
-#   - WSL2環境
-#   - Windows側にGoogle Chromeがインストール済み
-#   - wslpathコマンド（WSL2に標準搭載）
-#
-# 使用例:
-#   $ chrome-browser https://example.com
-#   $ chrome-browser /path/to/file.html
-#   $ export BROWSER="$HOME/dotfiles/bin/chrome-browser"
-#
-# 動作説明:
-#   1. 引数のURLまたはファイルパスを受け取る
-#   2. "://"を含まない場合はファイルパスとみなし、wslpathでWindows形式に変換
-#   3. PowerShellを経由してWindows側のChromeを起動
-#
-# ============================================================
+# WSL2 から Windows 側の Google Chrome を開くラッパー。
+# 引数に "://" を含めば URL、含まなければ wslpath で Windows のパスに変換する。
+# BROWSER に設定しておくと各種 CLI から呼ばれる（.zshrc 参照）。
 
-# 引数チェック
 if [ -z "$1" ]; then
   echo "Usage: chrome-browser <URL>"
   exit 1
@@ -42,7 +18,6 @@ if [[ ! "$url" =~ :// ]]; then
   # 例: /home/user/file.html -> C:\Users\user\file.html
   winpath="$(wslpath -w "$url")"
 else
-  # URLの場合はそのまま使用
   winpath="$url"
 fi
 
