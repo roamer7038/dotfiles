@@ -274,6 +274,11 @@ main() {
     exit 1
   fi
 
+  if [ ! -r "$LINKS_FILE" ]; then
+    log_error "Cannot read link definitions: $LINKS_FILE"
+    exit 1
+  fi
+
   if [ "$DRY_RUN" = true ]; then
     log_info "DRY-RUN mode: No actual changes will be made"
     echo
