@@ -9,8 +9,7 @@ make anyenv
 
 ## 導入後の手順
 
-シェル設定への PATH 追加は `shell/common.sh` が済ませているため、
-`~/.anyenv` があれば次回のシェル起動から有効になる。
+シェル設定への PATH 追加は `shell/common.sh` が済ませているため、`~/.anyenv` があれば次回のシェル起動から有効になる。
 
 ```bash
 exec $SHELL -l          # シェルを起動し直す

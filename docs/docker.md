@@ -1,7 +1,6 @@
 # Docker
 
-Docker Engine（公式のインストールスクリプト）と Lazydocker
-（Docker コンテナの TUI 管理ツール）を導入する。
+Docker Engine（公式のインストールスクリプト）と Lazydocker（Docker コンテナの TUI 管理ツール）を導入する。
 Docker Desktop ではなく CLI ベースの環境が入る。
 
 ```bash

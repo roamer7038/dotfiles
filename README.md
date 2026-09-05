@@ -27,16 +27,13 @@ make dry-run-standard   # 適用内容を確認する
 make standard           # 適用する
 ```
 
-上書きしたい場合やファイル単位で選びたい場合は
-`./bin/create-symlinks.sh --help` を参照。
+上書きしたい場合やファイル単位で選びたい場合は `./bin/create-symlinks.sh --help` を参照。
 
-`.bashrc` はシステム既定を残すため、既定ではリンクしない
-（置き換えるなら `./bin/create-symlinks.sh --basic --force`）。
+`.bashrc` はシステム既定を残すため、既定ではリンクしない（置き換えるなら `./bin/create-symlinks.sh --basic --force`）。
 `full` だけはリンクに加えて `bin/xinit.sh` を `~/.xinit.sh` へコピーする。
 リンクではないので、変更したら `make full` をやり直す必要がある。
 
-i3wm の設定は Arch Linux で確認したものだが、2025年時点で保守しておらず
-そのままでは動作しない可能性がある。
+i3wm の設定は Arch Linux で確認したものだが、2025年時点で保守しておらずそのままでは動作しない可能性がある。
 
 ## 構成
 
@@ -94,8 +91,7 @@ docs/             個別機能のドキュメント
 
 ## 更新
 
-導入済みのものをまとめて更新する。未導入のものは飛ばす。dotfiles 自体は
-更新しないので、リポジトリは `git pull` で別途更新する。
+導入済みのものをまとめて更新する。未導入のものは飛ばす。dotfiles 自体は更新しないので、リポジトリは `git pull` で別途更新する。
 
 ```bash
 make update
@@ -119,16 +115,11 @@ make doctor   # 配置状態を点検する
 make check    # 構文・書式・ドライランを検査する
 ```
 
-`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に
-残った古いコピー、依存コマンド、Claude Code のフック設定、`profile.d` の権限を
-見る。
+`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定、`profile.d` の権限を見る。
 
-`check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、
-CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、
-ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
+`check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
 shfmt があれば整形差分も見る。
-vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は
-飛ばす。
+vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は飛ばす。
 
 ## カスタマイズ
 
@@ -154,17 +145,13 @@ echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/p
 
 ### Bash と Zsh の共通設定
 
-PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスは
-`shell/common.sh` にまとめてあり、`.bashrc` と `.zshrc` の双方から読み込む。
+PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスは `shell/common.sh` にまとめてあり、`.bashrc` と `.zshrc` の双方から読み込む。
 配置先は `~/.config/shell/common.sh`。シェル固有の設定は各 rc 側に置く。
 
 ### Vim
 
-プラグインは vim-plug で管理する。初回起動時に vim-plug と各プラグインを
-自動で導入するため、git と curl が要る。
-補完と診断は vim-lsp + vim-lsp-settings で行う。対象言語のファイルを開いて
-`:LspInstallServer` を実行するとサーバが入る（サーバによっては node や go の
-ランタイムが別途要る）。
+プラグインは vim-plug で管理する。初回起動時に vim-plug と各プラグインを自動で導入するため、git と curl が要る。
+補完と診断は vim-lsp + vim-lsp-settings で行う。対象言語のファイルを開いて `:LspInstallServer` を実行するとサーバが入る（サーバによっては node や go のランタイムが別途要る）。
 
 ## ドキュメント
 

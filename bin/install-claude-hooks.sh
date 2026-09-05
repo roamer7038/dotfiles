@@ -42,12 +42,15 @@ case "$DOTFILES_ROOT" in
 *) SCRIPT_REF="\"$DOTFILES_ROOT/bin/tmux-claude-status.sh\"" ;;
 esac
 
-# イベント名と、渡す状態の対応
+# イベント名・渡す状態・matcher（空なら全件）の対応
+# Notification は種類を絞る。matcher を付けないとアイドル通知（idle_prompt、
+# 入力せず放置すると届く）まで拾ってしまい、完了の表示が承認待ちに化ける
+NOTIFY_MATCHER="permission_prompt|elicitation_dialog|elicitation_url_dialog|agent_needs_input"
 EVENTS=(
-  "UserPromptSubmit:running"
-  "Notification:waiting"
-  "Stop:done"
-  "SessionEnd:none"
+  "UserPromptSubmit:running:"
+  "Notification:waiting:$NOTIFY_MATCHER"
+  "Stop:done:"
+  "SessionEnd:none:"
 )
 
 mkdir -p "$(dirname "$SETTINGS")"
@@ -64,36 +67,57 @@ fi
 
 current=$([ -f "$SETTINGS" ] && cat "$SETTINGS" || echo '{}')
 updated=$current
-added=0
+changed=0
 
 for entry in "${EVENTS[@]}"; do
   event=${entry%%:*}
-  state=${entry##*:}
+  rest=${entry#*:}
+  state=${rest%%:*}
+  matcher=${rest#*:}
   cmd="$SCRIPT_REF $state"
 
   if echo "$updated" | jq -e --arg e "$event" \
     '[.hooks[$e][]?.hooks[]?.command] | any(test("tmux-claude-status"))' \
     >/dev/null 2>&1; then
-    log_skip "$event: 設定済み"
+    # 既にある場合も matcher だけは求める値に揃える
+    # （matcher を後から足したとき、既存環境が取り残されないように）
+    fixed=$(echo "$updated" | jq --arg e "$event" --arg m "$matcher" '
+      .hooks[$e] |= map(
+        if ([.hooks[]?.command] | any(test("tmux-claude-status")))
+        then (if $m == "" then del(.matcher) else { matcher: $m } + del(.matcher) end)
+        else . end
+      )
+    ')
+
+    if [ "$(echo "$fixed" | jq -S .)" = "$(echo "$updated" | jq -S .)" ]; then
+      log_skip "$event: 設定済み"
+    else
+      updated=$fixed
+      log_ok "$event: matcher を更新"
+      changed=$((changed + 1))
+    fi
     continue
   fi
 
-  updated=$(echo "$updated" | jq --arg e "$event" --arg c "$cmd" '
+  updated=$(echo "$updated" | jq --arg e "$event" --arg c "$cmd" --arg m "$matcher" '
     .hooks //= {}
     | .hooks[$e] //= []
-    | .hooks[$e] += [{ hooks: [{ type: "command", command: $c, timeout: 5 }] }]
+    | .hooks[$e] += [
+        ({ hooks: [{ type: "command", command: $c, timeout: 5 }] })
+        | if $m == "" then . else { matcher: $m } + . end
+      ]
   ')
   log_ok "$event: 追加"
-  added=$((added + 1))
+  changed=$((changed + 1))
 done
 
-if [ "$added" -eq 0 ]; then
+if [ "$changed" -eq 0 ]; then
   log_info "変更はありません"
   exit 0
 fi
 
 if [ "$DRY_RUN" = true ]; then
-  log_info "[DRY-RUN] 追加後の hooks:"
+  log_info "[DRY-RUN] 変更後の hooks:"
   echo "$updated" | jq '.hooks'
   exit 0
 fi
@@ -102,4 +126,4 @@ cp "$SETTINGS" "$SETTINGS.bak"
 echo "$updated" | jq . >"$SETTINGS.tmp"
 mv "$SETTINGS.tmp" "$SETTINGS"
 
-log_ok "$added 件のフックを追加しました（変更前: $SETTINGS.bak）"
+log_ok "$changed 件のフックを更新しました（変更前: $SETTINGS.bak）"
