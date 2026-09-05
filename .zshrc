@@ -106,6 +106,9 @@ compdef _ssh_hosts ssht
 # ============================================================
 # OS ごとの設定
 # ============================================================
+#
+# シェルを問わない設定（WSL2 の open や BROWSER など）は 00-common.sh 側にある。
+# ここには zsh 固有の記法が要るものだけを置く。
 
 # --- Linux ---
 
@@ -114,30 +117,6 @@ if [[ "$OSTYPE" == linux* ]]; then
   stty start undef
   stty stop undef
   ttyctl -f
-fi
-
-# --- WSL2 ---
-
-if [[ "$(uname -r)" == *microsoft* ]]; then
-  # WSLg はレイアウトが JP に戻るため上書きする（x11-xkb-utils が必要）
-  type setxkbmap > /dev/null 2>&1 && \
-    setxkbmap -layout us
-
-  export PATH=$PATH:/mnt/c/Users/$USER/AppData/Local/Programs/Microsoft\ VS\ Code/bin
-
-  # Windows 側の既定のアプリでファイル・URL を開く
-  function open() {
-    /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1)
-  }
-  alias explorer='open'
-  export BROWSER="$HOME/dotfiles/bin/wsl-chrome"
-
-  # pwsh 7 を優先し、無ければ Windows PowerShell にフォールバックする
-  if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
-    alias powershell='/mnt/c/Program\ Files/PowerShell/7/pwsh.exe'
-  else
-    alias powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
-  fi
 fi
 
 # ============================================================

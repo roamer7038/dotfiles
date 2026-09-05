@@ -85,3 +85,42 @@ alias mkdir='mkdir -p'
 
 # 標準入力をクリップボードへ
 alias C='xsel --input --clipboard'
+
+# ============================================================
+# OS ごとの設定
+# ============================================================
+
+# --- WSL2 ---
+
+case "$(uname -r)" in
+*microsoft*)
+  # WSLg はレイアウトが JP に戻るため上書きする（x11-xkb-utils が必要）
+  command -v setxkbmap >/dev/null 2>&1 && setxkbmap -layout us
+
+  # Windows 版 VS Code の code コマンド。
+  # Windows 側のユーザ名が Linux 側と違う環境もあるので、在るときだけ足す
+  vscode_bin="/mnt/c/Users/$USER/AppData/Local/Programs/Microsoft VS Code/bin"
+  [ -d "$vscode_bin" ] && PATH="$PATH:$vscode_bin"
+  unset vscode_bin
+
+  # Windows 側の既定のアプリでファイル・URL を開く
+  open() {
+    /mnt/c/Windows/System32/cmd.exe /c start "$(wslpath -w "$1")"
+  }
+  alias explorer='open'
+
+  # $BROWSER は ~/.local/bin のリンクを指す。リポジトリの位置に依存させない
+  export BROWSER="$HOME/.local/bin/wsl-chrome"
+
+  # pwsh 7 を優先し、無ければ Windows PowerShell にフォールバックする
+  if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
+    alias powershell='/mnt/c/Program\ Files/PowerShell/7/pwsh.exe'
+  else
+    alias powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
+  fi
+  ;;
+*)
+  # デスクトップ環境の既定のアプリで開く
+  command -v xdg-open >/dev/null 2>&1 && alias open='xdg-open'
+  ;;
+esac

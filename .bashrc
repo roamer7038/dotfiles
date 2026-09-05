@@ -76,7 +76,6 @@ unset color_prompt force_color_prompt
 alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -alF'
-alias open='xdg-open'
 
 # 直前のコマンドの成否をデスクトップ通知で知らせる（長い処理の末尾に `; alert`）
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^[[:space:]]*[0-9]\+[[:space:]]*//;s/[;&|]\s*alert$//'\'')"'
