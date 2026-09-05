@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # dotfiles から各種設定ファイルへシンボリックリンクを張る。
-# プリセットまたは個別オプションで対象を選ぶ。使い方は --help を参照。
+# タグを指定して対象を選ぶ。使い方は --help を参照。
 
 set -e
 
@@ -14,11 +14,9 @@ LINKS_FILE="$DOTFILES_ROOT/links"
 # ============================================================
 
 # --- 設定フラグ ---
-PRESET=""
 SELECTED_TAGS=()
 DRY_RUN=false
 FORCE=false
-VERBOSE=false
 
 # --- ログ出力 ---
 
@@ -38,46 +36,27 @@ log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; 
 
 show_usage() {
   cat <<EOM
-Usage: $(basename "$0") [OPTIONS]
+Usage: $(basename "$0") [OPTIONS] <tag>...
 
-Dotfiles setup script - Create symbolic links for configuration files
+Dotfiles setup script - Create symbolic links defined in ./links
 
-PRESET OPTIONS:
-  --preset minimal     Basic dotfiles only (.bashrc, .zshrc, .tmux.conf, etc.)
-  --preset standard    Minimal + Vim + AI agent configuration
-  --preset desktop     Standard + X11 + GUI applications (excluding i3wm)
-  --preset full        All configurations
-  --preset agent       AI agent configs only (for already-setup environments)
+OPTIONS:
+  -n, --dry-run   Show what would be done without creating links
+  -f, --force     Overwrite existing files (default: skip existing files)
+  -h, --help      Display this help message
 
-INDIVIDUAL OPTIONS:
-  --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig,
-                       .latexmkrc), the shared config/profile.d, and the
-                       helper commands (pane, multissh, wsl-chrome) in
-                       ~/.local/bin
-  --vim                Vim configuration files
-  --x11, --xorg        X Window System configuration
-  --gui                GUI application configs (terminator, dunst, ranger)
-  --i3wm, --i3         i3 window manager configuration (auto-enables --gui)
-  --agent              AI agent configs (Claude Code: ~/.claude)
-  --all                All configurations (same as --preset full)
-
-OTHER OPTIONS:
-  -n, --dry-run        Show what would be done without actually creating links
-  -f, --force          Overwrite existing files (default: skip existing files)
-  -v, --verbose        Show detailed output
-  -h, --help           Display this help message
+TAGS:
+  $(all_tags)
 
 EXAMPLES:
-  $(basename "$0") --preset minimal
-  $(basename "$0") --preset desktop
-  $(basename "$0") --basic --vim --x11
-  $(basename "$0") --all --dry-run
-  $(basename "$0") --gui --i3wm --force
+  $(basename "$0") basic
+  $(basename "$0") basic vim agent
+  $(basename "$0") --dry-run basic vim agent x11 gui
 
 NOTES:
-  - i3wm configuration requires GUI configs, so --gui is auto-enabled with --i3wm
+  - Placement targets are defined in ./links (path, destination, tag)
+  - Presets are defined in the Makefile; run 'make help' for the list
   - Existing files are skipped by default (use --force to overwrite)
-  - Use --dry-run to preview changes before applying them
 
 EOM
   exit 0
@@ -88,44 +67,8 @@ parse_options() {
     show_usage
   fi
 
-  while [[ $# -gt 0 ]]; do
+  while [ $# -gt 0 ]; do
     case "$1" in
-    --preset)
-      if [ -z "$2" ] || [[ "$2" == --* ]]; then
-        log_error "Option --preset requires an argument"
-        exit 1
-      fi
-      PRESET="$2"
-      shift 2
-      ;;
-    --basic | --dotfiles)
-      SELECTED_TAGS+=(basic)
-      shift
-      ;;
-    --vim)
-      SELECTED_TAGS+=(vim)
-      shift
-      ;;
-    --x11 | --xorg)
-      SELECTED_TAGS+=(x11)
-      shift
-      ;;
-    --gui)
-      SELECTED_TAGS+=(gui)
-      shift
-      ;;
-    --i3wm | --i3)
-      SELECTED_TAGS+=(gui i3wm)
-      shift
-      ;;
-    --agent)
-      SELECTED_TAGS+=(agent)
-      shift
-      ;;
-    --all)
-      SELECTED_TAGS+=(basic vim x11 gui i3wm agent)
-      shift
-      ;;
     -n | --dry-run)
       DRY_RUN=true
       shift
@@ -134,42 +77,36 @@ parse_options() {
       FORCE=true
       shift
       ;;
-    -v | --verbose)
-      VERBOSE=true
-      shift
-      ;;
     -h | --help)
       show_usage
       ;;
-    *)
+    -*)
       log_error "Unknown option: $1"
       echo "Use --help for usage information"
       exit 1
+      ;;
+    *)
+      known_tag "$1" || {
+        log_error "Unknown tag: $1"
+        echo "Available tags: $(all_tags)"
+        exit 1
+      }
+      SELECTED_TAGS+=("$1")
+      shift
       ;;
     esac
   done
 }
 
-# ============================================================
-# プリセットの解決
-# ============================================================
+# links に現れるタグの一覧
+all_tags() {
+  awk '$1 !~ /^#/ && NF == 3 { print $3 }' "$LINKS_FILE" | sort -u | tr '\n' ' '
+}
 
-apply_preset() {
-  [ -n "$PRESET" ] || return 0
-
-  log_info "Applying preset: $PRESET"
-
-  case "$PRESET" in
-  minimal) SELECTED_TAGS+=(basic) ;;
-  standard) SELECTED_TAGS+=(basic vim agent) ;;
-  desktop) SELECTED_TAGS+=(basic vim agent x11 gui) ;;
-  full) SELECTED_TAGS+=(basic vim agent x11 gui i3wm) ;;
-  agent) SELECTED_TAGS+=(agent) ;;
-  *)
-    log_error "Unknown preset: $PRESET"
-    echo "Available presets: minimal, standard, desktop, full, agent"
-    exit 1
-    ;;
+known_tag() {
+  case " $(all_tags)" in
+  *" $1 "*) return 0 ;;
+  *) return 1 ;;
   esac
 }
 
@@ -240,7 +177,6 @@ create_symlink() {
 
   if [ -e "$dest" ] || [ -L "$dest" ]; then
     if [ "$FORCE" = true ]; then
-      log_verbose "Removing existing: $dest"
       rm -f "$dest"
     else
       log_skip "$dest (already exists, use --force to overwrite)"
@@ -266,7 +202,6 @@ main() {
   echo
 
   parse_options "$@"
-  apply_preset
 
   if [ ${#SELECTED_TAGS[@]} -eq 0 ]; then
     log_error "No configuration options specified"

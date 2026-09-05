@@ -177,8 +177,7 @@ check_dry_run() {
   local p
 
   for p in minimal standard desktop agent; do
-    ./bin/create-symlinks.sh --preset "$p" --dry-run >/dev/null 2>&1 ||
-      fail "create-symlinks.sh --preset $p --dry-run が失敗"
+    make "dry-run-$p" >/dev/null 2>&1 || fail "make dry-run-$p が失敗"
   done
 
   ./bin/create-symlinks.sh --help >/dev/null 2>&1 || fail "create-symlinks.sh --help が失敗"

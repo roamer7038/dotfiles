@@ -5,10 +5,10 @@ SYMLINKS    := $(SCRIPT_DIR)/bin/create-symlinks.sh
 ZSH_PLUGINS := $(SCRIPT_DIR)/bin/install-zsh-plugins.sh
 
 # プリセット = タグの組。プリセットの定義はここだけにある
-TAGS_minimal  := --basic
-TAGS_standard := --basic --vim --agent
-TAGS_desktop  := --basic --vim --agent --x11 --gui
-TAGS_agent    := --agent
+TAGS_minimal  := basic
+TAGS_standard := basic vim agent
+TAGS_desktop  := basic vim agent x11 gui
+TAGS_agent    := agent
 
 PRESETS := minimal standard desktop agent
 
