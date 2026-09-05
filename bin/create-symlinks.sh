@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # dotfiles から各種設定ファイルへシンボリックリンクを張る。
+# 配置対象は links（パス・配置先・タグの3列）に定義されている。
 # タグを指定して対象を選ぶ。使い方は --help を参照。
 
 set -e
@@ -147,7 +148,7 @@ link_entry() {
   case "$1" in
   */)
     if [ ! -d "$src" ]; then
-      log_error "ディレクトリが無い: $1"
+      log_error "Directory not found: $1"
       return 1
     fi
     ensure_dir "${dest%/}"
@@ -158,7 +159,7 @@ link_entry() {
     ;;
   *)
     if [ ! -e "$src" ]; then
-      log_error "ファイルが無い: $1"
+      log_error "File not found: $1"
       return 1
     fi
     ensure_dir "$(dirname "$dest")"
@@ -197,16 +198,16 @@ create_symlink() {
 # ============================================================
 
 main() {
-  log_info "Dotfiles symlink creation script"
-  log_info "Repository: $DOTFILES_ROOT"
-  echo
-
   if [ ! -r "$LINKS_FILE" ]; then
     log_error "Cannot read link definitions: $LINKS_FILE"
     exit 1
   fi
 
   parse_options "$@"
+
+  log_info "Dotfiles symlink creation script"
+  log_info "Repository: $DOTFILES_ROOT"
+  echo
 
   if [ ${#SELECTED_TAGS[@]} -eq 0 ]; then
     log_error "No configuration options specified"

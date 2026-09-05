@@ -53,7 +53,7 @@ make standard           # 適用する
 `.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしている。
 既存ファイルは上書きしないので、置き換えるなら `./bin/create-symlinks.sh --force basic` を使う。
 
-i3wm の設定（`config/i3/` `config/i3status/`）と `bin/xinit.sh` はリポジトリに残しているが、2025年時点で保守しておらず配置対象から外してある。使う場合は手動でリンクする。
+i3wm の設定（`config/i3/` `config/i3status/`）と `bin/xinit.sh` はリポジトリに残しているが、保守しておらず配置対象から外してある。使う場合は手動でリンクする。
 
 ## 構成
 
@@ -139,7 +139,7 @@ make update
 
 `doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定を見る。
 
-`lint` は `links` の書式、シェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
+`lint` は `links` の書式、`links` と Makefile のプリセット定義とのタグの一致、シェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
 shfmt があれば整形差分も見る。
 vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は飛ばす。
 
