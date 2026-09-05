@@ -1,4 +1,6 @@
-" --- プラグイン管理（vim-plug） ---
+" ============================================================
+" プラグイン管理（vim-plug）
+" ============================================================
 
 " vim-plug の自動インストール（curl が必要）
 let s:plug_file = expand('~/.vim/autoload/plug.vim')
@@ -47,9 +49,11 @@ if s:bootstrap
   finish
 endif
 
-set breakindent
+" ============================================================
+" 基本設定
+" ============================================================
 
-" --- 基本設定 ---
+" --- 表示・編集 ---
 
 set encoding=utf-8
 scriptencoding utf-8
@@ -64,6 +68,7 @@ set expandtab
 set autoindent
 set smartindent
 set shiftwidth=2
+set breakindent
 
 set showmatch
 set hlsearch
@@ -91,12 +96,16 @@ filetype plugin indent on
 syntax on
 highlight Normal ctermbg=none
 
-" --- trailing whitespace のネイティブ実装 ---
+" --- 行末の空白の強調（プラグインを使わない実装） ---
 
 augroup trailing_whitespace
   autocmd!
   autocmd BufWinEnter * match Error /\s\+$/
 augroup END
+
+" ============================================================
+" プラグイン設定
+" ============================================================
 
 " --- NERDTree ---
 
@@ -189,7 +198,9 @@ inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR>    pumvisible() ? asyncomplete#close_popup() : "\<CR>"
 
-" --- 言語別設定 ---
+" ============================================================
+" 言語別設定
+" ============================================================
 
 augroup fileTypeIndent
   autocmd!

@@ -7,6 +7,10 @@ case $- in
   *) return ;;
 esac
 
+# ============================================================
+# Bash の基本動作
+# ============================================================
+
 # --- ヒストリー ---
 
 HISTCONTROL=ignoreboth
@@ -33,7 +37,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# --- プロンプト ---
+# ============================================================
+# プロンプト
+# ============================================================
 
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
   debian_chroot=$(cat /etc/debian_chroot)
@@ -63,7 +69,9 @@ else
 fi
 unset color_prompt force_color_prompt
 
-# --- エイリアス ---
+# ============================================================
+# エイリアス
+# ============================================================
 
 alias l='ls -CF'
 alias la='ls -A'
@@ -73,12 +81,16 @@ alias open='xdg-open'
 # 直前のコマンドの成否をデスクトップ通知で知らせる（長い処理の末尾に `; alert`）
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^[[:space:]]*[0-9]\+[[:space:]]*//;s/[;&|]\s*alert$//'\'')"'
 
+# ============================================================
+# 外部設定の読み込み
+# ============================================================
+
 # --- 共通設定（Zsh と共有） ---
 
 # PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
 [ -r "$HOME/.config/shell/common.sh" ] && . "$HOME/.config/shell/common.sh"
 
-# --- 外部設定の読み込み ---
+# --- その他 ---
 
 # less で書庫やバイナリも読めるようにする
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"

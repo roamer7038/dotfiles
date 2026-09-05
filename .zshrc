@@ -1,4 +1,8 @@
-# --- Zsh コア機能 ---
+# ============================================================
+# Zsh の基本動作
+# ============================================================
+
+# --- コア機能 ---
 
 autoload -Uz colors
 colors
@@ -27,7 +31,7 @@ setopt hist_ignore_all_dups     # 重複したコマンドは古い方を消す
 setopt hist_reduce_blanks
 setopt hist_save_no_dups
 
-# --- Zsh オプション ---
+# --- オプション ---
 
 setopt print_eight_bit          # 日本語のファイル名を表示できるようにする
 setopt no_beep
@@ -52,7 +56,9 @@ setopt rm_star_wait             # rm * は待ち時間を挟んで誤操作を�
 setopt prompt_subst
 setopt brace_ccl
 
-# --- プロンプト ---
+# ============================================================
+# プロンプト
+# ============================================================
 
 zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git:*' stagedstr "+"
@@ -70,6 +76,10 @@ PROMPT="%F{034}%B[%n@%m]%b%f %F{075}%3~%f
 
 # 右: VCS情報 + 現在時刻
 RPROMPT='%B${vcs_info_msg_0_}%b%{${reset_color}%}%F{178}%B[%*]%b%f%{${reset_color}%}'
+
+# ============================================================
+# エイリアスと関数
+# ============================================================
 
 # --- エイリアス ---
 
@@ -92,6 +102,10 @@ ssht() {
   ssh -t $1 "tmux -u a || tmux -u new-session"
 }
 compdef _ssh_hosts ssht
+
+# ============================================================
+# 環境ごとの設定
+# ============================================================
 
 # --- Linux ---
 
@@ -126,6 +140,10 @@ if [[ "$(uname -r)" == *microsoft* ]]; then
   fi
 fi
 
+# ============================================================
+# 共通設定と補完
+# ============================================================
+
 # --- 共通設定（bash と共有） ---
 
 # PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
@@ -134,6 +152,8 @@ fi
 
 # --- 補完 ---
 
+# list-colors は LS_COLORS を展開して覚えるため、それを設定する
+# common.sh（dircolors）より後に置く必要がある
 zstyle ':completion:*:default' list-colors ${LS_COLORS}
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
 
@@ -146,7 +166,9 @@ zstyle ':completion:*' ignore-parents parent pwd ..
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
-# --- 外部設定の読み込み ---
+# ============================================================
+# 外部設定・プラグインの読み込み
+# ============================================================
 
 # 環境ごとの設定（プロキシ、APIキーなど）の置き場所
 if [ -d "$HOME/.config/profile.d" ]; then
@@ -165,7 +187,9 @@ fi
 [ -n "${BUN_INSTALL:-}" ] && [ -s "$BUN_INSTALL/_bun" ] && \
   source "$BUN_INSTALL/_bun"
 
-# --- 実行環境の表示 ---
+# ============================================================
+# 実行環境の表示
+# ============================================================
 
 # Ranger や Vim の中から起動したシェルであることを右プロンプトに出す
 [ -n "$RANGER_LEVEL" ] && RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
