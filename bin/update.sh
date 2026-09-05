@@ -57,7 +57,7 @@ update_zsh_plugins() {
     if out=$(git -C "$dir" pull --ff-only 2>&1); then
       case "$out" in
       *"Already up to date"* | *"最新です"*) log_skip "$name: 更新なし" ;;
-      *) log_ok "$name: 更新した" ;;
+      *) log_ok "$name: 更新済み" ;;
       esac
     else
       log_warn "$name: 更新に失敗"
@@ -92,7 +92,7 @@ update_vim_plugins() {
   # --sync を付けないと更新の完了前に qall へ進んでしまう。
   if vim -Nu "$HOME/.vimrc" -c 'PlugUpgrade' -c 'PlugUpdate --sync' -c 'qall!' \
     </dev/null >/dev/null 2>&1; then
-    log_ok "Vim プラグイン: 更新した"
+    log_ok "Vim プラグイン: 更新済み"
   else
     log_warn "Vim プラグイン: 更新に失敗"
     FAILED=$((FAILED + 1))
@@ -120,7 +120,7 @@ update_anyenv() {
   fi
 
   if "$anyenv" update; then
-    log_ok "anyenv: 更新した"
+    log_ok "anyenv: 更新済み"
   else
     log_warn "anyenv: 更新に失敗"
     FAILED=$((FAILED + 1))
@@ -143,7 +143,7 @@ update_bun() {
   fi
 
   if "$bun" upgrade; then
-    log_ok "bun: 更新した"
+    log_ok "bun: 更新済み"
   else
     log_warn "bun: 更新に失敗"
     FAILED=$((FAILED + 1))
