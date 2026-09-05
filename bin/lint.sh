@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# リポジトリ全体の静的チェック。何も変更しない。
+# リポジトリの静的検査。何も変更しない（環境を見るのは doctor.sh）。
 # 構文、書式（.editorconfig 準拠）、Makefile の全ターゲット、
 # create-symlinks.sh のドライラン、ドキュメントの相対リンク、
-# README の bin/ 一覧と実体の一致を確認する。
+# README の bin/ 一覧と実体の一致、links の書式を確認する。
 #
-#   check.sh
+#   lint.sh
 #
 # 問題が無ければ 0、あれば 1 を返す。
 # shfmt が入っていれば整形差分も見る（無ければその項目だけ飛ばす）。
@@ -211,7 +211,7 @@ check_docs() {
 check_bin_table() {
   local f name missing=""
 
-  for f in $(git ls-files bin/ | grep -v '^bin/lib/'); do
+  for f in $(git ls-files bin/); do
     name=$(basename "$f")
     grep -q "^| \`$name\`" README.md || missing="$missing  $name"$'\n'
   done
@@ -223,6 +223,61 @@ check_bin_table() {
   fi
 }
 
+# --- links の書式 ---
+
+check_links_file() {
+  local src dest tag extra line=0 n=0 s_dir d_dir
+
+  while read -r src dest tag extra; do
+    line=$((line + 1))
+    case "$src" in '' | '#'*) continue ;; esac
+
+    if [ -z "$tag" ] || [ -n "$extra" ]; then
+      fail "links:$line 列が3つではない: $src"
+      continue
+    fi
+
+    s_dir=no
+    d_dir=no
+    case "$src" in */) s_dir=yes ;; esac
+    case "$dest" in */) d_dir=yes ;; esac
+    [ "$s_dir" = "$d_dir" ] || fail "links:$line 末尾の / が片側だけ: $src $dest"
+
+    case "$dest" in
+    '~/'*) ;;
+    *) fail "links:$line 配置先が ~/ で始まっていない: $dest" ;;
+    esac
+
+    [ -e "$src" ] || fail "links:$line 参照先が無い: $src"
+    n=$((n + 1))
+  done <links
+
+  log_ok "links: $n 件の配置対象"
+}
+
+# links のタグと Makefile のプリセット定義が食い違っていないかを見る。
+# links 自身からタグ集合を作ると自分自身との照合になり何も検出できないため、
+# 独立した情報源である Makefile の TAGS_* と突き合わせる
+check_tags() {
+  local in_links in_make t
+
+  in_links=$(awk '$1 !~ /^#/ && NF == 3 { print $3 }' links | sort -u)
+  in_make=$(sed -n 's/^TAGS_[a-z]*[[:space:]]*:=[[:space:]]*//p' Makefile |
+    tr ' ' '\n' | grep -v '^$' | sort -u)
+
+  for t in $in_links; do
+    echo "$in_make" | grep -qx "$t" ||
+      fail "links のタグ $t を使うプリセットが Makefile に無い"
+  done
+
+  for t in $in_make; do
+    echo "$in_links" | grep -qx "$t" ||
+      fail "Makefile のプリセットが使うタグ $t が links に無い"
+  done
+
+  log_ok "タグ: links と Makefile のプリセット定義が一致"
+}
+
 # ============================================================
 # エントリポイント
 # ============================================================
@@ -230,6 +285,8 @@ check_bin_table() {
 log_info "dotfiles: $DOTFILES_ROOT"
 echo
 
+check_links_file
+check_tags
 check_syntax
 check_vim
 check_tmux

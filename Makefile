@@ -67,17 +67,17 @@ claude-hooks:
 update:
 	@$(SCRIPT_DIR)/bin/update.sh
 
-# --- 点検 ---
+# --- 点検（環境） ---
 
 # 配置状態を点検する（変更はしない）
 doctor:
 	@$(SCRIPT_DIR)/bin/doctor.sh
 
-# 構文・書式・ドライランを検査する（変更はしない）
-check:
-	@$(SCRIPT_DIR)/bin/check.sh
-
 # --- 開発用 ---
+
+# リポジトリを静的検査する（変更はしない）
+lint:
+	@$(SCRIPT_DIR)/bin/lint.sh
 
 # シェルスクリプトを .editorconfig に合わせて整形する
 fmt:
@@ -93,9 +93,9 @@ help:
 	@echo "          make dry-run-<preset> で適用内容を確認する"
 	@echo "Install:  .ssh anyenv docker bun claude-hooks update"
 	@echo "Check:    doctor  環境の配置状態を点検する"
-	@echo "          check   リポジトリを静的検査する"
-	@echo "Dev:      fmt     シェルスクリプトを整形する"
+	@echo "Dev:      lint    リポジトリを静的検査する"
+	@echo "          fmt     シェルスクリプトを整形する"
 	@echo ""
 	@echo "詳細は README.md を参照。"
 
-.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor check fmt help
+.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor lint fmt help
