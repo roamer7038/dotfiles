@@ -14,8 +14,8 @@ esac
 # --- ヒストリー ---
 
 HISTCONTROL=ignoreboth
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=1000000
+HISTFILESIZE=1000000
 shopt -s histappend
 
 # --- シェルオプション ---
@@ -79,10 +79,8 @@ unset color_prompt force_color_prompt
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^[[:space:]]*[0-9]\+[[:space:]]*//;s/[;&|]\s*alert$//'\'')"'
 
 # ============================================================
-# 外部設定の読み込み
+# 設定の読み込み
 # ============================================================
-
-# --- profile.d（Zsh と共有） ---
 
 # PATH・環境変数・配色・安全策のエイリアスは ~/.config/profile.d/ から読む。
 # dotfiles が置く 00-common.sh が先、利用者が置いたファイルが後になる。
@@ -93,7 +91,3 @@ if [ -d "$HOME/.config/profile.d" ]; then
   done
   unset file
 fi
-
-# --- その他 ---
-
-[ -f ~/.bash_aliases ] && . ~/.bash_aliases
