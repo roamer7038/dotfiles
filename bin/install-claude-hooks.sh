@@ -13,7 +13,15 @@ set -eu
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
-source "$SCRIPT_DIR/lib/log.sh"
+if [ -t 1 ]; then
+  N=$'\033[0m' G=$'\033[0;32m' Y=$'\033[0;33m' B=$'\033[0;34m' R=$'\033[0;31m'
+else N='' G='' Y='' B='' R=''; fi
+log_info() { echo "$B[INFO]$N $*"; }
+log_ok() { echo "$G[OK]$N $*"; }
+log_skip() { echo "$Y[SKIP]$N $*"; }
+log_warn() { echo "$Y[WARN]$N $*"; }
+log_error() { echo "$R[ERROR]$N $*" >&2; }
+log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
 
 SETTINGS="$HOME/.claude/settings.json"
 DRY_RUN=false
