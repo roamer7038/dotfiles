@@ -154,7 +154,7 @@ repaint_window() {
 
 # ウィンドウに状態に応じた色と書式を設定する（none なら解除）
 apply_window() {
-  local win=$1 state=$2 style="" opt base
+  local win=$1 state=$2 style="" opt base fmt
 
   case "$state" in
   waiting) style=$STYLE_WAITING ;;
@@ -195,7 +195,16 @@ apply_window() {
   for opt in window-status-format window-status-current-format; do
     if [ "$state" = "running" ] && [ "$SPINNER" = "on" ]; then
       base=$(tmux show-options -gv "$opt" 2>/dev/null) || base=""
-      tmux set-window-option -t "$win" "$opt" "$base#($SELF --spinner)" 2>/dev/null
+
+      # 書式が #[default] で終わる場合はその手前に入れる
+      # 後ろに置くと装飾がリセットされ、スピナーだけウィンドウ名と
+      # 違う色（現在ウィンドウなら window-status-current-style の色）になる
+      case "$base" in
+      *'#[default]') fmt="${base%'#[default]'}#($SELF --spinner)#[default]" ;;
+      *) fmt="$base#($SELF --spinner)" ;;
+      esac
+
+      tmux set-window-option -t "$win" "$opt" "$fmt" 2>/dev/null
     else
       tmux set-window-option -u -t "$win" "$opt" 2>/dev/null
     fi
