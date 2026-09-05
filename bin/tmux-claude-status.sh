@@ -38,6 +38,13 @@ STYLE_DONE="bg=colour22,fg=colour255"
 # 有効な間だけ status-interval を1に上げるため、再描画の頻度が上がる
 SPINNER=on
 
+# 承認待ち・完了を示す静止アイコン（空文字で無効）
+# 色を覚えていなくても形で区別できるようにするためのもの
+# スピナーと違い #() を呼ばないので status-interval は上がらない
+# tmux の書式として解釈されるため # を含む文字は使わない
+ICON_WAITING="!"
+ICON_DONE="✓"
+
 # #() から自分自身を呼ぶために絶対パスを持っておく
 SELF=$(readlink -f "$0" 2>/dev/null) || SELF=$0
 
@@ -154,7 +161,7 @@ repaint_window() {
 
 # ウィンドウに状態に応じた色と書式を設定する（none なら解除）
 apply_window() {
-  local win=$1 state=$2 style="" opt base fmt
+  local win=$1 state=$2 style="" opt base fmt mark
 
   case "$state" in
   waiting) style=$STYLE_WAITING ;;
@@ -185,7 +192,19 @@ apply_window() {
     tmux set-window-option -u -t "$win" monitor-activity 2>/dev/null
   fi
 
-  # 実行中だけウィンドウ名の後ろにスピナーを出す
+  # 状態を示す印をウィンドウ名の後ろに出す
+  # 実行中は回転するスピナー、承認待ち・完了は静止アイコン
+  mark=""
+  case "$state" in
+  running)
+    if [ "$SPINNER" = "on" ]; then
+      mark="#($SELF --spinner)"
+    fi
+    ;;
+  waiting) mark=$ICON_WAITING ;;
+  "done") mark=$ICON_DONE ;;
+  esac
+
   # 非アクティブ用(window-status-format)とアクティブ用
   # (window-status-current-format)の両方に付ける
   # ウィンドウを行き来しても表示が途切れず、コピーモード中など
@@ -193,15 +212,15 @@ apply_window() {
   # 書式はグローバル設定を実行時に読んで組み立てるので、
   # .tmux.conf 側を変えても追従する
   for opt in window-status-format window-status-current-format; do
-    if [ "$state" = "running" ] && [ "$SPINNER" = "on" ]; then
+    if [ -n "$mark" ]; then
       base=$(tmux show-options -gv "$opt" 2>/dev/null) || base=""
 
       # 書式が #[default] で終わる場合はその手前に入れる
-      # 後ろに置くと装飾がリセットされ、スピナーだけウィンドウ名と
+      # 後ろに置くと装飾がリセットされ、印だけウィンドウ名と
       # 違う色（現在ウィンドウなら window-status-current-style の色）になる
       case "$base" in
-      *'#[default]') fmt="${base%'#[default]'}#($SELF --spinner)#[default]" ;;
-      *) fmt="$base#($SELF --spinner)" ;;
+      *'#[default]') fmt="${base%'#[default]'}$mark#[default]" ;;
+      *) fmt="$base$mark" ;;
       esac
 
       tmux set-window-option -t "$win" "$opt" "$fmt" 2>/dev/null
