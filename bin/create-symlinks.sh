@@ -72,7 +72,8 @@ PRESET OPTIONS:
   --preset agent       AI agent configs only (for already-setup environments)
 
 INDIVIDUAL OPTIONS:
-  --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig, .latexmkrc)
+  --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig,
+                       .latexmkrc) and the shared shell/common.sh
   --vim                Vim configuration files
   --x11, --xorg        X Window System configuration
   --gui                GUI application configs (terminator, dunst, ranger)
@@ -273,6 +274,17 @@ create_basic_links() {
 			log_verbose "Source file not found: $src"
 		fi
 	done
+
+	# bash と zsh の共通設定は ~/.config/shell/ に置き、両方の rc から読み込む
+	local common_src="$DOTFILES_ROOT/shell/common.sh"
+	local common_dir="$HOME/.config/shell"
+
+	if [ -f "$common_src" ]; then
+		[ "$DRY_RUN" = true ] || mkdir -p "$common_dir"
+		create_symlink "$common_src" "$common_dir/common.sh" "shell/common.sh"
+	else
+		log_verbose "Source file not found: $common_src"
+	fi
 }
 
 create_vim_links() {

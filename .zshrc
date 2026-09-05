@@ -1,315 +1,172 @@
-# ============================================================
-# 基本環境変数
-# ============================================================
+# --- Zsh コア機能 ---
 
-# ロケール設定（必要に応じてコメントアウトを解除）
-# export LANG=ja_JP.UTF-8
-
-# lsコマンドの色設定
-export LSCOLORS=Exfxcxdxbxegedabagacad
-
-# lessコマンドのオプション
-# -i: 検索時に大文字小文字を区別しない
-# -M: 詳細なプロンプト表示
-# -R: ANSIカラーエスケープシーケンスを解釈
-# -x4: タブ幅を4に設定
-export LESS='-i -M -R -x4'
-
-# デフォルトエディタ
-export EDITOR=vim
-export SYSTEMD_EDITOR="/usr/bin/vim"
-
-# ============================================================
-# Zsh コア機能の初期化
-# ============================================================
-
-# カラー機能を有効化
 autoload -Uz colors
 colors
 
-# 補完機能を有効化
 autoload -Uz compinit
 compinit -u
 
-# VCS（バージョン管理システム）情報表示機能
 autoload -Uz vcs_info
 
-# Bash互換の補完を有効化
+# bash-completion 由来の補完定義を zsh でも使えるようにする
 autoload -U +X bashcompinit && bashcompinit
 
-# Emacsキーバインドを使用
 bindkey -e
 
-# Shift+Tabで補完候補を逆順に移動
+# Shift+Tab で補完候補を逆順にたどる
 bindkey "^[[Z" reverse-menu-complete
 
-# ============================================================
-# ヒストリー設定
-# ============================================================
+# --- ヒストリー ---
 
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
 
-# ヒストリー関連のオプション
-setopt share_history            # 複数のシェル間でヒストリーを共有
-setopt hist_ignore_all_dups     # 重複するコマンドは古い方を削除
-setopt hist_reduce_blanks       # 余分な空白を削除してヒストリーに保存
-setopt hist_save_no_dups        # ヒストリー保存時に重複を除外
+setopt share_history            # 複数のシェル間でヒストリーを共有する
+setopt hist_ignore_all_dups     # 重複したコマンドは古い方を消す
+setopt hist_reduce_blanks
+setopt hist_save_no_dups
 
-# ============================================================
-# 一般的なZshオプション
-# ============================================================
+# --- Zsh オプション ---
 
-# 表示・入力関連
-setopt print_eight_bit          # 日本語ファイル名を表示可能に
-setopt no_beep                  # ビープ音を無効化
-setopt ignore_eof               # Ctrl+Dでログアウトしない
-setopt interactive_comments     # コマンドライン上でコメント（#以降）を使用可能に
+setopt print_eight_bit          # 日本語のファイル名を表示できるようにする
+setopt no_beep
+setopt ignore_eof               # Ctrl+D でログアウトしない
+setopt interactive_comments     # コマンドラインでも # 以降をコメント扱いにする
 
-# ディレクトリ移動関連
-setopt auto_cd                  # ディレクトリ名のみでcdを実行
-setopt auto_pushd               # cdでディレクトリスタックに自動追加
-setopt pushd_ignore_dups        # ディレクトリスタックに重複を追加しない
+setopt auto_cd                  # ディレクトリ名だけで cd する
+setopt auto_pushd
+setopt pushd_ignore_dups
 
-# 補完関連
-setopt auto_list                # 補完候補を自動的にリスト表示
-setopt auto_menu                # 補完候補を順次選択できるようにする
-setopt auto_param_keys          # カッコの対応を自動補完
-setopt magic_equal_subst        # =以降でもファイル名補完を有効化
-setopt complete_in_word         # 単語の途中でも補完を開始
-setopt list_packed              # 補完候補を詰めて表示
-setopt always_last_prompt       # 補完時にカーソル位置を保持
+setopt auto_list
+setopt auto_menu
+setopt auto_param_keys
+setopt magic_equal_subst        # --opt=<パス> の右辺もファイル名補完の対象にする
+setopt complete_in_word
+setopt list_packed
+setopt always_last_prompt
 
-# その他
-setopt equals                   # =commandでコマンドのパスを展開
-setopt globdots                 # ドットファイルも glob 対象に含める
-setopt rm_star_wait             # rm * を実行する前に確認
-setopt prompt_subst             # プロンプトで変数展開・コマンド置換を有効化
-setopt brace_ccl                # ブレース展開を有効化
+setopt equals                   # =command をそのコマンドの絶対パスに展開する
+setopt globdots                 # ドットファイルも glob の対象にする
+setopt rm_star_wait             # rm * は待ち時間を挟んで誤操作を防ぐ
+setopt prompt_subst
+setopt brace_ccl
 
-# ============================================================
-# 補完システムの設定
-# ============================================================
+# --- プロンプト ---
 
-# dircolorsの設定を読み込み（Linux環境）
-eval `dircolors`
-
-# 補完候補に色をつける
-zstyle ':completion:*:default' list-colors ${LS_COLORS}
-
-# killコマンドの補完候補に色をつける
-zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
-
-# 補完方法の設定
-# _complete: 通常の補完
-# _match: glob パターンマッチ
-# _approximate: 曖昧補完
-zstyle ':completion:*' completer _complete _match _approximate
-
-# 補完結果をキャッシュして高速化
-zstyle ':completion:*' use-cache true
-
-# 大文字小文字を区別しない補完
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
-# 親ディレクトリを補完候補から除外
-zstyle ':completion:*' ignore-parents parent pwd ..
-
-# プロセスリストの補完設定
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-
-# sudoコマンドのPATH設定
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
-
-# ============================================================
-# VCS（バージョン管理）情報の設定
-# ============================================================
-
-# Gitリポジトリの変更をチェック
 zstyle ':vcs_info:git:*' check-for-changes true
-
-# ステージされた変更がある場合の表示
 zstyle ':vcs_info:git:*' stagedstr "+"
-
-# ステージされていない変更がある場合の表示
 zstyle ':vcs_info:git:*' unstagedstr "-"
 
-# 通常時のフォーマット（ブランチ名、変更状態を表示）
+# 通常は緑地にブランチ名。rebase や merge の最中は赤地で操作名を前置する
 zstyle ':vcs_info:*' formats '%K{022}%F{250} %b%u%c %f%k '
-
-# アクション実行時のフォーマット（rebase、merge時など）
 zstyle ':vcs_info:*' actionformats '%K{124}%F{250} %a %f%k%K{022}%F{250} %b%u%c %f%k '
 
-# コマンド実行前にVCS情報を更新
 precmd() { vcs_info }
 
-# ============================================================
-# プロンプトの設定
-# ============================================================
-
-# 左プロンプト: [ユーザー名@ホスト名] カレントディレクトリ（3階層まで）
+# 左: [ユーザ@ホスト] カレントディレクトリ（3階層まで）
 PROMPT="%F{034}%B[%n@%m]%b%f %F{075}%3~%f
 %F{208}>%#%f "
 
-# 右プロンプト: VCS情報 + 現在時刻
+# 右: VCS情報 + 現在時刻
 RPROMPT='%B${vcs_info_msg_0_}%b%{${reset_color}%}%F{178}%B[%*]%b%f%{${reset_color}%}'
 
-# ============================================================
-# エイリアスの設定
-# ============================================================
+# --- エイリアス ---
 
-# 基本コマンドのエイリアス
 alias l='ls'
 alias s='ls'
+alias ks='ls'
 alias la='ls -a'
 alias ll='ls -l'
-alias ks='ls'
 
-# 安全なファイル操作（上書き前に確認）
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-
-# ディレクトリ作成時に親ディレクトリも自動作成
-alias mkdir='mkdir -p'
-
-# sudoコマンドでエイリアスを有効化
+# 末尾の空白が「次の語もエイリアス展開せよ」の指示になる
 alias sudo='sudo '
 
-# グローバルエイリアス（パイプと組み合わせて使用）
 alias -g L='| less'
 alias -g G='| grep'
 
-# ============================================================
-# 関数の定義
-# ============================================================
+# --- 関数 ---
 
-# SSH接続してtmuxセッションにアタッチまたは新規作成
-function ssht {
+# SSH 先の tmux セッションに繋ぐ（無ければ作る）
+ssht() {
   ssh -t $1 "tmux -u a || tmux -u new-session"
 }
 compdef _ssh_hosts ssht
 
-# ============================================================
-# OS固有の設定
-# ============================================================
+# --- Linux ---
 
-case ${OSTYPE} in
-  linux*)
-    # Linuxでのlsとgrepに色をつける
-    alias ls='ls -F --color=auto'
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-
-    # クリップボードコピー用エイリアス
-    alias C='xsel --input --clipboard'
-
-    # Ctrl+S/Qによる端末のフロー制御を無効化
-    stty start undef
-    stty stop undef
-    ttyctl -f
-
-    # WSL2環境の検出と設定
-    if [[ "$(uname -r)" == *microsoft* ]]; then
-      # WSLgのキーボードレイアウト設定（x11-xkb-utilsが必要）
-      type setxkbmap > /dev/null 2>&1 && \
-        setxkbmap -layout us
-
-      # VSCodeのパスを追加
-      export PATH=$PATH:/mnt/c/Users/$USER/AppData/Local/Programs/Microsoft\ VS\ Code/bin
-
-      # Windowsエクスプローラーを開く関数
-      function open() {
-        /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1)
-      }
-      alias explorer='open'
-
-      # PowerShell（pwsh 7優先、なければWindows PowerShellにフォールバック）
-      if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
-        alias powershell='/mnt/c/Program\ Files/PowerShell/7/pwsh.exe'
-      else
-        alias powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
-      fi
-
-      # ブラウザ環境変数の設定
-      export BROWSER="$HOME/dotfiles/bin/chrome-browser"
-    fi
-    ;;
-esac
-
-# ============================================================
-# PATH設定
-# ============================================================
-
-# カスタムbinディレクトリ
-[ -d ~/.local/bin ] && \
-  export PATH=$HOME/.local/bin:$PATH
-
-# Snap パッケージのbinディレクトリ
-[ -d /snap/bin ] && \
-  export PATH=/snap/bin:$PATH
-
-# anyenv（各言語のバージョン管理ツール）
-if [ -d ~/.anyenv ] || [ -d ~/.config/anyenv ]; then
-  export PATH=$HOME/.anyenv/bin:$PATH
-  export GOENV_GOPATH_PREFIX=$HOME/.go
-  eval "$(anyenv init -)"
+if [[ "$OSTYPE" == linux* ]]; then
+  # Ctrl+S / Ctrl+Q のフロー制御を切って、キーバインドとして使えるようにする
+  stty start undef
+  stty stop undef
+  ttyctl -f
 fi
 
-# Go言語の環境変数設定（anyenv以外でインストールされた場合も考慮）
-if type go > /dev/null 2>&1; then
-  export GOPATH=${GOPATH:-$HOME/.go}
-  export GOBIN=$GOPATH/bin
-  export PATH=$PATH:$GOBIN
+# --- WSL2 ---
+
+if [[ "$(uname -r)" == *microsoft* ]]; then
+  # WSLg はレイアウトが JP に戻るため上書きする（x11-xkb-utils が必要）
+  type setxkbmap > /dev/null 2>&1 && \
+    setxkbmap -layout us
+
+  export PATH=$PATH:/mnt/c/Users/$USER/AppData/Local/Programs/Microsoft\ VS\ Code/bin
+
+  # Windows 側の既定のアプリでファイル・URL を開く
+  function open() {
+    /mnt/c/Windows/System32/cmd.exe /c start $(wslpath -w $1)
+  }
+  alias explorer='open'
+  export BROWSER="$HOME/dotfiles/bin/chrome-browser"
+
+  # pwsh 7 を優先し、無ければ Windows PowerShell にフォールバックする
+  if [ -x "/mnt/c/Program Files/PowerShell/7/pwsh.exe" ]; then
+    alias powershell='/mnt/c/Program\ Files/PowerShell/7/pwsh.exe'
+  else
+    alias powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
+  fi
 fi
 
-# Ruby（gem）のパス設定
-if type ruby > /dev/null 2>&1; then
-  export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
-fi
+# --- 共通設定（bash と共有） ---
 
-# Yarn（JavaScriptパッケージマネージャ）のパス設定
-[ -d ~/.yarn ] && \
-  export PATH="$HOME/.yarn/bin:$PATH"
+# PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
+[ -r "$HOME/.config/shell/common.sh" ] && \
+  source "$HOME/.config/shell/common.sh"
 
-# ============================================================
-# 特殊環境の検出とプロンプト表示
-# ============================================================
+# --- 補完 ---
 
-# Rangerファイルマネージャー内での実行を検出
-[ -n "$RANGER_LEVEL" ] && \
-  RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
+zstyle ':completion:*:default' list-colors ${LS_COLORS}
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([%0-9]#)*=0=01;31'
 
-# Vim内のターミナルでの実行を検出
-[ -n "$VIMRUNTIME" ] && \
-  RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"
+# 完全一致 → glob → 曖昧一致 の順に試す
+zstyle ':completion:*' completer _complete _match _approximate
 
-# ============================================================
-# 外部スクリプト・プラグインの読み込み
-# ============================================================
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' ignore-parents parent pwd ..
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
-# ~/.config/profile.d/ 配下のスクリプトを読み込み
+# --- 外部設定の読み込み ---
+
+# 環境ごとの設定（プロキシ、APIキーなど）の置き場所
 if [ -d "$HOME/.config/profile.d" ]; then
   for file in "$HOME"/.config/profile.d/*.{sh,zsh}(N); do
-    if [ -r "$file" ]; then
-      source "$file"
-    fi
+    [ -r "$file" ] && source "$file"
   done
   unset file
 fi
 
-# Zsh auto-suggestions プラグイン
-# コマンド履歴に基づいて入力補完を提案
+# 入力中のコマンドを履歴から先読みして提案する
 if [ -d "$HOME/.zsh/zsh-autosuggestions" ]; then
   source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
   ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 fi
 
-# bun
-if [ -d "$HOME/.bun" ]; then
-  export BUN_INSTALL="$HOME/.bun"
-  export PATH="$BUN_INSTALL/bin:$PATH"
-  [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
-fi
+[ -n "${BUN_INSTALL:-}" ] && [ -s "$BUN_INSTALL/_bun" ] && \
+  source "$BUN_INSTALL/_bun"
+
+# --- 実行環境の表示 ---
+
+# Ranger や Vim の中から起動したシェルであることを右プロンプトに出す
+[ -n "$RANGER_LEVEL" ] && RPROMPT='%F{165}%B (Ranger) %b%f'"$RPROMPT"
+[ -n "$VIMRUNTIME" ] && RPROMPT='%F{034}%B (Vim) %b%f'"$RPROMPT"

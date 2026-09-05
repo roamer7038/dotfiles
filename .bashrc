@@ -1,26 +1,30 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# Ubuntu WSL optimized - merged from default and custom configs
+# bash が非ログインの対話シェルとして起動したときに読み込まれる。
+# Zsh と共通の設定は shell/common.sh 側にある。
 
-# If not running interactively, don't do anything
+# 対話シェルでなければ何もしない
 case $- in
-    *i*) ;;
-      *) return;;
+  *i*) ;;
+  *) return ;;
 esac
 
-# History management (both files)
+# --- ヒストリー ---
+
 HISTCONTROL=ignoreboth
-shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
+shopt -s histappend
 
-# Shell options (merged: default + custom enhancements)
+# --- シェルオプション ---
+
 shopt -s checkwinsize
-shopt -s cdspell
-shopt -s dotglob
+shopt -s cdspell                # cd のタイプミスを補正する
+shopt -s dotglob                # ドットファイルも glob の対象にする
 
-# Completions (both files + custom)
+# --- 補完 ---
+
 complete -c man which
 complete -cf sudo
+
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
@@ -29,83 +33,54 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# lesspipe support (default)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# --- プロンプト ---
 
-# Chroot detection (default, usually unused in WSL)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+  debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# Colored prompt with xterm title (default + custom style)
 case "$TERM" in
-    xterm*|rxvt*)
-        PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]\[\e[1;32m\][\u@\h]\[\e[m\] \w \n\$ "
-        ;;
-    xterm-color|*-256color)
-        color_prompt=yes;;
+  xterm* | rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]\[\e[1;32m\][\u@\h]\[\e[m\] \w \n\$ "
+    ;;
+  xterm-color | *-256color)
+    color_prompt=yes
+    ;;
 esac
 
 if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        color_prompt=yes
-    else
-        color_prompt=
-    fi
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    color_prompt=yes
+  else
+    color_prompt=
+  fi
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+  PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
 
-# Editor (custom)
-export SYSTEMD_EDITOR="/usr/bin/vim"
+# --- エイリアス ---
 
-# PATH extensions (custom, yarn removed)
-if [ -d ~/.local/bin ]; then
-  export PATH=$HOME/.local/bin:$PATH
-fi
-
-if type "go" > /dev/null 2>&1; then
-  export GOPATH=$HOME/.go
-  export GOBIN=$GOPATH/bin
-  export PATH=$PATH:$GOBIN
-fi
-
-if [ -d ~/.anyenv ]; then
-  export PATH=$HOME/.anyenv/bin:$PATH
-  eval "$(anyenv init -)"
-fi
-
-# Linux colors & aliases (merged both files)
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto -F'
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# ls aliases (merged)
 alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -alF'
-
-# Safety aliases (custom)
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-alias mkdir='mkdir -p'
-
-# Utility aliases (default + custom)
 alias open='xdg-open'
-alias C='xsel --input --clipboard'
+
+# 直前のコマンドの成否をデスクトップ通知で知らせる（長い処理の末尾に `; alert`）
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^[[:space:]]*[0-9]\+[[:space:]]*//;s/[;&|]\s*alert$//'\'')"'
 
-# Load additional aliases (default)
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+# --- 共通設定（Zsh と共有） ---
+
+# PATH・配色・安全策のエイリアスは shell/common.sh にまとめてある
+[ -r "$HOME/.config/shell/common.sh" ] && . "$HOME/.config/shell/common.sh"
+
+# --- 外部設定の読み込み ---
+
+# less で書庫やバイナリも読めるようにする
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+[ -f ~/.bash_aliases ] && . ~/.bash_aliases
