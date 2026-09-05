@@ -1,0 +1,68 @@
+# Claude Code の状態表示
+
+tmux で複数ウィンドウを使っていると、非アクティブなウィンドウで Claude Code が
+タスクを終えたり承認待ちになったりしても気づけない。
+`bin/tmux-claude-status.sh` は、その状態をウィンドウステータスの背景色で示す。
+
+| 状態 | 背景色 | 表示 |
+| --- | --- | --- |
+| 実行中 | 青 | ウィンドウ名の後ろにスピナー |
+| 承認・入力待ち | 黄 | — |
+| 完了 | 緑 | — |
+
+tmux の `window-status-style` はウィンドウが非アクティブなときのみ有効なため、
+今見ているウィンドウは着色されない。
+また、ウィンドウを離れる／選ぶと「承認待ち」「完了」は既読として解除される
+（「実行中」は色が残る）。
+
+## 設定
+
+`.tmux.conf` 側は設定済みなので、`~/.claude/settings.json` にフックを追加する。
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
+    ],
+    "Notification": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" waiting", "timeout": 5 } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" done", "timeout": 5 } ] }
+    ],
+    "SessionEnd": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" none", "timeout": 5 } ] }
+    ]
+  }
+}
+```
+
+`~/.claude/settings.json` は環境ごとに内容が異なるため dotfiles の管理対象外。
+手動で追記する。
+
+## 挙動
+
+- 操作するのは対象ウィンドウのオプションだけで、tmux のグローバル設定は
+  変更しない。Claude Code を起動していないウィンドウには影響しない
+- `monitor-activity` が有効だと、出力のあったウィンドウは `#` フラグが付き
+  `window-status-activity-style`（既定は `reverse`）で反転描画され、背景色が
+  打ち消される。Claude Code のウィンドウは常に出力があり `#` は情報量を
+  持たないため、着色中は**そのウィンドウの `monitor-activity` のみ**を `off`
+  にする。ウィンドウオプションなので他のウィンドウの挙動は変わらない
+  （解除時にグローバル設定へ戻す）
+- `-`（直前に選択していたウィンドウ）は `monitor-activity` とは無関係なので
+  残る。消したい場合は `.tmux.conf` の `window-status-format` から
+  フラグ表示を外す
+- スピナーを動かすには毎秒の再描画が要る。`status-interval` はグローバル設定
+  のため、**実行中のウィンドウがある間だけ** 1 に上げ、無くなったら元の値へ
+  戻す。元の値は変更前に保存するので `.tmux.conf` を書き換える必要はない
+
+## 変更できる箇所
+
+`bin/tmux-claude-status.sh` の冒頭にある。
+
+| 変数 | 内容 |
+| --- | --- |
+| `STYLE_RUNNING` / `STYLE_WAITING` / `STYLE_DONE` | 状態ごとの配色 |
+| `SPINNER` | スピナーの有無。`off` にすると `status-interval` も変更されなくなる |

@@ -1,234 +1,91 @@
 # dotfiles
 
-Linuxデスクトップ/サーバ環境設定ファイル群
+Linux デスクトップ／サーバ環境の設定ファイル群。
 
-## 概要
-
-環境に応じて以下のソフトウェアの設定ファイルを管理・適用します。
-
-- シェル: Zsh
-- ターミナルマルチプレクサ: Tmux
-- エディタ: Vim
-- デスクトップ環境: i3wm、X11関連設定、その他GUIアプリケーション設定
-
-また、インストール用のスクリプト等も含まれています。
+| 分類 | 対象 |
+| --- | --- |
+| シェル | Zsh、Bash |
+| ターミナルマルチプレクサ | tmux |
+| エディタ | Vim（vim-plug + vim-lsp） |
+| デスクトップ環境 | i3wm、X11 関連、GUI アプリケーション |
+| AI エージェント | Claude Code |
 
 ## セットアップ
 
-makeコマンドを使用して環境をセットアップします。
+`make <プリセット>` で設定を配置する。既存ファイルは上書きしない。
 
-### プリセット
-
-#### minimal
-
-基本的なdotfilesのみをセットアップ
-(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
-
-```bash
-make minimal
-```
-
-#### standard（デフォルト）
-
-minimal + vim設定 + zshプラグイン
+| プリセット | 内容 |
+| --- | --- |
+| `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `shell/common.sh`） |
+| `standard` | minimal + Vim + Claude Code 設定 + zsh プラグイン（推奨） |
+| `desktop` | standard + X11 + GUI アプリケーション |
+| `full` | desktop + i3wm |
+| `agent` | Claude Code 設定のみ（構築済みの環境へ追加する用） |
 
 ```bash
-make standard
+make dry-run-standard   # 適用内容を確認する
+make standard           # 適用する
 ```
 
-vimプラグインは vim-plug を利用して管理されます。
-初回起動時に vim-plug と各プラグインを自動インストールするため、git と curl が必要です。
-言語ごとの補完・診断は vim-lsp + vim-lsp-settings で行います。
-対象言語のファイルを開き :LspInstallServer でサーバーを導入してください
-（サーバーにより node/npm や go 等のランタイムが別途必要）。
+上書きしたい場合やファイル単位で選びたい場合は
+`./bin/create-symlinks.sh --help` を参照。
 
-#### desktop
+i3wm の設定は Arch Linux で確認したものだが、2025年時点で保守しておらず
+そのままでは動作しない可能性がある。
 
-standard + X11設定 + GUIアプリケーション設定
+## 構成
 
-```bash
-make desktop
+```
+Makefile          セットアップの入口
+.editorconfig     エディタ共通の書式設定
+shell/common.sh   Bash と Zsh で共有する設定（PATH、配色、エイリアス）
+bin/              セットアップ用スクリプトと各種ユーティリティ
+config/           ~/.config 配下へ配置する設定
+docs/             個別機能のドキュメント
+.claude/          Claude Code の設定
 ```
 
-#### full
+### bin/
 
-すべての設定を含む完全セットアップ（i3wm含む）
+| スクリプト | 内容 |
+| --- | --- |
+| `create-symlinks.sh` | dotfiles のシンボリックリンクを作成する（Makefile から呼ばれる） |
+| `authorized_keys.sh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追記する |
+| `install-bun.sh` | bun を導入する |
+| `install-docker.sh` | Docker Engine と Lazydocker を導入する |
+| `install-vim.sh` | Vim をソースからビルドして入れ替える |
+| `install-zsh-plugins.sh` | zsh のプラグインを導入する |
+| `tmux-claude-status.sh` | Claude Code の状態を tmux のウィンドウに表示する（[設定方法](docs/tmux-claude-status.md)） |
+| `tmux-reorder-sessions.sh` | tmux のセッション番号を連番に振り直す |
+| `pane` | tmux のペインを指定した数だけタイル状に分割する |
+| `multissh` | 複数ホストへ同時に SSH し tmux で一括操作する |
+| `chrome-browser` | WSL2 から Windows の Chrome を開く（`$BROWSER` に設定する） |
+| `xinit.sh` | X 起動時の初期化 |
+| `wallpaper.sh` | 壁紙をランダムに設定する |
+| `system-sleep-xhci.sh` | Dell Inspiron のサスペンド失敗を回避する |
+| `minecraft-input.sh` | Minecraft へ日本語を入力する |
+| `fw.sh` | iptables の設定例 |
 
-```bash
-make full
-```
+## 追加ツール
 
-i3wmの動作確認はArch Linux環境で行っています。
-本設定ファイルは2025年時点で既に保守されていないため、正常に動作しない可能性があります。
+| コマンド | 内容 | 手順 |
+| --- | --- | --- |
+| `make .ssh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追加 | — |
+| `make anyenv` | anyenv + anyenv-update プラグイン | [docs/anyenv.md](docs/anyenv.md) |
+| `make docker` | Docker Engine + Lazydocker | [docs/docker.md](docs/docker.md) |
+| `make bun` | bun | — |
 
-### ドライラン
-
-変更内容を事前確認する場合:
-
-```bash
-make dry-run-minimal    # minimalの変更内容を確認
-make dry-run-standard   # standardの変更内容を確認
-make dry-run-desktop    # desktopの変更内容を確認
-make dry-run-full       # fullの変更内容を確認
-```
-
-## 追加機能
-
-### SSH公開鍵認証
-
-GitHubアカウントの公開鍵を取得してauthorized_keysに追加:
-
-```bash
-make .ssh
-```
-
-特定のユーザの鍵を取得したい場合は直接スクリプトを実行してください。
+特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
 
 ```bash
 ./bin/authorized_keys.sh username
 ```
 
-### anyenv
-
-複数のプログラミング言語環境を管理するためのツール。anyenv-updateプラグイン付きでインストールされます。
-
-```bash
-make anyenv
-```
-
-インストール後の手順:
-
-1. シェル設定ファイルにパスを追加:
-   ```bash
-   export PATH="$HOME/.anyenv/bin:$PATH"
-   eval "$(anyenv init -)"
-   ```
-
-2. シェルを再起動:
-   ```bash
-   exec $SHELL -l
-   ```
-
-3. anyenvを初期化:
-   ```bash
-   anyenv install --init
-   ```
-
-4. 必要な*envをインストール:
-   ```bash
-   anyenv install rbenv
-   anyenv install pyenv
-   anyenv install nodenv
-   exec $SHELL -l
-   ```
-
-5. 各環境で言語バージョンをインストール:
-   ```bash
-   rbenv install 3.2.0
-   pyenv install 3.11.0
-   nodenv install 18.0.0
-   ```
-
-#### 注意事項
-
-- **rbenv使用時**: ビルドに必要なパッケージをインストール
-  ```bash
-  apt install -y build-essential libssl-dev zlib1g-dev libyaml-dev
-  ```
-
-- **定期的な更新**: anyenv-updateプラグインで全*envとプラグインを更新
-  ```bash
-  anyenv update
-  ```
-
-- **シェル再起動**: *envのインストール後は必ずシェルを再起動
-
-### Docker
-
-Docker EngineとLazydocker（DockerコンテナのTUI管理ツール）をインストールします。
-
-```bash
-make docker
-```
-
-インストール後の手順:
-
-1. ログアウト/ログインして、dockerグループの変更を反映させる
-
-2. Docker動作確認:
-   ```bash
-   docker --version
-   docker run hello-world
-   lazydocker
-   ```
-
-#### 注意事項
-
-- インストール後は**必ずログアウト/ログインが必要**です（dockerグループの反映のため）
-- Docker Desktopではなく、CLIベースのDocker Engine環境がインストールされます
-- Lazydockerは`/usr/local/bin`に配置されます
-
-### Claude Codeの状態表示
-
-tmuxで複数ウィンドウを使っていると、非アクティブなウィンドウでClaude Codeが
-タスクを終えたり承認待ちになったりしても気づけません。
-`bin/tmux-claude-status.sh` は、その状態をウィンドウステータスの背景色で示します。
-
-| 状態 | 背景色 | 表示 |
-| --- | --- | --- |
-| 実行中 | 青 | ウィンドウ名の後ろにスピナー |
-| 承認・入力待ち | 黄 | — |
-| 完了 | 緑 | — |
-
-tmuxの`window-status-style`はウィンドウが非アクティブなときのみ有効なため、
-今見ているウィンドウは着色されません。
-また、ウィンドウを離れる/選ぶと「承認待ち」「完了」は既読として解除されます
-（「実行中」は色が残ります）。
-
-`.tmux.conf`側の設定は済んでいるので、`~/.claude/settings.json`にフックを追加します。
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
-    ],
-    "Notification": [
-      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" waiting", "timeout": 5 } ] }
-    ],
-    "Stop": [
-      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" done", "timeout": 5 } ] }
-    ],
-    "SessionEnd": [
-      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" none", "timeout": 5 } ] }
-    ]
-  }
-}
-```
-
-#### 注意事項
-
-- `~/.claude/settings.json`は環境ごとに内容が異なるためdotfilesの管理対象外です。手動で追記してください
-- 操作するのは対象ウィンドウのオプションのみで、tmuxのグローバル設定は変更しません。Claude Codeを起動していないウィンドウには影響しません
-- `monitor-activity`が有効だと、出力のあったウィンドウは`#`フラグが付き`window-status-activity-style`（既定は`reverse`）で反転描画され、背景色が打ち消されます。Claude Codeのウィンドウは常に出力があり`#`は情報量を持たないため、着色中は**そのウィンドウの`monitor-activity`のみ**を`off`にします。`monitor-activity`はウィンドウオプションなので他のウィンドウの挙動は変わりません（解除時にグローバル設定へ戻します）
-- なお`-`（直前に選択していたウィンドウ）は`monitor-activity`とは無関係なので残ります。消したい場合は`.tmux.conf`の`window-status-format`からフラグ表示を外してください
-- スピナーを動かすには毎秒の再描画が必要です。`status-interval`はグローバル設定のため、**実行中のウィンドウがある間だけ**1に上げ、無くなったら元の値に戻します。元の値は変更前に保存するので、`.tmux.conf`側の設定を書き換える必要はありません
-- 色は`bin/tmux-claude-status.sh`冒頭の`STYLE_*`、スピナーの有無は同じく冒頭の`SPINNER`で変更できます（`off`にすると`status-interval`も変更されなくなります）
-
-## その他各種スクリプト
-
-`bin/`ディレクトリ内にはいくつかスクリプトが配置されています。
-
-- `authorized_keys.sh`：GitHubから公開鍵を取得して`~/.ssh/authorized_keys`に追加
-- `fw.sh`：iptables向けの設定スクリプト例
-- `install-docker.sh`：Docker環境のインストールスクリプト、Docker Desktopを使わずCLIのみのセットアップです。
-- `tmux-claude-status.sh`：Claude Codeの状態（実行中/承認待ち/完了）をtmuxのウィンドウ背景色とスピナーで可視化。Claude Codeのフックから呼び出します（[設定方法](#claude-codeの状態表示)）
-
 ## カスタマイズ
 
-### Git設定
+### Git
 
-`.gitconfig`を編集してユーザー名とメールアドレスを変更:
+`.gitconfig` のユーザ名とメールアドレスを書き換える。
 
 ```
 [user]
@@ -236,22 +93,38 @@ tmuxの`window-status-style`はウィンドウが非アクティブなときの�
 	email = your@example.com
 ```
 
-### Zsh設定
+### 環境ごとの設定
 
-Zsh起動時に `~/.config/profile.d/`配下のスクリプト群を`source`で読み込みます。
-必要に応じてディレクトリを作成し、スクリプトを追加してください。
-
-例：プロキシ設定、環境変数設定など
+Zsh は起動時に `~/.config/profile.d/` 配下の `*.sh` `*.zsh` を読み込む。
+プロキシや API キーなど、環境ごとに異なる設定はここに置く。
 
 ```bash
 mkdir -p ~/.config/profile.d
 echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/proxy.sh
 ```
 
-## ヘルプ
+### Bash と Zsh の共通設定
 
-利用可能なmakeターゲット一覧:
+PATH の構築、配色、上書き確認のエイリアスは `shell/common.sh` にまとめてあり、
+`.bashrc` と `.zshrc` の双方から読み込む。シェル固有の設定は各 rc 側に置く。
+
+### Vim
+
+プラグインは vim-plug で管理する。初回起動時に vim-plug と各プラグインを
+自動で導入するため、git と curl が要る。
+補完と診断は vim-lsp + vim-lsp-settings で行う。対象言語のファイルを開いて
+`:LspInstallServer` を実行するとサーバが入る（サーバによっては node や go の
+ランタイムが別途要る）。
+
+## ドキュメント
+
+- [anyenv](docs/anyenv.md) — 複数の言語バージョン管理ツールをまとめて扱う
+- [Docker](docs/docker.md) — Docker Engine と Lazydocker
+- [Claude Code の状態表示](docs/tmux-claude-status.md) — tmux のウィンドウ色で状態を示す
+
+## 開発
 
 ```bash
-make help
+make fmt    # シェルスクリプトを shfmt で整形する（要 shfmt）
+make help   # ターゲット一覧
 ```
