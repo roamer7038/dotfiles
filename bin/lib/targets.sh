@@ -9,7 +9,7 @@ DOTFILES_X11=(.Xmodmap .xprofile .picom.conf)
 # bin/<name> -> $HOME/.local/bin/<name>
 # コマンドとして直接呼ぶものだけを挙げる。フックや設定ファイルから
 # 絶対パスで呼ばれるスクリプトは対象にしない。
-DOTFILES_COMMANDS=(pane multissh wsl-chrome)
+DOTFILES_COMMANDS=(pane multissh wsl-chrome anyenv-setup)
 
 # config/<dir>/* -> $HOME/.config/<dir>/*
 # profile.d には bash と zsh の共通設定（00-common.sh）が入る。

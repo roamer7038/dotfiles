@@ -86,6 +86,7 @@ docs/             個別機能のドキュメント
 | `pane` | tmux のペインを指定した数だけタイル状に分割する（`~/.local/bin` にリンクされる） |
 | `multissh` | 複数ホストへ同時に SSH し tmux で一括操作する（`~/.local/bin` にリンクされる） |
 | `wsl-chrome` | WSL2 から Windows の Chrome を開く・CDP で操作する（[設定方法](docs/wsl-chrome.md)、`~/.local/bin` にリンクされる） |
+| `anyenv-setup` | anyenv 配下の \*env を導入し最新版を global に設定する（[設定方法](docs/anyenv.md)、`~/.local/bin` にリンクされる） |
 | `xinit.sh` | X 起動時の初期化 |
 | `wallpaper.sh` | 壁紙をランダムに設定する |
 | `system-sleep-xhci.sh` | Dell Inspiron のサスペンド失敗を回避する |
