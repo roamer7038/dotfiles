@@ -7,6 +7,7 @@ set -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+LINKS_FILE="$DOTFILES_ROOT/links"
 
 # ============================================================
 # 設定
@@ -14,12 +15,7 @@ DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
 # --- 設定フラグ ---
 PRESET=""
-ENABLE_BASIC=false
-ENABLE_VIM=false
-ENABLE_X11=false
-ENABLE_GUI=false
-ENABLE_I3WM=false
-ENABLE_AGENT=false
+SELECTED_TAGS=()
 DRY_RUN=false
 FORCE=false
 VERBOSE=false
@@ -35,8 +31,6 @@ log_skip() { echo "$Y[SKIP]$N $*"; }
 log_warn() { echo "$Y[WARN]$N $*"; }
 log_error() { echo "$R[ERROR]$N $*" >&2; }
 log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
-
-source "$SCRIPT_DIR/lib/targets.sh"
 
 # ============================================================
 # 使い方と引数解析
@@ -105,36 +99,31 @@ parse_options() {
       shift 2
       ;;
     --basic | --dotfiles)
-      ENABLE_BASIC=true
+      SELECTED_TAGS+=(basic)
       shift
       ;;
     --vim)
-      ENABLE_VIM=true
+      SELECTED_TAGS+=(vim)
       shift
       ;;
     --x11 | --xorg)
-      ENABLE_X11=true
+      SELECTED_TAGS+=(x11)
       shift
       ;;
     --gui)
-      ENABLE_GUI=true
+      SELECTED_TAGS+=(gui)
       shift
       ;;
     --i3wm | --i3)
-      ENABLE_I3WM=true
+      SELECTED_TAGS+=(gui i3wm)
       shift
       ;;
     --agent)
-      ENABLE_AGENT=true
+      SELECTED_TAGS+=(agent)
       shift
       ;;
     --all)
-      ENABLE_BASIC=true
-      ENABLE_VIM=true
-      ENABLE_X11=true
-      ENABLE_GUI=true
-      ENABLE_I3WM=true
-      ENABLE_AGENT=true
+      SELECTED_TAGS+=(basic vim x11 gui i3wm agent)
       shift
       ;;
     -n | --dry-run)
@@ -166,53 +155,22 @@ parse_options() {
 # ============================================================
 
 apply_preset() {
-  if [ -z "$PRESET" ]; then
-    return
-  fi
+  [ -n "$PRESET" ] || return 0
 
   log_info "Applying preset: $PRESET"
 
   case "$PRESET" in
-  minimal)
-    ENABLE_BASIC=true
-    ;;
-  standard)
-    ENABLE_BASIC=true
-    ENABLE_VIM=true
-    ENABLE_AGENT=true
-    ;;
-  desktop)
-    ENABLE_BASIC=true
-    ENABLE_VIM=true
-    ENABLE_X11=true
-    ENABLE_GUI=true
-    ENABLE_AGENT=true
-    ;;
-  full)
-    ENABLE_BASIC=true
-    ENABLE_VIM=true
-    ENABLE_X11=true
-    ENABLE_GUI=true
-    ENABLE_I3WM=true
-    ENABLE_AGENT=true
-    ;;
-  agent)
-    ENABLE_AGENT=true
-    ;;
+  minimal) SELECTED_TAGS+=(basic) ;;
+  standard) SELECTED_TAGS+=(basic vim agent) ;;
+  desktop) SELECTED_TAGS+=(basic vim agent x11 gui) ;;
+  full) SELECTED_TAGS+=(basic vim agent x11 gui i3wm) ;;
+  agent) SELECTED_TAGS+=(agent) ;;
   *)
     log_error "Unknown preset: $PRESET"
     echo "Available presets: minimal, standard, desktop, full, agent"
     exit 1
     ;;
   esac
-}
-
-resolve_dependencies() {
-  # i3wmを有効にする場合、自動的にGUI設定も有効にする
-  if [ "$ENABLE_I3WM" = true ]; then
-    log_verbose "Enabling --gui (required by --i3wm)"
-    ENABLE_GUI=true
-  fi
 }
 
 # ============================================================
@@ -225,31 +183,55 @@ ensure_dir() {
   mkdir -p "$1"
 }
 
-# config/<dir>/ 配下を ~/.config/<dir>/ へ配置する
-link_config_dir() {
-  local dir="$1"
-  local src_dir="$DOTFILES_ROOT/config/$dir"
-  local dest_dir="$HOME/.config/$dir"
-  local file filename
+# links を読み、選択されたタグに合う行を "<パス> <配置先>" で出力する
+select_entries() {
+  local src dest tag
 
-  if [ ! -d "$src_dir" ]; then
-    log_verbose "Source directory not found: $src_dir"
-    return
-  fi
+  while read -r src dest tag; do
+    case "$src" in '' | '#'*) continue ;; esac
+    has_tag "$tag" || continue
+    printf '%s %s\n' "$src" "$HOME/${dest#\~/}"
+  done <"$LINKS_FILE"
+}
 
-  ensure_dir "$dest_dir"
-
-  for file in "$src_dir"/*; do
-    [ -e "$file" ] || continue
-    filename=$(basename "$file")
-    create_symlink "$file" "$dest_dir/$filename" "$dir/$filename"
+# 選択されたタグに $1 が含まれるか
+has_tag() {
+  local t
+  for t in "${SELECTED_TAGS[@]}"; do
+    [ "$t" = "$1" ] && return 0
   done
+  return 1
+}
+
+# links の1件を配置する。両側が / で終わる対はディレクトリ内を展開する
+link_entry() {
+  local src="$DOTFILES_ROOT/$1" dest="$2" file
+
+  case "$1" in
+  */)
+    if [ ! -d "$src" ]; then
+      log_error "ディレクトリが無い: $1"
+      return 1
+    fi
+    ensure_dir "${dest%/}"
+    for file in "$src"*; do
+      [ -e "$file" ] || continue
+      create_symlink "$file" "${dest%/}/$(basename "$file")"
+    done
+    ;;
+  *)
+    if [ ! -e "$src" ]; then
+      log_error "ファイルが無い: $1"
+      return 1
+    fi
+    ensure_dir "$(dirname "$dest")"
+    create_symlink "$src" "$dest"
+    ;;
+  esac
 }
 
 create_symlink() {
-  local src="$1"
-  local dest="$2"
-  local description="$3"
+  local src="$1" dest="$2"
 
   if [ "$DRY_RUN" = true ]; then
     log_info "[DRY-RUN] Would create: $dest -> $src"
@@ -266,129 +248,12 @@ create_symlink() {
     fi
   fi
 
-  if ln -s "$src" "$dest" 2>/dev/null; then
-    log_ok "$description: $dest"
+  if ln -s "$src" "$dest"; then
+    log_ok "$dest"
   else
     log_error "Failed to create link: $dest"
     return 1
   fi
-}
-
-create_basic_links() {
-  log_info "Creating basic dotfiles..."
-
-  local file
-  for file in "${DOTFILES_BASIC[@]}"; do
-    local src="$DOTFILES_ROOT/$file"
-    local dest="$HOME/$file"
-
-    if [ -f "$src" ]; then
-      create_symlink "$src" "$dest" "$file"
-    else
-      log_verbose "Source file not found: $src"
-    fi
-  done
-
-  # bash と zsh の共通設定は profile.d のドロップインとして置く
-  local dir
-  for dir in "${DOTFILES_SHELL_DIRS[@]}"; do
-    link_config_dir "$dir"
-  done
-}
-
-# コマンドとして直接呼ぶスクリプトを PATH の通った場所へ置く。
-# フックや設定ファイルから絶対パスで呼ばれるものは対象にしない。
-create_command_links() {
-  log_info "Creating command links..."
-
-  local dest_dir="$HOME/.local/bin"
-
-  ensure_dir "$dest_dir"
-
-  local cmd src
-  for cmd in "${DOTFILES_COMMANDS[@]}"; do
-    src="$DOTFILES_ROOT/bin/$cmd"
-
-    if [ -f "$src" ]; then
-      create_symlink "$src" "$dest_dir/$cmd" "bin/$cmd"
-    else
-      log_verbose "Source file not found: $src"
-    fi
-  done
-}
-
-create_vim_links() {
-  log_info "Creating Vim configuration..."
-
-  local vimrc_src="$DOTFILES_ROOT/.vimrc"
-  local vimrc_dest="$HOME/.vimrc"
-
-  if [ -f "$vimrc_src" ]; then
-    create_symlink "$vimrc_src" "$vimrc_dest" ".vimrc"
-  fi
-}
-
-create_x11_links() {
-  log_info "Creating X Window System configuration..."
-
-  local file
-  for file in "${DOTFILES_X11[@]}"; do
-    local src="$DOTFILES_ROOT/$file"
-    local dest="$HOME/$file"
-
-    if [ -f "$src" ]; then
-      create_symlink "$src" "$dest" "$file"
-    else
-      log_verbose "Source file not found: $src"
-    fi
-  done
-}
-
-create_gui_links() {
-  log_info "Creating GUI application configurations..."
-
-  local app_dirs=("${DOTFILES_GUI_DIRS[@]}")
-
-  if [ "$ENABLE_I3WM" = true ]; then
-    app_dirs+=("${DOTFILES_I3WM_DIRS[@]}")
-  fi
-
-  local dir
-  for dir in "${app_dirs[@]}"; do
-    link_config_dir "$dir"
-  done
-}
-
-create_agent_links() {
-  log_info "Creating AI agent configurations..."
-
-  # 将来的に他エージェントの設定を追加する場合はここに追記する
-  create_claude_agent_links
-}
-
-create_claude_agent_links() {
-  local src_dir="$DOTFILES_ROOT/.claude"
-  local dest_dir="$HOME/.claude"
-
-  if [ ! -d "$src_dir" ]; then
-    log_verbose "Source directory not found: $src_dir"
-    return
-  fi
-
-  local files=("${DOTFILES_AGENT[@]}")
-
-  ensure_dir "$dest_dir"
-
-  for file in "${files[@]}"; do
-    local src="$src_dir/$file"
-    local dest="$dest_dir/$file"
-
-    if [ -e "$src" ]; then
-      create_symlink "$src" "$dest" ".claude/$file"
-    else
-      log_verbose "Source file not found: $src"
-    fi
-  done
 }
 
 # ============================================================
@@ -401,16 +266,9 @@ main() {
   echo
 
   parse_options "$@"
-
   apply_preset
 
-  resolve_dependencies
-
-  if [ "$ENABLE_BASIC" != true ] &&
-    [ "$ENABLE_VIM" != true ] &&
-    [ "$ENABLE_X11" != true ] &&
-    [ "$ENABLE_GUI" != true ] &&
-    [ "$ENABLE_AGENT" != true ]; then
+  if [ ${#SELECTED_TAGS[@]} -eq 0 ]; then
     log_error "No configuration options specified"
     echo "Use --help for usage information"
     exit 1
@@ -421,12 +279,10 @@ main() {
     echo
   fi
 
-  [ "$ENABLE_BASIC" = true ] && create_basic_links
-  [ "$ENABLE_BASIC" = true ] && create_command_links
-  [ "$ENABLE_VIM" = true ] && create_vim_links
-  [ "$ENABLE_X11" = true ] && create_x11_links
-  [ "$ENABLE_GUI" = true ] && create_gui_links
-  [ "$ENABLE_AGENT" = true ] && create_agent_links
+  local src dest
+  while read -r src dest; do
+    link_entry "$src" "$dest"
+  done < <(select_entries)
 
   echo
   if [ "$DRY_RUN" = true ]; then
