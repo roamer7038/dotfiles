@@ -11,7 +11,7 @@
 #   wsl-chrome status                 接続先と開いているタブを表示する
 #   wsl-chrome stop                   専用インスタンスを終了する
 #
-# BROWSER に設定しておくと各種 CLI から呼ばれる（.zshrc 参照）。
+# BROWSER に設定しておくと各種 CLI から呼ばれる（config/profile.d/00-common.sh 参照）。
 # debug で起動したインスタンスへは chrome-devtools-mcp から接続でき、
 # AI エージェントがページの表示や DOM を確認できる（docs/wsl-chrome.md 参照）。
 #

@@ -43,7 +43,7 @@ Makefile          セットアップの入口
 bin/              セットアップ用スクリプトと各種ユーティリティ
 bin/lib/          bin/ 配下で共有するログ出力と配置対象の定義
 config/           ~/.config 配下へ配置する設定
-config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス）
+config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス、関数、OS 別設定）
 docs/             個別機能のドキュメント
 .claude/          Claude Code の設定
 ```
@@ -136,8 +136,8 @@ vim-plug が未導入の環境では、読み込むと導入が走ってしま�
 ### シェルの設定（profile.d）
 
 `.bashrc` と `.zshrc` は、起動時に `~/.config/profile.d/` 配下を名前順に読み込む。
-PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き確認のエイリアスはこの仕組みで配る。
-シェル固有の設定は各 rc 側に置く。
+PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、エイリアス、関数、WSL2 向けの設定はこの仕組みで配る。
+プロンプトや補完、`setopt` や `shopt` のようなシェル固有の記法が要るものは各 rc 側に置く。
 
 ```
 ~/.config/profile.d/00-common.sh   dotfiles が置く共通設定（編集しない）
