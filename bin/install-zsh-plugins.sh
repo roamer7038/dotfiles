@@ -4,6 +4,16 @@
 
 set -e
 
+if [ -t 1 ]; then
+  N=$'\033[0m' G=$'\033[0;32m' Y=$'\033[0;33m' B=$'\033[0;34m' R=$'\033[0;31m'
+else N='' G='' Y='' B='' R=''; fi
+log_info() { echo "$B[INFO]$N $*"; }
+log_ok() { echo "$G[OK]$N $*"; }
+log_skip() { echo "$Y[SKIP]$N $*"; }
+log_warn() { echo "$Y[WARN]$N $*"; }
+log_error() { echo "$R[ERROR]$N $*" >&2; }
+log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
+
 # ベースディレクトリ
 ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-$HOME/.zsh}"
 
@@ -29,15 +39,15 @@ install_plugin() {
   local plugin_path="$ZSH_PLUGIN_DIR/$plugin_name"
 
   if plugin_exists "$plugin_name"; then
-    echo "$plugin_name is already installed at $plugin_path"
+    log_skip "$plugin_name: 導入済み ($plugin_path)"
     return 0
   fi
 
-  echo "Installing $plugin_name..."
+  log_info "$plugin_name を導入します..."
   if git clone "$plugin_repo" "$plugin_path" 2>/dev/null; then
-    echo "$plugin_name installed successfully!"
+    log_ok "$plugin_name: 導入した"
   else
-    echo "Failed to install $plugin_name" >&2
+    log_error "$plugin_name: 導入に失敗"
     return 1
   fi
 }
@@ -53,11 +63,7 @@ main() {
     install_plugin "$name" "$repo"
   done
 
-  echo ""
-  echo "Installation complete!"
-  echo ""
-  echo "To enable plugins, add to your .zshrc:"
-  echo "  source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  log_ok "完了（.zshrc は ~/.zsh 配下を自動で読み込む）"
 }
 
 main "$@"
