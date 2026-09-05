@@ -12,6 +12,23 @@ Linux デスクトップ／サーバ環境の設定ファイル群。
 
 ## セットアップ
 
+### ワンライナー（Ubuntu 24.04 以降）
+
+素の環境から一度で済ませる。
+apt でのパッケージ導入、`~/dotfiles` への clone、`standard` の配置、Vim プラグイン・Claude Code・anyenv・bun の導入までを行う。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
+```
+
+sudo のパスワードを一度だけ尋ねる。
+既定シェルを zsh に変えるので、反映には再ログインが要る。
+Ubuntu が既定で置く `~/.bashrc` は `~/.bashrc.orig` へ退避してから配置する（退避先が既にある場合は何もしない）。
+Docker は影響が大きいため導入せず、完了時に手順を案内する。
+何度実行してもよい。Ubuntu 以外で試す場合は `bash -s -- --force` を付ける。
+
+### プリセット
+
 `make <プリセット>` で設定を配置する。既存ファイルは上書きしない。
 
 | プリセット | 内容 |
@@ -53,6 +70,7 @@ docs/             個別機能のドキュメント
 
 | スクリプト | 内容 |
 | --- | --- |
+| `bootstrap.sh` | 素の Ubuntu 環境をワンライナーで一括セットアップする |
 | `create-symlinks.sh` | dotfiles のシンボリックリンクを作成する（Makefile から呼ばれる） |
 | `doctor.sh` | 配置状態を点検する（`make doctor`） |
 | `update.sh` | 導入済みのプラグイン・ツールを更新する（`make update`） |
