@@ -2,7 +2,8 @@
 
 tmux で複数ウィンドウを使っていると、非アクティブなウィンドウで Claude Code が
 タスクを終えたり承認待ちになったりしても気づけない。
-`bin/tmux-claude-status.sh` は、その状態をウィンドウステータスの背景色で示す。
+`bin/tmux-claude-status.sh` は、その状態をウィンドウ名の後ろの印と
+ステータスの配色で示す。
 
 | 状態 | 配色 | 印 |
 | --- | --- | --- |
@@ -25,8 +26,8 @@ tmux の `window-status-style` はウィンドウが非アクティブなとき�
 （`window-status-current-format` にも同じ細工をしているため）。
 ウィンドウを行き来しても表示が途切れず、コピーモード中など
 Claude Code の画面が見えていないときも状態が分かる。
-また、ウィンドウを離れる／選ぶと「承認待ち」「完了」は既読として解除される
-（「実行中」は色が残る）。
+また、ウィンドウを離れる／選ぶと「承認待ち」「完了」は既読として解除される。
+「実行中」は既読にならないので、スピナーは回り続ける。
 
 ## 設定
 
@@ -70,8 +71,9 @@ make claude-hooks
 - `monitor-activity` が有効だと、出力のあったウィンドウは `#` フラグが付き
   `window-status-activity-style`（既定は `reverse`）で反転描画され、背景色が
   打ち消される。Claude Code のウィンドウは常に出力があり `#` は情報量を
-  持たないため、着色中は**そのウィンドウの `monitor-activity` のみ**を `off`
-  にする。ウィンドウオプションなので他のウィンドウの挙動は変わらない
+  持たないため、状態が付いている間は**そのウィンドウの `monitor-activity`
+  のみ**を `off` にする。実行中は着色しないので、配色の有無ではなく状態で
+  判断している。ウィンドウオプションなので他のウィンドウの挙動は変わらない
   （解除時にグローバル設定へ戻す）
 - `-`（直前に選択していたウィンドウ）は `monitor-activity` とは無関係なため
   別途 `.tmux.conf` の `window-status-format` で非表示にしている
@@ -90,7 +92,7 @@ make claude-hooks
 
 | 変数 | 内容 |
 | --- | --- |
-| `STYLE_RUNNING` / `STYLE_WAITING` / `STYLE_DONE` | 状態ごとの配色 |
+| `STYLE_RUNNING` / `STYLE_WAITING` / `STYLE_DONE` | 状態ごとの配色。`STYLE_RUNNING` は既定で空（着色しない）で、値を入れれば実行中も着色される |
 | `SPINNER` | スピナーの有無。`off` にすると `status-interval` も変更されなくなる |
 | `ICON_WAITING` / `ICON_DONE` | 承認待ち・完了のアイコン。空文字で非表示 |
 

@@ -170,7 +170,7 @@ PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、上書き�
 
 - [anyenv](docs/anyenv.md) — 複数の言語バージョン管理ツールをまとめて扱う
 - [Docker](docs/docker.md) — Docker Engine と Lazydocker
-- [Claude Code の状態表示](docs/tmux-claude-status.md) — tmux のウィンドウ色で状態を示す
+- [Claude Code の状態表示](docs/tmux-claude-status.md) — tmux のウィンドウに実行中／承認待ち／完了を表示する
 
 ## 開発
 
