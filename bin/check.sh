@@ -133,7 +133,8 @@ check_shfmt() {
 check_make() {
   local t
 
-  for t in minimal standard desktop full agent dry-run-full doctor claude-hooks fmt help; do
+  for t in minimal standard desktop full agent dry-run-full doctor check \
+    claude-hooks update fmt help; do
     make -n "$t" >/dev/null 2>&1 || fail "make $t が解決できない"
   done
 

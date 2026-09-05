@@ -52,6 +52,7 @@ docs/             個別機能のドキュメント
 | --- | --- |
 | `create-symlinks.sh` | dotfiles のシンボリックリンクを作成する（Makefile から呼ばれる） |
 | `doctor.sh` | 配置状態を点検する（`make doctor`） |
+| `update.sh` | 導入済みのプラグイン・ツールを更新する（`make update`） |
 | `check.sh` | 構文・書式・ドライランを検査する（`make check`） |
 | `install-claude-hooks.sh` | Claude Code のフックを設定する（`make claude-hooks`） |
 | `authorized_keys.sh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追記する |
@@ -79,6 +80,24 @@ docs/             個別機能のドキュメント
 | `make docker` | Docker Engine + Lazydocker | [docs/docker.md](docs/docker.md) |
 | `make bun` | bun | — |
 | `make claude-hooks` | Claude Code のフック設定 | [docs/tmux-claude-status.md](docs/tmux-claude-status.md) |
+
+## 更新
+
+導入済みのものをまとめて更新する。未導入のものは飛ばす。dotfiles 自体は
+更新しないので、リポジトリは `git pull` で別途更新する。
+
+```bash
+make update
+```
+
+| 対象 | 方法 |
+| --- | --- |
+| zsh プラグイン | `~/.zsh` 配下の git リポジトリを `git pull --ff-only` |
+| Vim プラグイン | `PlugUpgrade` と `PlugUpdate` |
+| anyenv | `anyenv update`（anyenv-update プラグインが必要） |
+| bun | `bun upgrade` |
+
+`-n` を付けると実行内容だけを表示する。
 
 特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
 
@@ -147,6 +166,12 @@ PATH の構築、配色、上書き確認のエイリアスは `shell/common.sh`
 
 ```bash
 make check  # 変更前に検査する
-make fmt    # シェルスクリプトを shfmt で整形する（要 shfmt）
+make fmt    # シェルスクリプトを shfmt で整形する
 make help   # ターゲット一覧
+```
+
+`make fmt` には shfmt が要る。
+
+```bash
+sudo apt install shfmt
 ```

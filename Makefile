@@ -67,6 +67,10 @@ bun:
 claude-hooks:
 	@$(SCRIPT_DIR)/bin/install-claude-hooks.sh
 
+# 導入済みのプラグイン・ツールをまとめて更新する
+update:
+	@$(SCRIPT_DIR)/bin/update.sh
+
 # --- 点検 ---
 
 # 配置状態を点検する（変更はしない）
@@ -83,7 +87,7 @@ check:
 fmt:
 	@command -v shfmt >/dev/null 2>&1 || { \
 		echo "shfmt is not installed. Install it with:"; \
-		echo "  go install mvdan.cc/sh/v3/cmd/shfmt@latest"; \
+		echo "  sudo apt install shfmt"; \
 		exit 1; \
 	}
 	shfmt -w -i 2 bin shell
@@ -106,6 +110,7 @@ help:
 	@echo "  docker       - Install Docker Engine and Lazydocker"
 	@echo "  bun          - Install bun"
 	@echo "  claude-hooks - Add tmux status hooks to ~/.claude/settings.json"
+	@echo "  update       - Update installed plugins and tools"
 	@echo ""
 	@echo "Check targets (read-only):"
 	@echo "  doctor       - Inspect the current installation"
@@ -117,4 +122,4 @@ help:
 	@echo ""
 	@echo "Run './bin/create-symlinks.sh --help' for per-file options."
 
-.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks doctor check fmt help
+.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor check fmt help
