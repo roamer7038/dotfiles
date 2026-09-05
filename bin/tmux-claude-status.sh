@@ -7,6 +7,9 @@
 #   tmux-claude-status.sh --ack <window-id>           tmux のフック用（既読化）
 #   tmux-claude-status.sh --spinner                   window-status-format の #() 用
 #
+# done は Stop フックから渡されるが、バックグラウンド作業が残っている場合は
+# 実行中として扱う。判定には stdin に届く Stop の入力を使う。
+#
 # 設定方法と挙動の詳細は docs/tmux-claude-status.md を参照。
 # tmux 外・tmux 不在の環境では何もせず正常終了する。
 
@@ -154,6 +157,51 @@ read_state() {
   fi
 
   echo "${state:-none}"
+}
+
+# 現在のペインに記録されている状態を返す
+current_state() {
+  if [ -z "${TMUX_PANE:-}" ]; then
+    echo none
+    return
+  fi
+
+  read_state "$TMUX_PANE"
+}
+
+# Stop の入力を読み、まだ動いているバックグラウンド作業があるか調べる
+# 本体のターンが終わってもバックグラウンドのシェルやサブエージェントが
+# 残っていることがあり、それを完了として表示すると誤報になる
+# 作業が終わるとClaude Codeがエージェントを呼び直し、空の background_tasks を
+# 持つStopが改めて届くので、そこで完了になる
+has_running_background_task() {
+  local json count
+
+  # 手で実行したときに入力待ちで止まらないようにする
+  [ -t 0 ] && return 1
+
+  json=$(cat 2>/dev/null) || return 1
+  [ -n "$json" ] || return 1
+
+  if command -v jq >/dev/null 2>&1; then
+    count=$(printf '%s' "$json" |
+      jq -r '[.background_tasks[]? | select(.status == "running" or .status == "pending")] | length' \
+        2>/dev/null) || return 1
+    case "${count:-}" in
+    '' | *[!0-9]*) return 1 ;;
+    esac
+    [ "$count" -gt 0 ]
+    return
+  fi
+
+  # jqが無い環境向けの目安。整形されていても読めるよう空白を潰してから見る
+  json=${json//[[:space:]]/}
+  case "$json" in
+  *'"background_tasks":[]'*) return 1 ;;
+  *'"background_tasks":['*'"status":"running"'*) return 0 ;;
+  *'"background_tasks":['*'"status":"pending"'*) return 0 ;;
+  *) return 1 ;;
+  esac
 }
 
 # ウィンドウ内の全ペインの状態から、最も強いものを選んで着色する
@@ -361,8 +409,22 @@ case "${1:-}" in
   ack_window "$2"
   ;;
 running | waiting | done | none)
+  state=$1
+
+  # Stopは完了として呼ばれるが、バックグラウンド作業が残っていれば実行中とみなす
+  if [ "$state" = "done" ] && has_running_background_task; then
+    state=running
+  fi
+
+  # PreToolUse・PostToolUseはツールを呼ぶたびに実行中を伝えてくる
+  # 既に実行中なら表示は何も変わらないので、tmuxを呼ばずに帰る
+  # これでtmuxを起動するのは状態が実際に動くときだけになる
+  if [ "$state" = "running" ] && [ "$(current_state)" = "running" ]; then
+    exit 0
+  fi
+
   prune_dead
-  set_state "$1"
+  set_state "$state"
   ;;
 *)
   echo "usage: ${0##*/} {running|waiting|done|none|--ack <window-id>|--spinner}" >&2

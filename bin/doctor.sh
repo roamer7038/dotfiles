@@ -214,7 +214,7 @@ check_claude_hooks() {
     return
   fi
 
-  for event in UserPromptSubmit Notification Stop SessionEnd; do
+  for event in UserPromptSubmit PreToolUse PostToolUse Notification Stop SessionEnd; do
     jq -e --arg e "$event" \
       '[.hooks[$e][]?.hooks[]?.command] | any(test("tmux-claude-status"))' \
       "$settings" >/dev/null 2>&1 || missing="$missing $event"

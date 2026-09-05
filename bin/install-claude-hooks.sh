@@ -45,9 +45,13 @@ esac
 # イベント名・渡す状態・matcher（空なら全件）の対応
 # Notification は種類を絞る。matcher を付けないとアイドル通知（idle_prompt、
 # 入力せず放置すると届く）まで拾ってしまい、完了の表示が承認待ちに化ける
+# PreToolUse・PostToolUse は絞らない。ツールを1つでも呼んでいれば本体が
+# 動いている証拠なので、種類で区別する理由がない
 NOTIFY_MATCHER="permission_prompt|elicitation_dialog|elicitation_url_dialog|agent_needs_input"
 EVENTS=(
   "UserPromptSubmit:running:"
+  "PreToolUse:running:"
+  "PostToolUse:running:"
   "Notification:waiting:$NOTIFY_MATCHER"
   "Stop:done:"
   "SessionEnd:none:"
