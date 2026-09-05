@@ -168,6 +168,51 @@ make docker
 - Docker Desktopではなく、CLIベースのDocker Engine環境がインストールされます
 - Lazydockerは`/usr/local/bin`に配置されます
 
+### Claude Codeの状態表示
+
+tmuxで複数ウィンドウを使っていると、非アクティブなウィンドウでClaude Codeが
+タスクを終えたり承認待ちになったりしても気づけません。
+`bin/tmux-claude-status.sh` は、その状態をウィンドウステータスの背景色で示します。
+
+| 状態 | 背景色 |
+| --- | --- |
+| 実行中 | 青 |
+| 承認・入力待ち | 黄 |
+| 完了 | 緑 |
+
+tmuxの`window-status-style`はウィンドウが非アクティブなときのみ有効なため、
+今見ているウィンドウは着色されません。
+また、ウィンドウを離れる/選ぶと「承認待ち」「完了」は既読として解除されます
+（「実行中」は色が残ります）。
+
+`.tmux.conf`側の設定は済んでいるので、`~/.claude/settings.json`にフックを追加します。
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
+    ],
+    "Notification": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" waiting", "timeout": 5 } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" done", "timeout": 5 } ] }
+    ],
+    "SessionEnd": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" none", "timeout": 5 } ] }
+    ]
+  }
+}
+```
+
+#### 注意事項
+
+- `~/.claude/settings.json`は環境ごとに内容が異なるためdotfilesの管理対象外です。手動で追記してください
+- 操作するのは対象ウィンドウのオプションのみで、tmuxのグローバル設定は変更しません。Claude Codeを起動していないウィンドウには影響しません
+- `monitor-activity`が有効だと、出力のあったウィンドウは`window-status-activity-style`（既定は`reverse`）で反転描画され背景色が打ち消されます。これを避けるため、着色時は対象ウィンドウの`window-status-activity-style`も同じ値に設定します
+- 色は`bin/tmux-claude-status.sh`冒頭の`STYLE_*`で変更できます
+
 ## その他各種スクリプト
 
 `bin/`ディレクトリ内にはいくつかスクリプトが配置されています。
@@ -175,6 +220,7 @@ make docker
 - `authorized_keys.sh`：GitHubから公開鍵を取得して`~/.ssh/authorized_keys`に追加
 - `fw.sh`：iptables向けの設定スクリプト例
 - `install-docker.sh`：Docker環境のインストールスクリプト、Docker Desktopを使わずCLIのみのセットアップです。
+- `tmux-claude-status.sh`：Claude Codeの状態（実行中/承認待ち/完了）をtmuxのウィンドウ背景色で可視化。Claude Codeのフックから呼び出します（[設定方法](#claude-codeの状態表示)）
 
 ## カスタマイズ
 
