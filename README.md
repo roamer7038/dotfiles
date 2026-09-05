@@ -7,7 +7,7 @@ Linux デスクトップ／サーバ環境の設定ファイル群。
 | シェル | Zsh、Bash |
 | ターミナルマルチプレクサ | tmux |
 | エディタ | Vim（vim-plug + vim-lsp） |
-| デスクトップ環境 | i3wm、X11 関連、GUI アプリケーション |
+| デスクトップ環境 | X11 関連、GUI アプリケーション |
 | AI エージェント | Claude Code |
 
 ## セットアップ
@@ -36,7 +36,6 @@ Docker は影響が大きいため導入せず、完了時に手順を案内す�
 | `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `config/profile.d/`）と、`~/.local/bin` へのコマンドリンク |
 | `standard` | minimal + Vim + Claude Code 設定 + zsh プラグイン（推奨） |
 | `desktop` | standard + X11 + GUI アプリケーション |
-| `full` | desktop + i3wm |
 | `agent` | Claude Code 設定のみ（構築済みの環境へ追加する用） |
 
 ```bash
@@ -44,22 +43,25 @@ make dry-run-standard   # 適用内容を確認する
 make standard           # 適用する
 ```
 
-上書きしたい場合やファイル単位で選びたい場合は `./bin/create-symlinks.sh --help` を参照。
+プリセットを使わずタグを直接指定することもできる。配置対象とタグの対応は `links` にある。
+
+```bash
+./bin/create-symlinks.sh --dry-run basic vim agent
+./bin/create-symlinks.sh --force basic
+```
 
 `.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしている。
-既存ファイルは上書きしないので、置き換えるなら `./bin/create-symlinks.sh --basic --force` を使う。
-`full` だけはリンクに加えて `bin/xinit.sh` を `~/.xinit.sh` へコピーする。
-リンクではないので、変更したら `make full` をやり直す必要がある。
+既存ファイルは上書きしないので、置き換えるなら `./bin/create-symlinks.sh --force basic` を使う。
 
-i3wm の設定は Arch Linux で確認したものだが、2025年時点で保守しておらずそのままでは動作しない可能性がある。
+i3wm の設定（`config/i3/` `config/i3status/`）と `bin/xinit.sh` はリポジトリに残しているが、2025年時点で保守しておらず配置対象から外してある。使う場合は手動でリンクする。
 
 ## 構成
 
 ```
-Makefile          セットアップの入口
+Makefile          セットアップの入口（プリセットの定義もここ）
+links             配置対象の定義（パス・配置先・タグ）
 .editorconfig     エディタ共通の書式設定
 bin/              セットアップ用スクリプトと各種ユーティリティ
-bin/lib/          bin/ 配下で共有するログ出力と配置対象の定義
 config/           ~/.config 配下へ配置する設定
 config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス、関数、OS 別設定）
 docs/             個別機能のドキュメント
@@ -74,7 +76,7 @@ docs/             個別機能のドキュメント
 | `create-symlinks.sh` | dotfiles のシンボリックリンクを作成する（Makefile から呼ばれる） |
 | `doctor.sh` | 配置状態を点検する（`make doctor`） |
 | `update.sh` | 導入済みのプラグイン・ツールを更新する（`make update`） |
-| `check.sh` | 構文・書式・ドライランを検査する（`make check`） |
+| `lint.sh` | リポジトリを静的検査する（`make lint`） |
 | `install-claude-hooks.sh` | Claude Code のフックを設定する（`make claude-hooks`） |
 | `authorized_keys.sh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追記する |
 | `install-bun.sh` | bun を導入する |
@@ -87,7 +89,7 @@ docs/             個別機能のドキュメント
 | `multissh` | 複数ホストへ同時に SSH し tmux で一括操作する（`~/.local/bin` にリンクされる） |
 | `wsl-chrome` | WSL2 から Windows の Chrome を開く・CDP で操作する（[設定方法](docs/wsl-chrome.md)、`~/.local/bin` にリンクされる） |
 | `anyenv-setup` | anyenv 配下の \*env を導入し最新版を global に設定する（[設定方法](docs/anyenv.md)、`~/.local/bin` にリンクされる） |
-| `xinit.sh` | X 起動時の初期化 |
+| `xinit.sh` | X 起動時の初期化（i3wm 用。配置対象外） |
 | `wallpaper.sh` | 壁紙をランダムに設定する |
 | `system-sleep-xhci.sh` | Dell Inspiron のサスペンド失敗を回避する |
 | `minecraft-input.sh` | Minecraft へ日本語を入力する |
@@ -128,16 +130,16 @@ make update
 
 ## 点検
 
-どちらも読み取り専用で、何も変更しない。
+役割が違う2つがある。どちらも読み取り専用で、何も変更しない。
 
-```bash
-make doctor   # 配置状態を点検する
-make check    # 構文・書式・ドライランを検査する
-```
+| コマンド | 見る対象 | 使う場面 |
+| --- | --- | --- |
+| `make doctor` | **環境**（`$HOME` 側の配置状態） | セットアップ後、動作がおかしいとき |
+| `make lint` | **リポジトリ**（作業ツリーのコード） | 変更をコミットする前 |
 
 `doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定を見る。
 
-`check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
+`lint` は `links` の書式、シェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）、Makefile の全ターゲット、全プリセットのドライラン、ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致を確認する。
 shfmt があれば整形差分も見る。
 vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は飛ばす。
 
@@ -194,9 +196,9 @@ echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/p
 ## 開発
 
 ```bash
-make check  # 変更前に検査する
-make fmt    # シェルスクリプトを shfmt で整形する
-make help   # ターゲット一覧
+make lint  # 変更前に検査する
+make fmt   # シェルスクリプトを shfmt で整形する
+make help  # ターゲット一覧
 ```
 
 `make fmt` には shfmt が要る。
@@ -204,3 +206,11 @@ make help   # ターゲット一覧
 ```bash
 sudo apt install shfmt
 ```
+
+### スクリプトを追加するときの規則
+
+1. **スクリプトは自己完結する。** 他のスクリプトを `source` しない。共有ライブラリは置かない
+2. **共有するのはデータのみ。** スクリプト間で共有する情報はテキストファイルに置き、読み手が自分で解釈する（配置対象は `links`）
+3. **ログが要るスクリプトは定型ブロックを持つ。** OK・SKIP・WARN・ERROR を報告するものは、既存スクリプトの先頭にあるログ定義をそのまま複製する。直線的に進むものは素の `echo` でよい
+
+`~/.local/bin` へリンクされるコマンド（`links` の `bin/*` の行）は、リンク経由で呼ばれるためリポジトリの位置を知れない。単体で動くように書く。
