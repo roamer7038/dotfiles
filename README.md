@@ -16,7 +16,7 @@ Linux デスクトップ／サーバ環境の設定ファイル群。
 
 | プリセット | 内容 |
 | --- | --- |
-| `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `shell/common.sh`） |
+| `minimal` | 基本の dotfiles（`.bashrc` `.zshrc` `.tmux.conf` `.gitconfig` `.latexmkrc` `shell/common.sh`）と、`~/.local/bin` へのコマンドリンク |
 | `standard` | minimal + Vim + Claude Code 設定 + zsh プラグイン（推奨） |
 | `desktop` | standard + X11 + GUI アプリケーション |
 | `full` | desktop + i3wm |
@@ -40,6 +40,7 @@ Makefile          セットアップの入口
 .editorconfig     エディタ共通の書式設定
 shell/common.sh   Bash と Zsh で共有する設定（PATH、配色、エイリアス）
 bin/              セットアップ用スクリプトと各種ユーティリティ
+bin/lib/          bin/ 配下で共有するログ出力と配置対象の定義
 config/           ~/.config 配下へ配置する設定
 docs/             個別機能のドキュメント
 .claude/          Claude Code の設定
@@ -50,6 +51,9 @@ docs/             個別機能のドキュメント
 | スクリプト | 内容 |
 | --- | --- |
 | `create-symlinks.sh` | dotfiles のシンボリックリンクを作成する（Makefile から呼ばれる） |
+| `doctor.sh` | 配置状態を点検する（`make doctor`） |
+| `check.sh` | 構文・書式・ドライランを検査する（`make check`） |
+| `install-claude-hooks.sh` | Claude Code のフックを設定する（`make claude-hooks`） |
 | `authorized_keys.sh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追記する |
 | `install-bun.sh` | bun を導入する |
 | `install-docker.sh` | Docker Engine と Lazydocker を導入する |
@@ -57,8 +61,8 @@ docs/             個別機能のドキュメント
 | `install-zsh-plugins.sh` | zsh のプラグインを導入する |
 | `tmux-claude-status.sh` | Claude Code の状態を tmux のウィンドウに表示する（[設定方法](docs/tmux-claude-status.md)） |
 | `tmux-reorder-sessions.sh` | tmux のセッション番号を連番に振り直す |
-| `pane` | tmux のペインを指定した数だけタイル状に分割する |
-| `multissh` | 複数ホストへ同時に SSH し tmux で一括操作する |
+| `pane` | tmux のペインを指定した数だけタイル状に分割する（`~/.local/bin` にリンクされる） |
+| `multissh` | 複数ホストへ同時に SSH し tmux で一括操作する（`~/.local/bin` にリンクされる） |
 | `chrome-browser` | WSL2 から Windows の Chrome を開く（`$BROWSER` に設定する） |
 | `xinit.sh` | X 起動時の初期化 |
 | `wallpaper.sh` | 壁紙をランダムに設定する |
@@ -74,12 +78,29 @@ docs/             個別機能のドキュメント
 | `make anyenv` | anyenv + anyenv-update プラグイン | [docs/anyenv.md](docs/anyenv.md) |
 | `make docker` | Docker Engine + Lazydocker | [docs/docker.md](docs/docker.md) |
 | `make bun` | bun | — |
+| `make claude-hooks` | Claude Code のフック設定 | [docs/tmux-claude-status.md](docs/tmux-claude-status.md) |
 
 特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
 
 ```bash
 ./bin/authorized_keys.sh username
 ```
+
+## 点検
+
+どちらも読み取り専用で、何も変更しない。
+
+```bash
+make doctor   # 配置状態を点検する
+make check    # 構文・書式・ドライランを検査する
+```
+
+`doctor` はリンクの有無と向き先、リンク切れ、リポジトリ外に残った古いコピー、
+依存コマンド、Claude Code のフック設定、`profile.d` の権限を見る。
+
+`check` はシェル・Vim・tmux の構文、`.editorconfig` への準拠（タブ、行末空白、
+CRLF、末尾改行）、Makefile のターゲット、全プリセットのドライラン、
+ドキュメントの相対リンクを確認する。shfmt があれば整形差分も見る。
 
 ## カスタマイズ
 
@@ -125,6 +146,7 @@ PATH の構築、配色、上書き確認のエイリアスは `shell/common.sh`
 ## 開発
 
 ```bash
+make check  # 変更前に検査する
 make fmt    # シェルスクリプトを shfmt で整形する（要 shfmt）
 make help   # ターゲット一覧
 ```

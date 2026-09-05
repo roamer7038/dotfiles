@@ -63,6 +63,20 @@ bun:
 	@echo "Installing bun..."
 	$(SCRIPT_DIR)/bin/install-bun.sh
 
+# tmux のウィンドウ状態表示に必要なフックを ~/.claude/settings.json へ追加する
+claude-hooks:
+	@$(SCRIPT_DIR)/bin/install-claude-hooks.sh
+
+# --- 点検 ---
+
+# 配置状態を点検する（変更はしない）
+doctor:
+	@$(SCRIPT_DIR)/bin/doctor.sh
+
+# 構文・書式・ドライランを検査する（変更はしない）
+check:
+	@$(SCRIPT_DIR)/bin/check.sh
+
 # --- 開発用 ---
 
 # シェルスクリプトを .editorconfig に合わせて整形する
@@ -91,6 +105,11 @@ help:
 	@echo "  anyenv       - Install anyenv with the anyenv-update plugin"
 	@echo "  docker       - Install Docker Engine and Lazydocker"
 	@echo "  bun          - Install bun"
+	@echo "  claude-hooks - Add tmux status hooks to ~/.claude/settings.json"
+	@echo ""
+	@echo "Check targets (read-only):"
+	@echo "  doctor       - Inspect the current installation"
+	@echo "  check        - Run syntax, format and dry-run checks"
 	@echo ""
 	@echo "Other targets:"
 	@echo "  fmt          - Format shell scripts with shfmt"
@@ -98,4 +117,4 @@ help:
 	@echo ""
 	@echo "Run './bin/create-symlinks.sh --help' for per-file options."
 
-.PHONY: all $(PRESETS) .ssh anyenv docker bun fmt help
+.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks doctor check fmt help
