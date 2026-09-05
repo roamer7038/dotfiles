@@ -174,11 +174,11 @@ tmuxで複数ウィンドウを使っていると、非アクティブなウィ�
 タスクを終えたり承認待ちになったりしても気づけません。
 `bin/tmux-claude-status.sh` は、その状態をウィンドウステータスの背景色で示します。
 
-| 状態 | 背景色 |
-| --- | --- |
-| 実行中 | 青 |
-| 承認・入力待ち | 黄 |
-| 完了 | 緑 |
+| 状態 | 背景色 | 表示 |
+| --- | --- | --- |
+| 実行中 | 青 | ウィンドウ名の後ろにスピナー |
+| 承認・入力待ち | 黄 | — |
+| 完了 | 緑 | — |
 
 tmuxの`window-status-style`はウィンドウが非アクティブなときのみ有効なため、
 今見ているウィンドウは着色されません。
@@ -211,7 +211,8 @@ tmuxの`window-status-style`はウィンドウが非アクティブなときの�
 - `~/.claude/settings.json`は環境ごとに内容が異なるためdotfilesの管理対象外です。手動で追記してください
 - 操作するのは対象ウィンドウのオプションのみで、tmuxのグローバル設定は変更しません。Claude Codeを起動していないウィンドウには影響しません
 - `monitor-activity`が有効だと、出力のあったウィンドウは`window-status-activity-style`（既定は`reverse`）で反転描画され背景色が打ち消されます。これを避けるため、着色時は対象ウィンドウの`window-status-activity-style`も同じ値に設定します
-- 色は`bin/tmux-claude-status.sh`冒頭の`STYLE_*`で変更できます
+- スピナーを動かすには毎秒の再描画が必要です。`status-interval`はグローバル設定のため、**実行中のウィンドウがある間だけ**1に上げ、無くなったら元の値に戻します。元の値は変更前に保存するので、`.tmux.conf`側の設定を書き換える必要はありません
+- 色は`bin/tmux-claude-status.sh`冒頭の`STYLE_*`、スピナーの有無は同じく冒頭の`SPINNER`で変更できます（`off`にすると`status-interval`も変更されなくなります）
 
 ## その他各種スクリプト
 
@@ -220,7 +221,7 @@ tmuxの`window-status-style`はウィンドウが非アクティブなときの�
 - `authorized_keys.sh`：GitHubから公開鍵を取得して`~/.ssh/authorized_keys`に追加
 - `fw.sh`：iptables向けの設定スクリプト例
 - `install-docker.sh`：Docker環境のインストールスクリプト、Docker Desktopを使わずCLIのみのセットアップです。
-- `tmux-claude-status.sh`：Claude Codeの状態（実行中/承認待ち/完了）をtmuxのウィンドウ背景色で可視化。Claude Codeのフックから呼び出します（[設定方法](#claude-codeの状態表示)）
+- `tmux-claude-status.sh`：Claude Codeの状態（実行中/承認待ち/完了）をtmuxのウィンドウ背景色とスピナーで可視化。Claude Codeのフックから呼び出します（[設定方法](#claude-codeの状態表示)）
 
 ## カスタマイズ
 
