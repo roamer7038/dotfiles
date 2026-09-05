@@ -63,7 +63,7 @@ main() {
     install_plugin "$name" "$repo"
   done
 
-  log_ok "完了（.zshrc は ~/.zsh 配下を自動で読み込む）"
+  log_ok "完了（.zshrc が読み込むのは zsh-autosuggestions のみ。他を足したときは .zshrc にも追記する）"
 }
 
 main "$@"
