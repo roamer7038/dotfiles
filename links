@@ -26,8 +26,5 @@ config/terminator/             ~/.config/terminator/            gui
 config/dunst/                  ~/.config/dunst/                 gui
 config/ranger/                 ~/.config/ranger/                gui
 
-config/i3/                     ~/.config/i3/                    i3wm
-config/i3status/               ~/.config/i3status/              i3wm
-
 .claude/CLAUDE.md              ~/.claude/CLAUDE.md              agent
 .claude/statusline-command.sh  ~/.claude/statusline-command.sh  agent

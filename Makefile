@@ -4,34 +4,30 @@ SCRIPT_DIR  := $(shell pwd)
 SYMLINKS    := $(SCRIPT_DIR)/bin/create-symlinks.sh
 ZSH_PLUGINS := $(SCRIPT_DIR)/bin/install-zsh-plugins.sh
 
-PRESETS := minimal standard desktop full agent
+# プリセット = タグの組。プリセットの定義はここだけにある
+TAGS_minimal  := --basic
+TAGS_standard := --basic --vim --agent
+TAGS_desktop  := --basic --vim --agent --x11 --gui
+TAGS_agent    := --agent
+
+PRESETS := minimal standard desktop agent
 
 all: help
 
 # --- セットアップ ---
 
-minimal:
-	@echo "Setting up minimal configuration..."
-	$(SYMLINKS) --preset minimal
+minimal agent:
+	@echo "Setting up $@ configuration..."
+	$(SYMLINKS) $(TAGS_$@)
 
 standard desktop:
 	@echo "Setting up $@ configuration..."
-	$(SYMLINKS) --preset $@
+	$(SYMLINKS) $(TAGS_$@)
 	$(ZSH_PLUGINS)
 
-full:
-	@echo "Setting up full configuration..."
-	$(SYMLINKS) --preset full
-	cp $(SCRIPT_DIR)/bin/xinit.sh $(HOME)/.xinit.sh
-	$(ZSH_PLUGINS)
-
-agent:
-	@echo "Setting up AI agent configuration..."
-	$(SYMLINKS) --preset agent
-
-# プリセットごとの dry-run-<preset>（例: make dry-run-full）
+# プリセットごとの dry-run-<preset>（例: make dry-run-desktop）
 dry-run-%:
-	$(SYMLINKS) --preset $* --dry-run
+	$(SYMLINKS) --dry-run $(TAGS_$*)
 
 # --- 追加ツールのインストール ---
 
@@ -93,33 +89,13 @@ fmt:
 	shfmt -w -i 2 bin config/profile.d
 
 help:
-	@echo "Available targets:"
+	@echo "Setup:    $(PRESETS)"
+	@echo "          make dry-run-<preset> で適用内容を確認する"
+	@echo "Install:  .ssh anyenv docker bun claude-hooks update"
+	@echo "Check:    doctor  環境の配置状態を点検する"
+	@echo "          check   リポジトリを静的検査する"
+	@echo "Dev:      fmt     シェルスクリプトを整形する"
 	@echo ""
-	@echo "Setup targets:"
-	@echo "  minimal      - Basic dotfiles only"
-	@echo "  standard     - minimal + Vim + AI agent + zsh plugins (recommended)"
-	@echo "  desktop      - standard + X11 + GUI apps"
-	@echo "  full         - desktop + i3wm"
-	@echo "  agent        - AI agent configs only (~/.claude)"
-	@echo "  dry-run-<preset>"
-	@echo "               - Preview a preset without applying it"
-	@echo ""
-	@echo "Install targets:"
-	@echo "  .ssh         - Add GitHub public keys to ~/.ssh/authorized_keys"
-	@echo "  anyenv       - Install anyenv with the anyenv-update plugin"
-	@echo "  docker       - Install Docker Engine and Lazydocker"
-	@echo "  bun          - Install bun"
-	@echo "  claude-hooks - Add tmux status hooks to ~/.claude/settings.json"
-	@echo "  update       - Update installed plugins and tools"
-	@echo ""
-	@echo "Check targets (read-only):"
-	@echo "  doctor       - Inspect the current installation"
-	@echo "  check        - Run syntax, format and dry-run checks"
-	@echo ""
-	@echo "Other targets:"
-	@echo "  fmt          - Format shell scripts with shfmt"
-	@echo "  help         - Show this message"
-	@echo ""
-	@echo "Run './bin/create-symlinks.sh --help' for per-file options."
+	@echo "詳細は README.md を参照。"
 
 .PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor check fmt help

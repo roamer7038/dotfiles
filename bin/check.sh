@@ -165,7 +165,7 @@ check_make() {
     n=$((n + 1))
   done
 
-  for t in minimal standard desktop full agent; do
+  for t in minimal standard desktop agent; do
     make -n "dry-run-$t" >/dev/null 2>&1 || fail "make dry-run-$t が解決できない"
     n=$((n + 1))
   done
@@ -176,7 +176,7 @@ check_make() {
 check_dry_run() {
   local p
 
-  for p in minimal standard desktop full agent; do
+  for p in minimal standard desktop agent; do
     ./bin/create-symlinks.sh --preset "$p" --dry-run >/dev/null 2>&1 ||
       fail "create-symlinks.sh --preset $p --dry-run が失敗"
   done
