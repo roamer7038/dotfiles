@@ -29,7 +29,7 @@ make standard           # 適用する
 
 上書きしたい場合やファイル単位で選びたい場合は `./bin/create-symlinks.sh --help` を参照。
 
-`.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしているため、他のファイルと同じく配置対象に含める。
+`.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしている。
 既存ファイルは上書きしないので、置き換えるなら `./bin/create-symlinks.sh --basic --force` を使う。
 `full` だけはリンクに加えて `bin/xinit.sh` を `~/.xinit.sh` へコピーする。
 リンクではないので、変更したら `make full` をやり直す必要がある。
@@ -156,12 +156,9 @@ echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/p
 読み込みには次の制約がある。
 
 - Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む
-- Bash 側が読むのは `.bashrc` を配置した場合に限る（既定ではシステムのものを残すため）
+- Bash 側が読むのは `.bashrc` を配置した場合に限る（既存の `.bashrc` を残した環境では読み込まれない）
 - 読み込みより前に値を確定させる設定（Zsh の補完の配色など）は上書きできない
 - 読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない
-
-以前は共通設定を `~/.config/shell/common.sh` へ配置していた。
-そこから移行する場合、古いリンクは `make doctor` がリンク切れとして報告するので `rm -r ~/.config/shell` で消す。
 
 ### Vim
 
