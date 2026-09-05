@@ -20,43 +20,8 @@ DRY_RUN=false
 FORCE=false
 VERBOSE=false
 
-# --- 出力 ---
-
-if [[ -t 1 ]]; then
-  COLOR_RESET='\033[0m'
-  COLOR_GREEN='\033[0;32m'
-  COLOR_YELLOW='\033[0;33m'
-  COLOR_BLUE='\033[0;34m'
-  COLOR_RED='\033[0;31m'
-else
-  COLOR_RESET=''
-  COLOR_GREEN=''
-  COLOR_YELLOW=''
-  COLOR_BLUE=''
-  COLOR_RED=''
-fi
-
-log_info() {
-  echo -e "${COLOR_BLUE}[INFO]${COLOR_RESET} $*"
-}
-
-log_success() {
-  echo -e "${COLOR_GREEN}[SUCCESS]${COLOR_RESET} $*"
-}
-
-log_skip() {
-  echo -e "${COLOR_YELLOW}[SKIP]${COLOR_RESET} $*"
-}
-
-log_error() {
-  echo -e "${COLOR_RED}[ERROR]${COLOR_RESET} $*" >&2
-}
-
-log_verbose() {
-  if [ "$VERBOSE" = true ]; then
-    echo -e "${COLOR_BLUE}[VERBOSE]${COLOR_RESET} $*"
-  fi
-}
+source "$SCRIPT_DIR/lib/log.sh"
+source "$SCRIPT_DIR/lib/targets.sh"
 
 show_usage() {
   cat <<EOM
@@ -73,7 +38,8 @@ PRESET OPTIONS:
 
 INDIVIDUAL OPTIONS:
   --basic, --dotfiles  Basic dotfiles (.bashrc, .zshrc, .tmux.conf, .gitconfig,
-                       .latexmkrc) and the shared shell/common.sh
+                       .latexmkrc), the shared shell/common.sh, and the
+                       tmux helper commands (pane, multissh) in ~/.local/bin
   --vim                Vim configuration files
   --x11, --xorg        X Window System configuration
   --gui                GUI application configs (terminator, dunst, ranger)
@@ -246,7 +212,7 @@ create_symlink() {
   fi
 
   if ln -s "$src" "$dest" 2>/dev/null; then
-    log_success "$description: $dest"
+    log_ok "$description: $dest"
   else
     log_error "Failed to create link: $dest"
     return 1
@@ -256,9 +222,8 @@ create_symlink() {
 create_basic_links() {
   log_info "Creating basic dotfiles..."
 
-  local dotfiles=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
-
-  for file in "${dotfiles[@]}"; do
+  local file
+  for file in "${DOTFILES_BASIC[@]}"; do
     local src="$DOTFILES_ROOT/$file"
     local dest="$HOME/$file"
 
@@ -276,7 +241,7 @@ create_basic_links() {
   done
 
   # bash と zsh の共通設定は ~/.config/shell/ に置き、両方の rc から読み込む
-  local common_src="$DOTFILES_ROOT/shell/common.sh"
+  local common_src="$DOTFILES_ROOT/$DOTFILES_SHELL_COMMON"
   local common_dir="$HOME/.config/shell"
 
   if [ -f "$common_src" ]; then
@@ -285,6 +250,27 @@ create_basic_links() {
   else
     log_verbose "Source file not found: $common_src"
   fi
+}
+
+# コマンドとして直接呼ぶスクリプトを PATH の通った場所へ置く。
+# フックや設定ファイルから絶対パスで呼ばれるものは対象にしない。
+create_command_links() {
+  log_info "Creating command links..."
+
+  local dest_dir="$HOME/.local/bin"
+
+  [ "$DRY_RUN" = true ] || mkdir -p "$dest_dir"
+
+  local cmd src
+  for cmd in "${DOTFILES_COMMANDS[@]}"; do
+    src="$DOTFILES_ROOT/bin/$cmd"
+
+    if [ -f "$src" ]; then
+      create_symlink "$src" "$dest_dir/$cmd" "bin/$cmd"
+    else
+      log_verbose "Source file not found: $src"
+    fi
+  done
 }
 
 create_vim_links() {
@@ -301,9 +287,8 @@ create_vim_links() {
 create_x11_links() {
   log_info "Creating X Window System configuration..."
 
-  local x11_files=(.Xmodmap .xprofile .picom.conf)
-
-  for file in "${x11_files[@]}"; do
+  local file
+  for file in "${DOTFILES_X11[@]}"; do
     local src="$DOTFILES_ROOT/$file"
     local dest="$HOME/$file"
 
@@ -318,10 +303,10 @@ create_x11_links() {
 create_gui_links() {
   log_info "Creating GUI application configurations..."
 
-  local app_dirs=(terminator dunst ranger)
+  local app_dirs=("${DOTFILES_GUI_DIRS[@]}")
 
   if [ "$ENABLE_I3WM" = true ]; then
-    app_dirs+=(i3 i3status)
+    app_dirs+=("${DOTFILES_I3WM_DIRS[@]}")
   fi
 
   for dir in "${app_dirs[@]}"; do
@@ -362,8 +347,7 @@ create_claude_agent_links() {
     return
   fi
 
-  # settings.local.json はローカル専用（.gitignore対象）のためリンクしない
-  local files=(CLAUDE.md statusline-command.sh)
+  local files=("${DOTFILES_AGENT[@]}")
 
   if [ "$DRY_RUN" != true ]; then
     mkdir -p "$dest_dir"
@@ -408,6 +392,7 @@ main() {
   fi
 
   [ "$ENABLE_BASIC" = true ] && create_basic_links
+  [ "$ENABLE_BASIC" = true ] && create_command_links
   [ "$ENABLE_VIM" = true ] && create_vim_links
   [ "$ENABLE_X11" = true ] && create_x11_links
   [ "$ENABLE_GUI" = true ] && create_gui_links
@@ -417,7 +402,7 @@ main() {
   if [ "$DRY_RUN" = true ]; then
     log_info "DRY-RUN completed. Run without --dry-run to apply changes."
   else
-    log_success "All symbolic links created successfully!"
+    log_ok "All symbolic links created successfully!"
   fi
 }
 
