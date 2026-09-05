@@ -15,7 +15,7 @@
 # If the above line is not correctly displayed, fix your editor first!
 
 general {
-  colors = true 
+  colors = true
   interval = 5
 }
 
@@ -32,18 +32,18 @@ order += "tztime local"
 order += "volume master"
 
 ipv6 {
-	format_up = "%ip"
+  format_up = "%ip"
   format_down = ""
 }
 
 wireless _first_ {
-	format_up = " %ip (%essid) %frequency %quality %bitrate"
+  format_up = " %ip (%essid) %frequency %quality %bitrate"
   format_down = ""
 }
 
 ethernet _first_ {
-	format_up = " %ip %speed"
-	format_down = ""
+  format_up = " %ip %speed"
+  format_down = ""
 }
 
 run_watch VPNC {
@@ -65,28 +65,28 @@ memory {
 }
 
 disk "/" {
-	format = " %avail"
+  format = " %avail"
 }
 
 battery all {
-	integer_battery_capacity = true
-	last_full_capacity = true
-	status_chr = ""
-	status_bat = ""
-	status_unk = ""
-	status_full = ""
-	threshold_type = "percentage"
-	low_threshold = "15"
-	format = "%status %percentage"
+  integer_battery_capacity = true
+  last_full_capacity = true
+  status_chr = ""
+  status_bat = ""
+  status_unk = ""
+  status_full = ""
+  threshold_type = "percentage"
+  low_threshold = "15"
+  format = "%status %percentage"
   format_down = ""
 }
 
 tztime local {
-	format = " %Y-%m-%d   %H:%M"
+  format = " %Y-%m-%d   %H:%M"
 }
 
 volume master {
-	format = " %volume"
-	format_muted = "[ %volume]"
-	device = "pulse"
+  format = " %volume"
+  format_muted = "[ %volume]"
+  device = "pulse"
 }

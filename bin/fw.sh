@@ -67,9 +67,9 @@ ANY=0.0.0.0/0
 # 信頼するIPアドレス（プライベートネットワーク）
 # 環境に応じて修正してください
 ALLOW_ADDRESSES=(
-	192.168.1.0/24  # ホームネットワーク1
-	192.168.10.0/24 # ホームネットワーク2
-	192.168.50.0/24 # VPNネットワーク
+  192.168.1.0/24  # ホームネットワーク1
+  192.168.10.0/24 # ホームネットワーク2
+  192.168.50.0/24 # VPNネットワーク
 )
 
 ###########################################################
@@ -122,42 +122,42 @@ MINECRAFT_JE=25565
 
 # iptablesの初期化とデフォルトポリシーの設定
 initialize() {
-	echo "Initializing iptables..."
+  echo "Initializing iptables..."
 
-	# 全テーブルのルールをクリア
-	$IPTABLES -F           # filterテーブルのルールをクリア
-	$IPTABLES -X           # ユーザー定義チェインを削除
-	$IPTABLES -t nat -F    # natテーブルのルールをクリア
-	$IPTABLES -t nat -X    # natテーブルのユーザー定義チェインを削除
-	$IPTABLES -t mangle -F # mangleテーブルのルールをクリア
-	$IPTABLES -t mangle -X # mangleテーブルのユーザー定義チェインを削除
+  # 全テーブルのルールをクリア
+  $IPTABLES -F           # filterテーブルのルールをクリア
+  $IPTABLES -X           # ユーザー定義チェインを削除
+  $IPTABLES -t nat -F    # natテーブルのルールをクリア
+  $IPTABLES -t nat -X    # natテーブルのユーザー定義チェインを削除
+  $IPTABLES -t mangle -F # mangleテーブルのルールをクリア
+  $IPTABLES -t mangle -X # mangleテーブルのユーザー定義チェインを削除
 
-	# デフォルトポリシーの設定
-	$IPTABLES -P INPUT DROP    # 入力パケットは基本的に拒否
-	$IPTABLES -P OUTPUT ACCEPT # 出力パケットは基本的に許可
-	$IPTABLES -P FORWARD DROP  # 転送パケットは基本的に拒否
+  # デフォルトポリシーの設定
+  $IPTABLES -P INPUT DROP    # 入力パケットは基本的に拒否
+  $IPTABLES -P OUTPUT ACCEPT # 出力パケットは基本的に許可
+  $IPTABLES -P FORWARD DROP  # 転送パケットは基本的に拒否
 
-	echo "Initialization completed."
+  echo "Initialization completed."
 }
 
 # 終了処理：設定の保存と反映
 finailize() {
-	echo "Finalizing iptables configuration..."
+  echo "Finalizing iptables configuration..."
 
-	# 設定内容の確認表示
-	echo "Current iptables rules:"
-	$IPTABLES -L
+  # 設定内容の確認表示
+  echo "Current iptables rules:"
+  $IPTABLES -L
 
-	# 設定をファイルに保存（Arch Linux形式）
-	echo "Saving iptables rules..."
-	iptables-save >/etc/iptables/iptables.rules
+  # 設定をファイルに保存（Arch Linux形式）
+  echo "Saving iptables rules..."
+  iptables-save >/etc/iptables/iptables.rules
 
-	# iptablesサービスを再起動して設定を反映
-	echo "Restarting iptables service..."
-	systemctl restart iptables
+  # iptablesサービスを再起動して設定を反映
+  echo "Restarting iptables service..."
+  systemctl restart iptables
 
-	echo "Firewall configuration completed successfully."
-	return 0
+  echo "Firewall configuration completed successfully."
+  return 0
 }
 
 ###########################################################
@@ -187,25 +187,25 @@ $IPTABLES -A INPUT -i lo -j ACCEPT
 
 # 信頼するIPアドレスからのアクセスを許可
 for addr in ${ALLOW_ADDRESSES[@]}; do
-	echo "Allowing access from: $addr"
+  echo "Allowing access from: $addr"
 
-	# ICMPプロトコル（ping等）を許可
-	$IPTABLES -A INPUT -p icmp -s $addr -j ACCEPT
+  # ICMPプロトコル（ping等）を許可
+  $IPTABLES -A INPUT -p icmp -s $addr -j ACCEPT
 
-	# 全TCPポートを許可（必要に応じてコメントアウトを解除）
-	# $IPTABLES -A INPUT -p tcp -s $addr -j ACCEPT
+  # 全TCPポートを許可（必要に応じてコメントアウトを解除）
+  # $IPTABLES -A INPUT -p tcp -s $addr -j ACCEPT
 
-	# 全UDPポートを許可（必要に応じてコメントアウトを解除）
-	# $IPTABLES -A INPUT -p udp -s $addr -j ACCEPT
+  # 全UDPポートを許可（必要に応じてコメントアウトを解除）
+  # $IPTABLES -A INPUT -p udp -s $addr -j ACCEPT
 
-	# SSHポートを許可（リモート管理用）
-	$IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $SSH -j ACCEPT
+  # SSHポートを許可（リモート管理用）
+  $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $SSH -j ACCEPT
 
-	# HTTP/HTTPSポートを許可（Webサーバー用）
-	$IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $HTTP -j ACCEPT
+  # HTTP/HTTPSポートを許可（Webサーバー用）
+  $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $HTTP -j ACCEPT
 
-	# 開発用サーバーポートを許可
-	$IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $DEV -j ACCEPT
+  # 開発用サーバーポートを許可
+  $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $DEV -j ACCEPT
 done
 
 ###########################################################

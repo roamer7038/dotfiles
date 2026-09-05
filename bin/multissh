@@ -41,19 +41,19 @@
 
 # 引数チェック
 if [ $# = 0 ]; then
-	echo "usage: $(basename "$0") <destination>"
-	echo "examples: $(basename "$0") 192.168.1.{1-4}"
-	echo "          $(basename "$0") 192.168.1.1 192.168.1.2"
-	exit 1
+  echo "usage: $(basename "$0") <destination>"
+  echo "examples: $(basename "$0") 192.168.1.{1-4}"
+  echo "          $(basename "$0") 192.168.1.1 192.168.1.2"
+  exit 1
 fi
 
 # tmuxセッション名の設定
 # 環境変数SESSION_NAMEが設定されていればそれを使用
 # 未設定の場合は"multi-ssh-<UNIXタイムスタンプ>"を使用
 if [ -n "$SESSION_NAME" ]; then
-	session=$SESSION_NAME
+  session=$SESSION_NAME
 else
-	session=multi-ssh-$(date +%s)
+  session=multi-ssh-$(date +%s)
 fi
 
 # tmuxウィンドウ名
@@ -79,15 +79,15 @@ shift
 
 # 残りのホストに接続（ペインを分割してから接続）
 for i in $*; do
-	# 新しいペインを作成（水平または垂直に分割）
-	tmux split-window
+  # 新しいペインを作成（水平または垂直に分割）
+  tmux split-window
 
-	# ペインをタイル状に自動配置
-	# 1>/dev/null で出力を抑制
-	tmux select-layout tiled
+  # ペインをタイル状に自動配置
+  # 1>/dev/null で出力を抑制
+  tmux select-layout tiled
 
-	# 新しいペインでSSH接続を実行
-	tmux send-keys "ssh $i" C-m
+  # 新しいペインでSSH接続を実行
+  tmux send-keys "ssh $i" C-m
 done
 
 ###########################################################

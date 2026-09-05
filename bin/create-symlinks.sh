@@ -23,43 +23,43 @@ VERBOSE=false
 # --- 出力 ---
 
 if [[ -t 1 ]]; then
-	COLOR_RESET='\033[0m'
-	COLOR_GREEN='\033[0;32m'
-	COLOR_YELLOW='\033[0;33m'
-	COLOR_BLUE='\033[0;34m'
-	COLOR_RED='\033[0;31m'
+  COLOR_RESET='\033[0m'
+  COLOR_GREEN='\033[0;32m'
+  COLOR_YELLOW='\033[0;33m'
+  COLOR_BLUE='\033[0;34m'
+  COLOR_RED='\033[0;31m'
 else
-	COLOR_RESET=''
-	COLOR_GREEN=''
-	COLOR_YELLOW=''
-	COLOR_BLUE=''
-	COLOR_RED=''
+  COLOR_RESET=''
+  COLOR_GREEN=''
+  COLOR_YELLOW=''
+  COLOR_BLUE=''
+  COLOR_RED=''
 fi
 
 log_info() {
-	echo -e "${COLOR_BLUE}[INFO]${COLOR_RESET} $*"
+  echo -e "${COLOR_BLUE}[INFO]${COLOR_RESET} $*"
 }
 
 log_success() {
-	echo -e "${COLOR_GREEN}[SUCCESS]${COLOR_RESET} $*"
+  echo -e "${COLOR_GREEN}[SUCCESS]${COLOR_RESET} $*"
 }
 
 log_skip() {
-	echo -e "${COLOR_YELLOW}[SKIP]${COLOR_RESET} $*"
+  echo -e "${COLOR_YELLOW}[SKIP]${COLOR_RESET} $*"
 }
 
 log_error() {
-	echo -e "${COLOR_RED}[ERROR]${COLOR_RESET} $*" >&2
+  echo -e "${COLOR_RED}[ERROR]${COLOR_RESET} $*" >&2
 }
 
 log_verbose() {
-	if [ "$VERBOSE" = true ]; then
-		echo -e "${COLOR_BLUE}[VERBOSE]${COLOR_RESET} $*"
-	fi
+  if [ "$VERBOSE" = true ]; then
+    echo -e "${COLOR_BLUE}[VERBOSE]${COLOR_RESET} $*"
+  fi
 }
 
 show_usage() {
-	cat <<EOM
+  cat <<EOM
 Usage: $(basename "$0") [OPTIONS]
 
 Dotfiles setup script - Create symbolic links for configuration files
@@ -100,325 +100,325 @@ NOTES:
   - Use --dry-run to preview changes before applying them
 
 EOM
-	exit 0
+  exit 0
 }
 
 parse_options() {
-	if [ $# -eq 0 ]; then
-		show_usage
-	fi
+  if [ $# -eq 0 ]; then
+    show_usage
+  fi
 
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-		--preset)
-			if [ -z "$2" ] || [[ "$2" == --* ]]; then
-				log_error "Option --preset requires an argument"
-				exit 1
-			fi
-			PRESET="$2"
-			shift 2
-			;;
-		--basic | --dotfiles)
-			ENABLE_BASIC=true
-			shift
-			;;
-		--vim)
-			ENABLE_VIM=true
-			shift
-			;;
-		--x11 | --xorg)
-			ENABLE_X11=true
-			shift
-			;;
-		--gui)
-			ENABLE_GUI=true
-			shift
-			;;
-		--i3wm | --i3)
-			ENABLE_I3WM=true
-			shift
-			;;
-		--agent)
-			ENABLE_AGENT=true
-			shift
-			;;
-		--all)
-			ENABLE_BASIC=true
-			ENABLE_VIM=true
-			ENABLE_X11=true
-			ENABLE_GUI=true
-			ENABLE_I3WM=true
-			ENABLE_AGENT=true
-			shift
-			;;
-		-n | --dry-run)
-			DRY_RUN=true
-			shift
-			;;
-		-f | --force)
-			FORCE=true
-			shift
-			;;
-		-v | --verbose)
-			VERBOSE=true
-			shift
-			;;
-		-h | --help)
-			show_usage
-			;;
-		*)
-			log_error "Unknown option: $1"
-			echo "Use --help for usage information"
-			exit 1
-			;;
-		esac
-	done
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --preset)
+      if [ -z "$2" ] || [[ "$2" == --* ]]; then
+        log_error "Option --preset requires an argument"
+        exit 1
+      fi
+      PRESET="$2"
+      shift 2
+      ;;
+    --basic | --dotfiles)
+      ENABLE_BASIC=true
+      shift
+      ;;
+    --vim)
+      ENABLE_VIM=true
+      shift
+      ;;
+    --x11 | --xorg)
+      ENABLE_X11=true
+      shift
+      ;;
+    --gui)
+      ENABLE_GUI=true
+      shift
+      ;;
+    --i3wm | --i3)
+      ENABLE_I3WM=true
+      shift
+      ;;
+    --agent)
+      ENABLE_AGENT=true
+      shift
+      ;;
+    --all)
+      ENABLE_BASIC=true
+      ENABLE_VIM=true
+      ENABLE_X11=true
+      ENABLE_GUI=true
+      ENABLE_I3WM=true
+      ENABLE_AGENT=true
+      shift
+      ;;
+    -n | --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -f | --force)
+      FORCE=true
+      shift
+      ;;
+    -v | --verbose)
+      VERBOSE=true
+      shift
+      ;;
+    -h | --help)
+      show_usage
+      ;;
+    *)
+      log_error "Unknown option: $1"
+      echo "Use --help for usage information"
+      exit 1
+      ;;
+    esac
+  done
 }
 
 apply_preset() {
-	if [ -z "$PRESET" ]; then
-		return
-	fi
+  if [ -z "$PRESET" ]; then
+    return
+  fi
 
-	log_info "Applying preset: $PRESET"
+  log_info "Applying preset: $PRESET"
 
-	case "$PRESET" in
-	minimal)
-		ENABLE_BASIC=true
-		;;
-	standard)
-		ENABLE_BASIC=true
-		ENABLE_VIM=true
-		ENABLE_AGENT=true
-		;;
-	desktop)
-		ENABLE_BASIC=true
-		ENABLE_VIM=true
-		ENABLE_X11=true
-		ENABLE_GUI=true
-		ENABLE_AGENT=true
-		;;
-	full)
-		ENABLE_BASIC=true
-		ENABLE_VIM=true
-		ENABLE_X11=true
-		ENABLE_GUI=true
-		ENABLE_I3WM=true
-		ENABLE_AGENT=true
-		;;
-	agent)
-		ENABLE_AGENT=true
-		;;
-	*)
-		log_error "Unknown preset: $PRESET"
-		echo "Available presets: minimal, standard, desktop, full, agent"
-		exit 1
-		;;
-	esac
+  case "$PRESET" in
+  minimal)
+    ENABLE_BASIC=true
+    ;;
+  standard)
+    ENABLE_BASIC=true
+    ENABLE_VIM=true
+    ENABLE_AGENT=true
+    ;;
+  desktop)
+    ENABLE_BASIC=true
+    ENABLE_VIM=true
+    ENABLE_X11=true
+    ENABLE_GUI=true
+    ENABLE_AGENT=true
+    ;;
+  full)
+    ENABLE_BASIC=true
+    ENABLE_VIM=true
+    ENABLE_X11=true
+    ENABLE_GUI=true
+    ENABLE_I3WM=true
+    ENABLE_AGENT=true
+    ;;
+  agent)
+    ENABLE_AGENT=true
+    ;;
+  *)
+    log_error "Unknown preset: $PRESET"
+    echo "Available presets: minimal, standard, desktop, full, agent"
+    exit 1
+    ;;
+  esac
 }
 
 resolve_dependencies() {
-	# i3wmを有効にする場合、自動的にGUI設定も有効にする
-	if [ "$ENABLE_I3WM" = true ]; then
-		log_verbose "Enabling --gui (required by --i3wm)"
-		ENABLE_GUI=true
-	fi
+  # i3wmを有効にする場合、自動的にGUI設定も有効にする
+  if [ "$ENABLE_I3WM" = true ]; then
+    log_verbose "Enabling --gui (required by --i3wm)"
+    ENABLE_GUI=true
+  fi
 }
 
 create_symlink() {
-	local src="$1"
-	local dest="$2"
-	local description="$3"
+  local src="$1"
+  local dest="$2"
+  local description="$3"
 
-	if [ "$DRY_RUN" = true ]; then
-		log_info "[DRY-RUN] Would create: $dest -> $src"
-		return 0
-	fi
+  if [ "$DRY_RUN" = true ]; then
+    log_info "[DRY-RUN] Would create: $dest -> $src"
+    return 0
+  fi
 
-	if [ -e "$dest" ] || [ -L "$dest" ]; then
-		if [ "$FORCE" = true ]; then
-			log_verbose "Removing existing: $dest"
-			rm -f "$dest"
-		else
-			log_skip "$dest (already exists, use --force to overwrite)"
-			return 0
-		fi
-	fi
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    if [ "$FORCE" = true ]; then
+      log_verbose "Removing existing: $dest"
+      rm -f "$dest"
+    else
+      log_skip "$dest (already exists, use --force to overwrite)"
+      return 0
+    fi
+  fi
 
-	if ln -s "$src" "$dest" 2>/dev/null; then
-		log_success "$description: $dest"
-	else
-		log_error "Failed to create link: $dest"
-		return 1
-	fi
+  if ln -s "$src" "$dest" 2>/dev/null; then
+    log_success "$description: $dest"
+  else
+    log_error "Failed to create link: $dest"
+    return 1
+  fi
 }
 
 create_basic_links() {
-	log_info "Creating basic dotfiles..."
+  log_info "Creating basic dotfiles..."
 
-	local dotfiles=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
+  local dotfiles=(.bashrc .zshrc .tmux.conf .gitconfig .latexmkrc)
 
-	for file in "${dotfiles[@]}"; do
-		local src="$DOTFILES_ROOT/$file"
-		local dest="$HOME/$file"
+  for file in "${dotfiles[@]}"; do
+    local src="$DOTFILES_ROOT/$file"
+    local dest="$HOME/$file"
 
-		# .bashrcは特別扱い（システムデフォルトを保持）
-		if [ "$file" = ".bashrc" ] && [ -e "$HOME/.bashrc" ] && [ "$FORCE" != true ]; then
-			log_skip ".bashrc (preserving system default, use --force to overwrite)"
-			continue
-		fi
+    # .bashrcは特別扱い（システムデフォルトを保持）
+    if [ "$file" = ".bashrc" ] && [ -e "$HOME/.bashrc" ] && [ "$FORCE" != true ]; then
+      log_skip ".bashrc (preserving system default, use --force to overwrite)"
+      continue
+    fi
 
-		if [ -f "$src" ]; then
-			create_symlink "$src" "$dest" "$file"
-		else
-			log_verbose "Source file not found: $src"
-		fi
-	done
+    if [ -f "$src" ]; then
+      create_symlink "$src" "$dest" "$file"
+    else
+      log_verbose "Source file not found: $src"
+    fi
+  done
 
-	# bash と zsh の共通設定は ~/.config/shell/ に置き、両方の rc から読み込む
-	local common_src="$DOTFILES_ROOT/shell/common.sh"
-	local common_dir="$HOME/.config/shell"
+  # bash と zsh の共通設定は ~/.config/shell/ に置き、両方の rc から読み込む
+  local common_src="$DOTFILES_ROOT/shell/common.sh"
+  local common_dir="$HOME/.config/shell"
 
-	if [ -f "$common_src" ]; then
-		[ "$DRY_RUN" = true ] || mkdir -p "$common_dir"
-		create_symlink "$common_src" "$common_dir/common.sh" "shell/common.sh"
-	else
-		log_verbose "Source file not found: $common_src"
-	fi
+  if [ -f "$common_src" ]; then
+    [ "$DRY_RUN" = true ] || mkdir -p "$common_dir"
+    create_symlink "$common_src" "$common_dir/common.sh" "shell/common.sh"
+  else
+    log_verbose "Source file not found: $common_src"
+  fi
 }
 
 create_vim_links() {
-	log_info "Creating Vim configuration..."
+  log_info "Creating Vim configuration..."
 
-	local vimrc_src="$DOTFILES_ROOT/.vimrc"
-	local vimrc_dest="$HOME/.vimrc"
+  local vimrc_src="$DOTFILES_ROOT/.vimrc"
+  local vimrc_dest="$HOME/.vimrc"
 
-	if [ -f "$vimrc_src" ]; then
-		create_symlink "$vimrc_src" "$vimrc_dest" ".vimrc"
-	fi
+  if [ -f "$vimrc_src" ]; then
+    create_symlink "$vimrc_src" "$vimrc_dest" ".vimrc"
+  fi
 }
 
 create_x11_links() {
-	log_info "Creating X Window System configuration..."
+  log_info "Creating X Window System configuration..."
 
-	local x11_files=(.Xmodmap .xprofile .picom.conf)
+  local x11_files=(.Xmodmap .xprofile .picom.conf)
 
-	for file in "${x11_files[@]}"; do
-		local src="$DOTFILES_ROOT/$file"
-		local dest="$HOME/$file"
+  for file in "${x11_files[@]}"; do
+    local src="$DOTFILES_ROOT/$file"
+    local dest="$HOME/$file"
 
-		if [ -f "$src" ]; then
-			create_symlink "$src" "$dest" "$file"
-		else
-			log_verbose "Source file not found: $src"
-		fi
-	done
+    if [ -f "$src" ]; then
+      create_symlink "$src" "$dest" "$file"
+    else
+      log_verbose "Source file not found: $src"
+    fi
+  done
 }
 
 create_gui_links() {
-	log_info "Creating GUI application configurations..."
+  log_info "Creating GUI application configurations..."
 
-	local app_dirs=(terminator dunst ranger)
+  local app_dirs=(terminator dunst ranger)
 
-	if [ "$ENABLE_I3WM" = true ]; then
-		app_dirs+=(i3 i3status)
-	fi
+  if [ "$ENABLE_I3WM" = true ]; then
+    app_dirs+=(i3 i3status)
+  fi
 
-	for dir in "${app_dirs[@]}"; do
-		local src_dir="$DOTFILES_ROOT/config/$dir"
-		local dest_dir="$HOME/.config/$dir"
+  for dir in "${app_dirs[@]}"; do
+    local src_dir="$DOTFILES_ROOT/config/$dir"
+    local dest_dir="$HOME/.config/$dir"
 
-		if [ ! -d "$src_dir" ]; then
-			log_verbose "Source directory not found: $src_dir"
-			continue
-		fi
+    if [ ! -d "$src_dir" ]; then
+      log_verbose "Source directory not found: $src_dir"
+      continue
+    fi
 
-		if [ "$DRY_RUN" != true ]; then
-			mkdir -p "$dest_dir"
-		fi
+    if [ "$DRY_RUN" != true ]; then
+      mkdir -p "$dest_dir"
+    fi
 
-		for file in "$src_dir"/*; do
-			if [ -e "$file" ]; then
-				local filename=$(basename "$file")
-				create_symlink "$file" "$dest_dir/$filename" "$dir/$filename"
-			fi
-		done
-	done
+    for file in "$src_dir"/*; do
+      if [ -e "$file" ]; then
+        local filename=$(basename "$file")
+        create_symlink "$file" "$dest_dir/$filename" "$dir/$filename"
+      fi
+    done
+  done
 }
 
 create_agent_links() {
-	log_info "Creating AI agent configurations..."
+  log_info "Creating AI agent configurations..."
 
-	# 将来的に他エージェントの設定を追加する場合はここに追記する
-	create_claude_agent_links
+  # 将来的に他エージェントの設定を追加する場合はここに追記する
+  create_claude_agent_links
 }
 
 create_claude_agent_links() {
-	local src_dir="$DOTFILES_ROOT/.claude"
-	local dest_dir="$HOME/.claude"
+  local src_dir="$DOTFILES_ROOT/.claude"
+  local dest_dir="$HOME/.claude"
 
-	if [ ! -d "$src_dir" ]; then
-		log_verbose "Source directory not found: $src_dir"
-		return
-	fi
+  if [ ! -d "$src_dir" ]; then
+    log_verbose "Source directory not found: $src_dir"
+    return
+  fi
 
-	# settings.local.json はローカル専用（.gitignore対象）のためリンクしない
-	local files=(CLAUDE.md statusline-command.sh)
+  # settings.local.json はローカル専用（.gitignore対象）のためリンクしない
+  local files=(CLAUDE.md statusline-command.sh)
 
-	if [ "$DRY_RUN" != true ]; then
-		mkdir -p "$dest_dir"
-	fi
+  if [ "$DRY_RUN" != true ]; then
+    mkdir -p "$dest_dir"
+  fi
 
-	for file in "${files[@]}"; do
-		local src="$src_dir/$file"
-		local dest="$dest_dir/$file"
+  for file in "${files[@]}"; do
+    local src="$src_dir/$file"
+    local dest="$dest_dir/$file"
 
-		if [ -e "$src" ]; then
-			create_symlink "$src" "$dest" ".claude/$file"
-		else
-			log_verbose "Source file not found: $src"
-		fi
-	done
+    if [ -e "$src" ]; then
+      create_symlink "$src" "$dest" ".claude/$file"
+    else
+      log_verbose "Source file not found: $src"
+    fi
+  done
 }
 
 main() {
-	log_info "Dotfiles symlink creation script"
-	log_info "Repository: $DOTFILES_ROOT"
-	echo
+  log_info "Dotfiles symlink creation script"
+  log_info "Repository: $DOTFILES_ROOT"
+  echo
 
-	parse_options "$@"
+  parse_options "$@"
 
-	apply_preset
+  apply_preset
 
-	resolve_dependencies
+  resolve_dependencies
 
-	if [ "$ENABLE_BASIC" != true ] &&
-		[ "$ENABLE_VIM" != true ] &&
-		[ "$ENABLE_X11" != true ] &&
-		[ "$ENABLE_GUI" != true ] &&
-		[ "$ENABLE_AGENT" != true ]; then
-		log_error "No configuration options specified"
-		echo "Use --help for usage information"
-		exit 1
-	fi
+  if [ "$ENABLE_BASIC" != true ] &&
+    [ "$ENABLE_VIM" != true ] &&
+    [ "$ENABLE_X11" != true ] &&
+    [ "$ENABLE_GUI" != true ] &&
+    [ "$ENABLE_AGENT" != true ]; then
+    log_error "No configuration options specified"
+    echo "Use --help for usage information"
+    exit 1
+  fi
 
-	if [ "$DRY_RUN" = true ]; then
-		log_info "DRY-RUN mode: No actual changes will be made"
-		echo
-	fi
+  if [ "$DRY_RUN" = true ]; then
+    log_info "DRY-RUN mode: No actual changes will be made"
+    echo
+  fi
 
-	[ "$ENABLE_BASIC" = true ] && create_basic_links
-	[ "$ENABLE_VIM" = true ] && create_vim_links
-	[ "$ENABLE_X11" = true ] && create_x11_links
-	[ "$ENABLE_GUI" = true ] && create_gui_links
-	[ "$ENABLE_AGENT" = true ] && create_agent_links
+  [ "$ENABLE_BASIC" = true ] && create_basic_links
+  [ "$ENABLE_VIM" = true ] && create_vim_links
+  [ "$ENABLE_X11" = true ] && create_x11_links
+  [ "$ENABLE_GUI" = true ] && create_gui_links
+  [ "$ENABLE_AGENT" = true ] && create_agent_links
 
-	echo
-	if [ "$DRY_RUN" = true ]; then
-		log_info "DRY-RUN completed. Run without --dry-run to apply changes."
-	else
-		log_success "All symbolic links created successfully!"
-	fi
+  echo
+  if [ "$DRY_RUN" = true ]; then
+    log_info "DRY-RUN completed. Run without --dry-run to apply changes."
+  else
+    log_success "All symbolic links created successfully!"
+  fi
 }
 
 main "$@"

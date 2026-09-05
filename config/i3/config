@@ -212,7 +212,7 @@ bindsym $mod+Shift+p mode "$mode_system"
 # resize window (you can also use the mouse for that)
 mode "resize" {
   # These bindings trigger as soon as you enter the resize mode
-  
+
   # Pressing left will shrink the window’s width.
   # Pressing right will grow the window’s width.
   # Pressing up will shrink the window’s height.
@@ -271,7 +271,7 @@ bar {
   colors {
     background $CL_BG
     statusline $CL_WHITE
-    separator $CL_WHITE 
+    separator $CL_WHITE
 
     focused_workspace $CL_BLACK $CL_CUR $CL_BG
     inactive_workspace $CL_BG $CL_BG $CL_LIGHTGRAY
@@ -289,13 +289,13 @@ hide_edge_borders smart
 mouse_warping none
 
 # Configure the settings for a specific window.
-for_window [class="[.]*"] border pixel 2 
+for_window [class="[.]*"] border pixel 2
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
 for_window [window_role="GtkFileChooserDialog"] resize set 1280 720
 for_window [title="TweetDeck"] floating disable; border none
 
-# Thunar is a modern file manager for the Xfce Desktop Environment. 
+# Thunar is a modern file manager for the Xfce Desktop Environment.
 exec --no-startup-id thunar --daemon
 
 # If you need a command to run also when restarting i3 you should use the exec_always keyword.

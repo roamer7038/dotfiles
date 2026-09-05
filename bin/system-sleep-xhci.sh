@@ -44,22 +44,22 @@
 ###########################################################
 
 if [ "${1}" == "pre" ]; then
-	# サスペンド前: xHCIのウェイクアップ機能を無効化
-	echo "Disable broken xhci module before suspending at $(date)..." >/tmp/systemd_suspend_test
+  # サスペンド前: xHCIのウェイクアップ機能を無効化
+  echo "Disable broken xhci module before suspending at $(date)..." >/tmp/systemd_suspend_test
 
-	# /proc/acpi/wakeup からXHCの状態を確認
-	# "enable"状態であれば、ウェイクアップ機能を無効化（"disable"に変更）
-	grep XHC.*enable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
+  # /proc/acpi/wakeup からXHCの状態を確認
+  # "enable"状態であれば、ウェイクアップ機能を無効化（"disable"に変更）
+  grep XHC.*enable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
 
 ###########################################################
 # レジューム後の処理
 ###########################################################
 
 elif [ "${1}" == "post" ]; then
-	# レジューム後: xHCIのウェイクアップ機能を再有効化
-	echo "Enable broken xhci module at wakeup from $(date)" >>/tmp/systemd_suspend_test
+  # レジューム後: xHCIのウェイクアップ機能を再有効化
+  echo "Enable broken xhci module at wakeup from $(date)" >>/tmp/systemd_suspend_test
 
-	# /proc/acpi/wakeup からXHCの状態を確認
-	# "disable"状態であれば、ウェイクアップ機能を有効化（"enable"に変更）
-	grep XHC.*disable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
+  # /proc/acpi/wakeup からXHCの状態を確認
+  # "disable"状態であれば、ウェイクアップ機能を有効化（"enable"に変更）
+  grep XHC.*disable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
 fi

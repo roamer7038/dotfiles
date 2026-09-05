@@ -1,0 +1,35 @@
+# 対応エディタで書式を自動的に揃えるための設定。
+# Vim では editorconfig-vim プラグイン経由で有効になる（.vimrc 参照）。
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# タブでなければ動作しない
+[Makefile]
+indent_style = tab
+
+# git が書き戻す際にタブを使う
+[.gitconfig]
+indent_style = tab
+
+# 言語側の慣習に従う（.vimrc の言語別設定と対応）
+[*.go]
+indent_style = tab
+indent_size = 4
+
+[*.{py,tex}]
+indent_size = 4
+
+# ranger の設定は上流の既定ファイルを取り込んだもの
+[config/ranger/**]
+indent_size = 4
+
+# 行末の空白2つが改行を意味する
+[*.md]
+trim_trailing_whitespace = false

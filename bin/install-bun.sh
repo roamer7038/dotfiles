@@ -34,12 +34,12 @@ echo "Starting bun installation..."
 ###########################################################
 
 if [ -d "$HOME/.bun" ]; then
-	echo "bun is already installed (~/.bun exists)."
-	if command -v bun >/dev/null 2>&1; then
-		echo "Version: $(bun --version)"
-	fi
-	echo "To update, run: bun upgrade"
-	exit 0
+  echo "bun is already installed (~/.bun exists)."
+  if command -v bun >/dev/null 2>&1; then
+    echo "Version: $(bun --version)"
+  fi
+  echo "To update, run: bun upgrade"
+  exit 0
 fi
 
 ###########################################################

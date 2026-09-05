@@ -34,7 +34,7 @@ DEFAULT_USER="roamer7038"
 
 # ヘルプメッセージの表示
 show_help() {
-	cat <<EOF
+  cat <<EOF
 Usage: $(basename "$0") [GITHUB_USERNAME]
 
 概要:
@@ -51,19 +51,19 @@ Usage: $(basename "$0") [GITHUB_USERNAME]
   $(basename "$0") username       # 指定したGitHubユーザー
 
 EOF
-	exit 0
+  exit 0
 }
 
 # 引数の処理
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-	show_help
+  show_help
 fi
 
 # GitHubユーザー名の決定
 if [ -n "$1" ]; then
-	GITHUB_USER="$1"
+  GITHUB_USER="$1"
 else
-	GITHUB_USER="$DEFAULT_USER"
+  GITHUB_USER="$DEFAULT_USER"
 fi
 
 echo "GitHubユーザー: $GITHUB_USER から公開鍵を取得します..."
@@ -92,15 +92,15 @@ CURL_EXIT_CODE=$?
 
 # curlの実行結果をチェック
 if [ $CURL_EXIT_CODE -ne 0 ]; then
-	echo "エラー: GitHubユーザー '$GITHUB_USER' の公開鍵を取得できませんでした" >&2
-	echo "ユーザー名が正しいか、またはインターネット接続を確認してください" >&2
-	exit 1
+  echo "エラー: GitHubユーザー '$GITHUB_USER' の公開鍵を取得できませんでした" >&2
+  echo "ユーザー名が正しいか、またはインターネット接続を確認してください" >&2
+  exit 1
 fi
 
 # 取得した公開鍵が空でないかチェック
 if [ -z "$KEYS" ]; then
-	echo "警告: GitHubユーザー '$GITHUB_USER' に公開鍵が登録されていません" >&2
-	exit 1
+  echo "警告: GitHubユーザー '$GITHUB_USER' に公開鍵が登録されていません" >&2
+  exit 1
 fi
 
 # 公開鍵をauthorized_keysに追記
