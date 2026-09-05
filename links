@@ -1,0 +1,33 @@
+# dotfiles の配置対象。create-symlinks.sh と doctor.sh が読む。
+#
+# <リポジトリ内のパス>          <配置先>                         <タグ>
+#
+# 両側が / で終わる対は、ディレクトリ内の各ファイルを個別にリンクする。
+# 配置先の ~/ は $HOME/ に展開される。タグは1行に1つ。
+
+.bashrc                        ~/.bashrc                        basic
+.zshrc                         ~/.zshrc                         basic
+.tmux.conf                     ~/.tmux.conf                     basic
+.gitconfig                     ~/.gitconfig                     basic
+.latexmkrc                     ~/.latexmkrc                     basic
+config/profile.d/              ~/.config/profile.d/             basic
+bin/pane                       ~/.local/bin/pane                basic
+bin/multissh                   ~/.local/bin/multissh            basic
+bin/wsl-chrome                 ~/.local/bin/wsl-chrome          basic
+bin/anyenv-setup               ~/.local/bin/anyenv-setup        basic
+
+.vimrc                         ~/.vimrc                         vim
+
+.Xmodmap                       ~/.Xmodmap                       x11
+.xprofile                      ~/.xprofile                      x11
+.picom.conf                    ~/.picom.conf                    x11
+
+config/terminator/             ~/.config/terminator/            gui
+config/dunst/                  ~/.config/dunst/                 gui
+config/ranger/                 ~/.config/ranger/                gui
+
+config/i3/                     ~/.config/i3/                    i3wm
+config/i3status/               ~/.config/i3status/              i3wm
+
+.claude/CLAUDE.md              ~/.claude/CLAUDE.md              agent
+.claude/statusline-command.sh  ~/.claude/statusline-command.sh  agent
