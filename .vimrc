@@ -1,6 +1,4 @@
-"----------------------------------------------------------
-" プラグイン管理（vim-plug）
-"----------------------------------------------------------
+" --- プラグイン管理（vim-plug） ---
 
 " vim-plug の自動インストール（curl が必要）
 let s:plug_file = expand('~/.vim/autoload/plug.vim')
@@ -13,28 +11,28 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-"--- 動作支援系 ---
+" --- 動作支援系 ---
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 
-"--- 視覚支援系 ---
+" --- 視覚支援系 ---
 Plug 'tomasr/molokai'
 Plug 'itchyny/lightline.vim'
 Plug 'Yggdroot/indentLine'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
-"--- 入力支援系 ---
+" --- 入力支援系 ---
 Plug 'kentarosasaki/vim-emacs-bindings'
 Plug 'tyru/caw.vim'
 
-"--- LSP ---
+" --- LSP ---
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
-"--- EditorConfig ---
+" --- EditorConfig ---
 Plug 'editorconfig/editorconfig-vim'
 
 call plug#end()
@@ -51,9 +49,7 @@ endif
 
 set breakindent
 
-"----------------------------------------------------------
-" 基本設定
-"----------------------------------------------------------
+" --- 基本設定 ---
 
 set encoding=utf-8
 scriptencoding utf-8
@@ -95,18 +91,14 @@ filetype plugin indent on
 syntax on
 highlight Normal ctermbg=none
 
-"----------------------------------------------------------
-" trailing whitespace のネイティブ実装
-"----------------------------------------------------------
+" --- trailing whitespace のネイティブ実装 ---
 
 augroup trailing_whitespace
   autocmd!
   autocmd BufWinEnter * match Error /\s\+$/
 augroup END
 
-"----------------------------------------------------------
-" NERDTree
-"----------------------------------------------------------
+" --- NERDTree ---
 
 nnoremap sn gt
 nnoremap sp gT
@@ -123,9 +115,7 @@ augroup nerdtree_auto
   autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
 augroup END
 
-"----------------------------------------------------------
-" molokai
-"----------------------------------------------------------
+" --- molokai ---
 
 let g:molokai_original = 1
 augroup colorschemeSetting
@@ -138,23 +128,17 @@ augroup colorschemeSetting
   autocmd Colorscheme * highlight EndOfBuffer ctermbg=none
 augroup END
 
-"----------------------------------------------------------
-" indentLine
-"----------------------------------------------------------
+" --- indentLine ---
 
 let g:indentLine_faster = 1
 nmap <silent><Leader>i :<C-u>IndentLinesToggle<CR>
 
-"----------------------------------------------------------
-" caw.vim（コメントトグル）
-"----------------------------------------------------------
+" --- caw.vim（コメントトグル） ---
 
 nmap <Leader>c <Plug>(caw:hatpos:toggle)
 vmap <Leader>c <Plug>(caw:hatpos:toggle)
 
-"----------------------------------------------------------
-" vim-lsp
-"----------------------------------------------------------
+" --- vim-lsp ---
 
 " 各言語ファイルを開いて :LspInstallServer を実行
 " サーバーは ~/.local/share/vim-lsp-settings/servers/ に隔離インストールされる
@@ -199,17 +183,13 @@ function! s:notify_lsp_not_installed() abort
   endfor
 endfunction
 
-"----------------------------------------------------------
-" asyncomplete
-"----------------------------------------------------------
+" --- asyncomplete ---
 
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR>    pumvisible() ? asyncomplete#close_popup() : "\<CR>"
 
-"----------------------------------------------------------
-" 言語別設定
-"----------------------------------------------------------
+" --- 言語別設定 ---
 
 augroup fileTypeIndent
   autocmd!

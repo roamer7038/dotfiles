@@ -1,43 +1,14 @@
 #!/bin/bash
-# ============================================================
-# create-symlinks.sh
-# ============================================================
 #
-# 概要:
-#   dotfilesリポジトリから各種設定ファイルへのシンボリックリンクを作成する
-#
-# 用途:
-#   新しい環境のセットアップ時に、dotfilesを一括で配置
-#   プリセットまたは個別オプションで必要な設定のみをリンク可能
-#
-# 依存関係:
-#   - bash
-#
-# 使用例:
-#   # プリセットを使用
-#   $ ./create-symlinks.sh --preset minimal    # 基本のみ
-#   $ ./create-symlinks.sh --preset standard   # 基本 + vim
-#   $ ./create-symlinks.sh --preset desktop    # GUI環境向け
-#   $ ./create-symlinks.sh --preset full       # すべて
-#
-#   # 個別に指定
-#   $ ./create-symlinks.sh --basic --vim --x11
-#   $ ./create-symlinks.sh --gui --i3wm
-#   $ ./create-symlinks.sh --all               # すべて
-#
-#   # オプション付き
-#   $ ./create-symlinks.sh --preset full --dry-run  # 実行内容を確認
-#   $ ./create-symlinks.sh --basic --force          # 既存ファイルを上書き
-#
-# ============================================================
+# dotfiles から各種設定ファイルへシンボリックリンクを張る。
+# プリセットまたは個別オプションで対象を選ぶ。使い方は --help を参照。
 
 set -e
 
-# dotfilesリポジトリのルートディレクトリを取得
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
-# 設定フラグ
+# --- 設定フラグ ---
 PRESET=""
 ENABLE_BASIC=false
 ENABLE_VIM=false
@@ -49,7 +20,8 @@ DRY_RUN=false
 FORCE=false
 VERBOSE=false
 
-# 色定義
+# --- 出力 ---
+
 if [[ -t 1 ]]; then
 	COLOR_RESET='\033[0m'
 	COLOR_GREEN='\033[0;32m'
@@ -64,7 +36,6 @@ else
 	COLOR_RED=''
 fi
 
-# ログ出力関数
 log_info() {
 	echo -e "${COLOR_BLUE}[INFO]${COLOR_RESET} $*"
 }
@@ -87,8 +58,7 @@ log_verbose() {
 	fi
 }
 
-# ヘルプメッセージの表示
-function show_usage {
+show_usage() {
 	cat <<EOM
 Usage: $(basename "$0") [OPTIONS]
 
@@ -132,7 +102,6 @@ EOM
 	exit 0
 }
 
-# オプション解析
 parse_options() {
 	if [ $# -eq 0 ]; then
 		show_usage
@@ -205,7 +174,6 @@ parse_options() {
 	done
 }
 
-# プリセット適用
 apply_preset() {
 	if [ -z "$PRESET" ]; then
 		return
@@ -248,7 +216,6 @@ apply_preset() {
 	esac
 }
 
-# 依存関係の解決
 resolve_dependencies() {
 	# i3wmを有効にする場合、自動的にGUI設定も有効にする
 	if [ "$ENABLE_I3WM" = true ]; then
@@ -257,7 +224,6 @@ resolve_dependencies() {
 	fi
 }
 
-# シンボリックリンク作成関数
 create_symlink() {
 	local src="$1"
 	local dest="$2"
@@ -268,7 +234,6 @@ create_symlink() {
 		return 0
 	fi
 
-	# 既存ファイルのチェック
 	if [ -e "$dest" ] || [ -L "$dest" ]; then
 		if [ "$FORCE" = true ]; then
 			log_verbose "Removing existing: $dest"
@@ -279,7 +244,6 @@ create_symlink() {
 		fi
 	fi
 
-	# シンボリックリンク作成
 	if ln -s "$src" "$dest" 2>/dev/null; then
 		log_success "$description: $dest"
 	else
@@ -288,7 +252,6 @@ create_symlink() {
 	fi
 }
 
-# 基本dotfilesのリンク作成
 create_basic_links() {
 	log_info "Creating basic dotfiles..."
 
@@ -312,11 +275,9 @@ create_basic_links() {
 	done
 }
 
-# Vim設定のリンク作成
 create_vim_links() {
 	log_info "Creating Vim configuration..."
 
-	# .vimrcのリンク
 	local vimrc_src="$DOTFILES_ROOT/.vimrc"
 	local vimrc_dest="$HOME/.vimrc"
 
@@ -325,7 +286,6 @@ create_vim_links() {
 	fi
 }
 
-# X11設定のリンク作成
 create_x11_links() {
 	log_info "Creating X Window System configuration..."
 
@@ -343,13 +303,11 @@ create_x11_links() {
 	done
 }
 
-# GUI設定のリンク作成
 create_gui_links() {
 	log_info "Creating GUI application configurations..."
 
 	local app_dirs=(terminator dunst ranger)
 
-	# i3wmが有効な場合は追加
 	if [ "$ENABLE_I3WM" = true ]; then
 		app_dirs+=(i3 i3status)
 	fi
@@ -376,16 +334,13 @@ create_gui_links() {
 	done
 }
 
-# AIエージェント設定のリンク作成
 create_agent_links() {
 	log_info "Creating AI agent configurations..."
 
-	# Claude Code (~/.claude)
 	# 将来的に他エージェントの設定を追加する場合はここに追記する
 	create_claude_agent_links
 }
 
-# Claude Code 設定のリンク作成
 create_claude_agent_links() {
 	local src_dir="$DOTFILES_ROOT/.claude"
 	local dest_dir="$HOME/.claude"
@@ -414,22 +369,17 @@ create_claude_agent_links() {
 	done
 }
 
-# メイン処理
 main() {
 	log_info "Dotfiles symlink creation script"
 	log_info "Repository: $DOTFILES_ROOT"
 	echo
 
-	# オプション解析
 	parse_options "$@"
 
-	# プリセット適用
 	apply_preset
 
-	# 依存関係解決
 	resolve_dependencies
 
-	# 何も有効になっていない場合
 	if [ "$ENABLE_BASIC" != true ] &&
 		[ "$ENABLE_VIM" != true ] &&
 		[ "$ENABLE_X11" != true ] &&
@@ -440,13 +390,11 @@ main() {
 		exit 1
 	fi
 
-	# ドライランモードの通知
 	if [ "$DRY_RUN" = true ]; then
 		log_info "DRY-RUN mode: No actual changes will be made"
 		echo
 	fi
 
-	# 各設定のリンク作成
 	[ "$ENABLE_BASIC" = true ] && create_basic_links
 	[ "$ENABLE_VIM" = true ] && create_vim_links
 	[ "$ENABLE_X11" = true ] && create_x11_links

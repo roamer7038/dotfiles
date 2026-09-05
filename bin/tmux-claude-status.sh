@@ -1,60 +1,18 @@
 #!/bin/bash
-# ============================================================
-# tmux-claude-status.sh
-# ============================================================
 #
-# 概要:
-#   Claude Code の状態を、tmuxのウィンドウステータスの背景色で可視化する
+# Claude Code の状態（実行中／承認待ち／完了）を、tmux のウィンドウステータスの
+# 背景色とスピナーで可視化する。Claude Code と tmux のフックから呼ばれる。
 #
-# 用途:
-#   複数ウィンドウでClaude Codeを動かしていると、非アクティブなウィンドウで
-#   タスクが完了したり承認待ちになったりしても気づけない
-#   このスクリプトをClaude Codeのフックから呼ぶことで、該当ウィンドウの
-#   ステータス背景色が変わり、他のウィンドウで作業していても状態がわかる
+#   tmux-claude-status.sh running|waiting|done|none   Claude Code のフック用
+#   tmux-claude-status.sh --ack <window-id>           tmux のフック用（既読化）
+#   tmux-claude-status.sh --spinner                   window-status-format の #() 用
 #
-# 機能:
-#   - running（実行中）/ waiting（承認・入力待ち）/ done（完了）を色分け
-#   - 実行中のウィンドウにはスピナーを表示する
-#     動かすのに毎秒の再描画が要るため、実行中がある間だけ
-#     status-interval を1に上げ、無くなったら元の値へ戻す
-#   - tmuxの window-status-style はウィンドウが非アクティブなときのみ有効な
-#     ため、アクティブなウィンドウは着色されない（追加の判定が不要）
-#   - ウィンドウを離れる/選択したタイミングで waiting・done を既読にする
-#     （running は維持されるため、実行中のウィンドウは色が残る）
-#   - 状態ファイルにClaude CodeのPIDを記録し、プロセスが消えていれば解除する
-#     （強制終了・SSH切断などで SessionEnd が発火しない場合の保険）
-#   - グローバルオプションは変更せず、対象ウィンドウのオプションのみ操作する
-#     ため、Claude Codeが動いていないウィンドウには影響しない
-#
-# 依存関係:
-#   - bash
-#   - tmux
-#   - procfs（/proc）
-#
-# 使用例:
-#   # Claude Code のフックから（~/.claude/settings.json）
-#   $ tmux-claude-status.sh running   # UserPromptSubmit
-#   $ tmux-claude-status.sh waiting   # Notification
-#   $ tmux-claude-status.sh done      # Stop
-#   $ tmux-claude-status.sh none      # SessionEnd
-#
-#   # tmux のフックから（~/.tmux.conf）
-#   $ tmux-claude-status.sh --ack '@3'   # ウィンドウ@3の waiting/done を既読化
-#
-#   # window-status-format の #() から（スクリプトが自動で設定する）
-#   $ tmux-claude-status.sh --spinner    # 現在時刻に応じたスピナーの1文字
-#
-# 注意事項:
-#   - tmux外・tmux不在の環境では何もせず正常終了する
-#   - 状態ファイルは $XDG_RUNTIME_DIR 配下に置くため、再起動で消える
-#   - スピナーが不要なら冒頭の SPINNER を off にする
-#     （status-interval も変更されなくなる）
-#
-# ============================================================
+# 設定方法と挙動の詳細は docs/tmux-claude-status.md を参照。
+# tmux 外・tmux 不在の環境では何もせず正常終了する。
 
 set -u
 
-# ---- スピナー --------------------------------------------
+# --- スピナー ---
 
 # window-status-format の #() から毎秒呼ばれる
 # tmuxの検査やディレクトリ作成より前に返し、余計な処理をさせない
@@ -66,7 +24,7 @@ if [ "${1:-}" = "--spinner" ]; then
 	exit 0
 fi
 
-# ---- 設定 ------------------------------------------------
+# --- 設定 ---
 
 # 状態ごとのウィンドウステータスのスタイル
 STYLE_RUNNING="bg=colour24,fg=colour255"
@@ -87,7 +45,7 @@ else
 	STATE_DIR="/tmp/tmux-claude-status-$(id -u)"
 fi
 
-# ---- 事前チェック ----------------------------------------
+# --- 事前チェック ---
 
 # tmuxの外、またはtmuxが無い環境では何もしない
 [ -n "${TMUX:-}" ] || exit 0
@@ -102,7 +60,7 @@ SERVER=${TMUX#*,}
 SERVER=${SERVER%%,*}
 [ -n "$SERVER" ] || SERVER=0
 
-# ---- 共通処理 --------------------------------------------
+# --- 共通処理 ---
 
 # 状態の優先度を返す（大きいほど強い）
 # 承認待ちが最優先、次に完了、最後に実行中
@@ -298,7 +256,7 @@ prune_dead() {
 	done
 }
 
-# ---- サブコマンド ----------------------------------------
+# --- サブコマンド ---
 
 # ウィンドウ内の waiting・done を既読にする（running は維持）
 # ユーザがそのウィンドウを見た＝状態を把握したとみなす
@@ -341,7 +299,7 @@ set_state() {
 	repaint_window "$win"
 }
 
-# ---- エントリポイント ------------------------------------
+# --- エントリポイント ---
 
 case "${1:-}" in
 --ack)
