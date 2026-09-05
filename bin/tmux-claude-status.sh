@@ -192,10 +192,6 @@ repaint_window() {
 }
 
 # ウィンドウに状態に応じた色と書式を設定する（none なら解除）
-# monitor-activity が有効だと、出力のあったウィンドウに
-# window-status-activity-style（既定は reverse）が重ねて適用され、
-# 背景色が反転してしまう。Claude Codeのウィンドウは常に出力があるため、
-# activity側にも同じスタイルを設定して反転を打ち消す
 apply_window() {
 	local win=$1 state=$2 style="" opt base
 
@@ -213,6 +209,20 @@ apply_window() {
 			tmux set-window-option -u -t "$win" "$opt" 2>/dev/null
 		fi
 	done
+
+	# 対象ウィンドウでのみ活動監視を切る
+	# monitor-activity はウィンドウオプションなので他のウィンドウには影響しない
+	# 「出力があった」を示す # フラグと、それに伴う反転描画
+	# （window-status-activity-style、既定は reverse）が無くなる
+	# Claude Codeのウィンドウでは常に出力があり # は情報量を持たないうえ、
+	# 反転がこのスクリプトの背景色を打ち消してしまうため
+	# 上の window-status-activity-style の設定は、利用者が個別に監視を
+	# 戻した場合に色が反転しないようにするための保険として残している
+	if [ -n "$style" ]; then
+		tmux set-window-option -t "$win" monitor-activity off 2>/dev/null
+	else
+		tmux set-window-option -u -t "$win" monitor-activity 2>/dev/null
+	fi
 
 	# 実行中だけウィンドウ名の後ろにスピナーを出す
 	# 書式はグローバル設定を実行時に読んで組み立てるので、

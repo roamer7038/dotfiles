@@ -210,7 +210,8 @@ tmuxの`window-status-style`はウィンドウが非アクティブなときの�
 
 - `~/.claude/settings.json`は環境ごとに内容が異なるためdotfilesの管理対象外です。手動で追記してください
 - 操作するのは対象ウィンドウのオプションのみで、tmuxのグローバル設定は変更しません。Claude Codeを起動していないウィンドウには影響しません
-- `monitor-activity`が有効だと、出力のあったウィンドウは`window-status-activity-style`（既定は`reverse`）で反転描画され背景色が打ち消されます。これを避けるため、着色時は対象ウィンドウの`window-status-activity-style`も同じ値に設定します
+- `monitor-activity`が有効だと、出力のあったウィンドウは`#`フラグが付き`window-status-activity-style`（既定は`reverse`）で反転描画され、背景色が打ち消されます。Claude Codeのウィンドウは常に出力があり`#`は情報量を持たないため、着色中は**そのウィンドウの`monitor-activity`のみ**を`off`にします。`monitor-activity`はウィンドウオプションなので他のウィンドウの挙動は変わりません（解除時にグローバル設定へ戻します）
+- なお`-`（直前に選択していたウィンドウ）は`monitor-activity`とは無関係なので残ります。消したい場合は`.tmux.conf`の`window-status-format`からフラグ表示を外してください
 - スピナーを動かすには毎秒の再描画が必要です。`status-interval`はグローバル設定のため、**実行中のウィンドウがある間だけ**1に上げ、無くなったら元の値に戻します。元の値は変更前に保存するので、`.tmux.conf`側の設定を書き換える必要はありません
 - 色は`bin/tmux-claude-status.sh`冒頭の`STYLE_*`、スピナーの有無は同じく冒頭の`SPINNER`で変更できます（`off`にすると`status-interval`も変更されなくなります）
 
