@@ -24,7 +24,6 @@ bin/anyenv-setup               ~/.local/bin/anyenv-setup        basic
 
 config/terminator/             ~/.config/terminator/            gui
 config/dunst/                  ~/.config/dunst/                 gui
-config/ranger/                 ~/.config/ranger/                gui
 
 .claude/CLAUDE.md              ~/.claude/CLAUDE.md              agent
 .claude/statusline-command.sh  ~/.claude/statusline-command.sh  agent

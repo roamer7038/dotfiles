@@ -26,10 +26,6 @@ indent_size = 4
 [*.{py,tex}]
 indent_size = 4
 
-# ranger の設定は上流の既定ファイルを取り込んだもの
-[config/ranger/**]
-indent_size = 4
-
 # 行末の空白2つが改行を意味する
 [*.md]
 trim_trailing_whitespace = false
