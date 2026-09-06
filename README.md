@@ -50,6 +50,8 @@ make standard           # 適用する
 
 i3wm の設定（`config/i3/` `config/i3status/`）と `bin/xinit.sh` はリポジトリに残しているが、保守しておらず配置対象から外してある。使う場合は手動でリンクする。
 
+配置がうまくいかないときは `make doctor` で状態を確認する。
+
 ## 構成
 
 ```
@@ -123,97 +125,14 @@ make update
 
 `-n` を付けると実行内容だけを表示する。
 
-## 点検
-
-点検は2種類ある。どちらも読み取り専用で、変更はしない。
-
-| コマンド | 見る対象 | 使う場面 |
-| --- | --- | --- |
-| `make doctor` | **環境**（`$HOME` 側の配置状態） | セットアップ後、動作がおかしいとき |
-| `make lint` | **リポジトリ**（作業ツリーのコード） | 変更をコミットする前 |
-
-`doctor` はリンクの有無と向き先、dotfiles 由来のリンク切れ、リポジトリ外に残った古いコピー、依存コマンド、Claude Code のフック設定を見る。
-
-`lint` が見るのは次の項目。
-
-- `links` の書式と、`links` と Makefile のプリセット定義とのタグの一致
-- シェル・Vim・tmux の構文
-- `.editorconfig` への準拠（タブ、行末空白、CRLF、末尾改行）
-- Makefile の全ターゲットと、全プリセットのドライラン
-- ドキュメントの相対リンク、README の `bin/` 一覧と実体の一致
-
-shfmt があれば整形差分も見る。
-vim-plug が未導入の環境では、読み込むと導入が走ってしまうため Vim の確認は飛ばす。
-
-## カスタマイズ
-
-### Git
-
-`.gitconfig` のユーザ名とメールアドレスを書き換える。
-
-```
-[user]
-	name = your_username
-	email = your@example.com
-```
-
-### シェルの設定（profile.d）
-
-`.bashrc` と `.zshrc` は、起動時に `~/.config/profile.d/` 配下を名前順に読み込む。
-PATH の構築、`EDITOR` や `LESS` などの環境変数、配色、エイリアス、関数、WSL2 向けの設定はこの仕組みで配る。
-プロンプトや補完、`setopt` や `shopt` のようなシェル固有の記法が要るものは各 rc 側に置く。
-
-```
-~/.config/profile.d/00-common.sh   dotfiles が置く共通設定（編集しない）
-~/.config/profile.d/*.sh           利用者が自由に置く設定
-```
-
-`00-common.sh` はリポジトリの `config/profile.d/00-common.sh` へのリンクで、名前順で最初に読まれる。
-プロキシ設定や環境ごとの環境変数は、利用者が同じディレクトリへファイルを足して指定する。
-`00-common.sh` より後に読まれるため、共通設定の値をここで上書きできる。
-
-```bash
-echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/proxy.sh
-```
-
-読み込みには次の制約がある。
-
-- Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む
-- Bash 側が読むのは `.bashrc` を配置した場合に限る（既存の `.bashrc` を残した環境では読み込まれない）
-- 読み込みより前に値を確定させる設定（Zsh の補完の配色など）は上書きできない
-- 読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない
-
-### Vim
-
-プラグインは vim-plug で管理する。初回起動時に vim-plug と各プラグインを自動で導入するため、git と curl が要る。
-補完と診断は vim-lsp + vim-lsp-settings で行う。対象言語のファイルを開いて `:LspInstallServer` を実行するとサーバが入る（サーバによっては node や go のランタイムが別途要る）。
-
 ## ドキュメント
+
+- [カスタマイズ](docs/customize.md) — Git、シェル設定（profile.d）、Vim
+- [開発](docs/development.md) — 点検・整形とスクリプトを追加するときの規則
+
+個別機能:
 
 - [anyenv](docs/anyenv.md) — 複数の言語バージョン管理ツールをまとめて扱う
 - [Docker](docs/docker.md) — Docker Engine と Lazydocker
 - [Claude Code の状態表示](docs/tmux-claude-status.md) — tmux のウィンドウに実行中／承認待ち／完了を表示する
 - [wsl-chrome](docs/wsl-chrome.md) — WSL2 から Windows の Chrome を開く・CDP で操作する
-
-## 開発
-
-```bash
-make lint  # 変更前に検査する
-make fmt   # シェルスクリプトを shfmt で整形する
-make help  # ターゲット一覧
-```
-
-`make fmt` には shfmt が要る。
-
-```bash
-sudo apt install shfmt
-```
-
-### スクリプトを追加するときの規則
-
-1. **スクリプトは自己完結する。** 他のスクリプトを `source` しない。共有ライブラリは置かない
-2. **共有するのはデータのみ。** スクリプト間で共有する情報はテキストファイルに置き、読み手が自分で解釈する（配置対象は `links`）
-3. **ログが要るスクリプトは定型ブロックを持つ。** OK・SKIP・WARN・ERROR を報告するものは、既存スクリプトの先頭にあるログ定義をそのまま複製する。直線的に進むものは素の `echo` でよい
-4. **実行時の表示は英語。** ログ・usage・プロンプトは英語で書く。日本語ロケールでない環境でも読めるようにするため。コメントとドキュメントは日本語
-
-`~/.local/bin` へリンクされるコマンド（`links` の `bin/*` の行）は、リンク経由で呼ばれるためリポジトリの位置を知れない。単体で動くように書く。
