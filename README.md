@@ -29,7 +29,7 @@ curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootst
 
 ### プリセット
 
-`make <プリセット>` で設定を配置する。既存ファイルは飛ばし、上書きしない。
+`make <プリセット>` で設定を配置する。既存ファイルは飛ばし、上書きしない（Ubuntu 既定のままの `.bashrc` を除く）。
 
 | プリセット | 内容 |
 | --- | --- |
@@ -51,7 +51,8 @@ make standard           # 適用する
 ```
 
 `.bashrc` は Ubuntu の既定（`/etc/skel/.bashrc`）を土台にしている。
-既にある `.bashrc` を置き換えるには `./bin/create-symlinks.sh --force basic` を使う。
+既定は新規ユーザへ必ず配られるため、`/etc/skel/.bashrc` と同じままの `.bashrc` は利用者の設定とみなさず置き換える。
+手を入れた `.bashrc` は他の配置対象と同じく飛ばすので、置き換えるには `./bin/create-symlinks.sh --force basic` を使う。
 
 i3wm の設定（`config/i3/` `config/i3status/`）と `bin/xinit.sh` はリポジトリに残しているが、保守しておらず配置対象から外してある。使う場合は手動でリンクする。
 

@@ -155,7 +155,7 @@ This script will:
 
   1. Install apt packages   ${APT_PACKAGES[*]}
   2. Clone the repository into $DOTFILES_DIR
-  3. Move the default ~/.bashrc aside and link the configuration (make standard)
+  3. Link the configuration, replacing the default ~/.bashrc (make standard)
   4. Install Vim plugins
   5. Install Claude Code and its tmux status hooks
   6. Install anyenv and bun
@@ -228,28 +228,6 @@ clone_repository() {
   else
     log_warn "Update failed: continuing with the existing checkout"
   fi
-}
-
-# Ubuntu は新規ユーザへ /etc/skel/.bashrc を必ずコピーするため、
-# create-symlinks.sh が既存ファイルとして常に飛ばしてしまう。
-# 退避しておき、dotfiles の .bashrc が配置されるようにする。
-backup_default_bashrc() {
-  log_step "Moving the default .bashrc aside"
-
-  local rc="$HOME/.bashrc" backup="$HOME/.bashrc.orig"
-
-  if [ ! -e "$rc" ] || [ -L "$rc" ]; then
-    log_skip "Nothing to move aside"
-    return
-  fi
-
-  if [ -e "$backup" ]; then
-    log_skip "$backup already exists: keeping it"
-    return
-  fi
-
-  mv "$rc" "$backup"
-  log_ok "Moved $rc to $backup"
 }
 
 # standard は agent（~/.claude）を含むので make agent は呼ばない
@@ -335,9 +313,6 @@ Remaining steps are manual.
   SSH public keys
     cd $DOTFILES_DIR && make .ssh
 
-  The default .bashrc moved aside (remove it if you do not need it)
-    $HOME/.bashrc.orig
-
   Pushing to the repository (currently cloned over HTTPS)
     git -C $DOTFILES_DIR remote set-url origin $REPO_SSH_URL
 
@@ -360,7 +335,6 @@ main() {
   install_packages
 
   clone_repository
-  backup_default_bashrc
   link_dotfiles
   install_vim_plugins
 

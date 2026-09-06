@@ -34,7 +34,7 @@ echo 'export http_proxy="http://proxy.example.com:8080"' > ~/.config/profile.d/p
 読み込みには次の制約がある。
 
 - Bash が読むのは `*.sh` のみで、Zsh は `*.sh` と `*.zsh` を読む
-- Bash 側が読むのは `.bashrc` を配置した場合に限る（既存の `.bashrc` を残した環境では読み込まれない）
+- Bash 側が読むのは `.bashrc` を配置した場合に限る（`agent` のように `.bashrc` を含まないプリセットや、手を入れた `.bashrc` を残した環境では読み込まれない）
 - 読み込みより前に値を確定させる設定（Zsh の補完の配色など）は上書きできない
 - 読み込むのは対話シェルだけなので、`ssh host 'コマンド'` や cron のような非対話の実行には反映されない
 
