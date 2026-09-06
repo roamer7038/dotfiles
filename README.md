@@ -20,7 +20,12 @@ Linux デスクトップ／サーバ環境の設定ファイル群。
 curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
 ```
 
-sudo のパスワードを一度だけ尋ねる。確認を飛ばすには `--yes` を付ける。
+sudo のパスワードを一度だけ尋ねる。確認を飛ばすには `--yes` を渡す。
+パイプ経由では `bash -s --` を挟む。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash -s -- --yes
+```
 
 ### プリセット
 

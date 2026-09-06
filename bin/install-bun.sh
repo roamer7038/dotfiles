@@ -15,9 +15,6 @@ log_warn() { echo "$Y[WARN]$N $*"; }
 log_error() { echo "$R[ERROR]$N $*" >&2; }
 log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
 
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
-
 log_info "Installing bun..."
 
 if [ -d "$HOME/.bun" ]; then
@@ -29,31 +26,17 @@ if [ -d "$HOME/.bun" ]; then
   exit 0
 fi
 
-# --- .zshrc の保護 ---
-
-# 公式インストーラは ~/.zshrc へ completions の読み込みを追記する。
-# dotfiles の .zshrc は同じ読み込みを既に持っており、~/.zshrc はリポジトリへの
-# リンクなので、そのままだとリポジトリが汚れる。導入前に差分が無ければ後で戻す。
-RESTORE_ZSHRC=false
-if [ "$(readlink -f "$HOME/.zshrc" 2>/dev/null)" = "$DOTFILES_ROOT/.zshrc" ] &&
-  git -C "$DOTFILES_ROOT" diff --quiet -- .zshrc 2>/dev/null; then
-  RESTORE_ZSHRC=true
-fi
-
 log_info "Running the official install script..."
+
+# 公式インストーラは PATH 上に bun が無いときだけ、シェルの設定ファイルへ
+# PATH と補完の読み込みを追記する。~/.bashrc と ~/.zshrc はリポジトリへの
+# リンクなので、追記されるとリポジトリが汚れる。展開先を先に PATH へ通し、
+# 追記の分岐へ入らせない。
+export PATH="$HOME/.bun/bin:$PATH"
 curl -fsSL https://bun.sh/install | bash
-
-log_ok "bun installed"
-
-# --- .zshrc を元に戻す ---
-
-if [ "$RESTORE_ZSHRC" = true ] && ! git -C "$DOTFILES_ROOT" diff --quiet -- .zshrc; then
-  git -C "$DOTFILES_ROOT" checkout -- .zshrc
-  log_ok "Reverted the lines appended to .zshrc"
-fi
 
 log_ok "bun installation complete"
 echo
-echo "The PATH entry is already in .zshrc. Reload the shell to use it:"
+echo "PATH is set by ~/.config/profile.d/00-common.sh. Reload the shell to use it:"
 echo "  exec \$SHELL -l"
 echo "  bun --version"

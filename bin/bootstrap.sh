@@ -76,8 +76,9 @@ OPTIONS:
   -y, --yes      Skip the confirmation prompt
   -h, --help     Show this message
 
-EXAMPLE:
+EXAMPLES:
   curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash -s -- --yes
 EOM
 }
 
@@ -168,11 +169,15 @@ EOM
 confirm() {
   [ "$ASSUME_YES" = true ] && return 0
 
-  local answer=""
-  if ! read -r -p "Continue? [y/N]: " answer </dev/tty 2>/dev/null; then
+  # read のプロンプトは stderr へ出るため、read の stderr は塞げない。
+  # tty が開けるかを先に判定する。
+  if ! { : </dev/tty; } 2>/dev/null; then
     log_error "No terminal to confirm on: rerun with --yes"
     exit 1
   fi
+
+  local answer=""
+  read -r -p "Continue? [y/N]: " answer </dev/tty || answer=""
 
   case "$answer" in
   y | Y | yes | YES) return 0 ;;
