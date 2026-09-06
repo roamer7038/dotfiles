@@ -19,8 +19,6 @@ if [ $# = 0 ]; then
   exit 1
 fi
 
-# 環境変数SESSION_NAMEが設定されていればそれを使用
-# 未設定の場合は"multi-ssh-<UNIXタイムスタンプ>"を使用
 if [ -n "$SESSION_NAME" ]; then
   session=$SESSION_NAME
 else
@@ -29,41 +27,29 @@ fi
 
 window=multi-ssh
 
-# --- tmuxセッションの作成 ---
+# --- セッションの作成と接続 ---
 
-# 新しいtmuxセッションをバックグラウンドで作成
-# -d: デタッチ状態で作成
-# -n: ウィンドウ名を指定
-# -s: セッション名を指定
+# デタッチ状態で作り、全ホストを繋いでから最後にアタッチする
 tmux new-session -d -n $window -s $session
 
-# --- 各ホストにSSH接続 ---
-
-# 最初のホストに接続（ペイン分割なし）
+# 最初のホストは分割せず、既にあるペインで繋ぐ
 tmux send-keys "ssh $1" C-m
 shift
 
-# 残りのホストに接続（ペインを分割してから接続）
 for i in $*; do
-  # 新しいペインを作成（水平または垂直に分割）
   tmux split-window
 
-  # ペインをタイル状に自動配置
-  # 1>/dev/null で出力を抑制
+  # 分割のたびに並べ直し、最後まで均等な配置を保つ
   tmux select-layout tiled
 
-  # 新しいペインでSSH接続を実行
   tmux send-keys "ssh $i" C-m
 done
 
-# --- ペインの同期設定とアタッチ ---
+# --- 同期モードとアタッチ ---
 
-# 最初のペイン（ペイン0）を選択状態にする
 tmux select-pane -t 0
 
-# ペインの同期モードを有効化
-# これにより、すべてのペインに同じキー入力が送信される
+# 全ペインへ同じキー入力を送る
 tmux set-window-option synchronize-panes on
 
-# セッションにアタッチして操作可能にする
 tmux attach-session -t $session

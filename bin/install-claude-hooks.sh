@@ -40,7 +40,7 @@ case "${1:-}" in
 esac
 
 command -v jq >/dev/null 2>&1 || {
-  log_error "jq が必要です: apt install jq"
+  log_error "jq is required: apt install jq"
   exit 1
 }
 
@@ -69,11 +69,11 @@ mkdir -p "$(dirname "$SETTINGS")"
 
 if [ -f "$SETTINGS" ]; then
   jq -e . "$SETTINGS" >/dev/null 2>&1 || {
-    log_error "JSON として読めません: $SETTINGS"
+    log_error "Not valid JSON: $SETTINGS"
     exit 1
   }
 else
-  log_info "新規作成します: $SETTINGS"
+  log_info "Creating: $SETTINGS"
   [ "$DRY_RUN" = true ] || echo '{}' >"$SETTINGS"
 fi
 
@@ -102,10 +102,10 @@ for entry in "${EVENTS[@]}"; do
     ')
 
     if [ "$(echo "$fixed" | jq -S .)" = "$(echo "$updated" | jq -S .)" ]; then
-      log_skip "$event: 設定済み"
+      log_skip "$event: already configured"
     else
       updated=$fixed
-      log_ok "$event: matcher を更新"
+      log_ok "$event: matcher updated"
       changed=$((changed + 1))
     fi
     continue
@@ -119,17 +119,17 @@ for entry in "${EVENTS[@]}"; do
         | if $m == "" then . else { matcher: $m } + . end
       ]
   ')
-  log_ok "$event: 追加"
+  log_ok "$event: added"
   changed=$((changed + 1))
 done
 
 if [ "$changed" -eq 0 ]; then
-  log_info "変更はありません"
+  log_info "No changes"
   exit 0
 fi
 
 if [ "$DRY_RUN" = true ]; then
-  log_info "[DRY-RUN] 変更後の hooks:"
+  log_info "[DRY-RUN] resulting hooks:"
   echo "$updated" | jq '.hooks'
   exit 0
 fi
@@ -138,4 +138,4 @@ cp "$SETTINGS" "$SETTINGS.bak"
 echo "$updated" | jq . >"$SETTINGS.tmp"
 mv "$SETTINGS.tmp" "$SETTINGS"
 
-log_ok "$changed 件のフックを更新しました（変更前: $SETTINGS.bak）"
+log_ok "$changed hook(s) updated (previous settings: $SETTINGS.bak)"

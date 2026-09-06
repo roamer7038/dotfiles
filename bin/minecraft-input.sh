@@ -7,14 +7,10 @@
 # i3wm での割り当て例:
 #   bindsym $mod+m exec ~/dotfiles/bin/minecraft-input.sh
 
-# zenityで入力ダイアログを表示し、入力されたテキストを取得
-# tr -d \n で改行を削除（ペースト時の問題を防ぐため）
-# xclipでクリップボード（selection clipboard）にコピー
+# 末尾の改行はチャット欄で送信として扱われるため落とす
 zenity --text="Please enter text:" --entry | tr -d \n | xclip -selection clipboard
 
-# クリップボードへのコピーが完了するまで少し待機
+# クリップボードへの反映を待ってから貼り付ける
 sleep 0.1
 
-# Ctrl+Vキーを送信してペースト
-# Minecraftのアクティブウィンドウに対して実行される
 xdotool key ctrl+v

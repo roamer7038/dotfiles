@@ -49,14 +49,9 @@ anyenv:
 	fi
 
 docker:
-	@echo "Installing Docker and Lazydocker..."
 	$(SCRIPT_DIR)/bin/install-docker.sh
-	@echo ""
-	@echo "Docker installation completed!"
-	@echo "Please log out and log back in for the changes to take effect."
 
 bun:
-	@echo "Installing bun..."
 	$(SCRIPT_DIR)/bin/install-bun.sh
 
 # tmux のウィンドウ状態表示に必要なフックを ~/.claude/settings.json へ追加する
@@ -90,12 +85,12 @@ fmt:
 
 help:
 	@echo "Setup:    $(PRESETS)"
-	@echo "          make dry-run-<preset> で適用内容を確認する"
+	@echo "          make dry-run-<preset> shows what would be linked"
 	@echo "Install:  .ssh anyenv docker bun claude-hooks update"
-	@echo "Check:    doctor  環境の配置状態を点検する"
-	@echo "Dev:      lint    リポジトリを静的検査する"
-	@echo "          fmt     シェルスクリプトを整形する"
+	@echo "Check:    doctor  Check the links in \$$HOME"
+	@echo "Dev:      lint    Check the repository"
+	@echo "          fmt     Format the shell scripts"
 	@echo ""
-	@echo "詳細は README.md を参照。"
+	@echo "See README.md for details."
 
 .PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor lint fmt help

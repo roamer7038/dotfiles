@@ -53,7 +53,7 @@ Node.js は偶数メジャーが LTS になるという公式方針があるた�
 ### shim の反映
 
 \*env を新しく入れた直後は、その shim が現在のシェルの PATH に無い。
-`anyenv-setup` は自身のプロセス内では shim を通すので処理は最後まで進むが、シェルで使い始める前に起動し直す。
+`anyenv-setup` は自身のプロセス内で shim を通すため処理は最後まで進むが、シェルで使う前に起動し直す。
 
 ```bash
 exec $SHELL -l
@@ -79,6 +79,4 @@ nodenv global 26.7.0    # 既定のバージョンに設定する
   sudo apt install -y build-essential libssl-dev zlib1g-dev libyaml-dev
   ```
 
-- \*env を入れた後は必ずシェルを起動し直す
-- 全ての \*env とプラグインの更新は `anyenv update` で行う。
-  `make update` からも呼ばれる
+- \*env とプラグインの更新は `anyenv update` で行う。`make update` からも呼ばれる

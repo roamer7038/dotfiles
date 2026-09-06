@@ -67,26 +67,26 @@ check_link() {
     actual=$(readlink -f "$dest" 2>/dev/null) || actual=""
 
     if [ -z "$actual" ] || [ ! -e "$actual" ]; then
-      ng "$label: リンク切れ ($dest -> $(readlink "$dest"))"
+      ng "$label: broken link ($dest -> $(readlink "$dest"))"
     elif [ "$actual" = "$src" ]; then
-      log_verbose "$label: リンク済み"
+      log_verbose "$label: linked"
       LINKED=$((LINKED + 1))
     else
-      warn "$label: dotfiles 以外を指している ($dest -> $actual)"
+      warn "$label: points outside dotfiles ($dest -> $actual)"
     fi
   elif [ -e "$dest" ]; then
-    warn "$label: リンクではなく実体ファイルが置かれている ($dest)"
+    warn "$label: regular file, not a symlink ($dest)"
   else
-    log_verbose "$label: 未配置"
+    log_verbose "$label: not linked"
     UNLINKED=$((UNLINKED + 1))
   fi
 }
 
 check_links() {
-  log_info "配置状態を確認しています..."
+  log_info "Checking links..."
 
   if [ ! -r "$LINKS_FILE" ]; then
-    ng "配置対象の定義が読めない: $LINKS_FILE"
+    ng "Cannot read link definitions: $LINKS_FILE"
     return
   fi
 
@@ -110,7 +110,7 @@ check_links() {
     esac
   done <"$LINKS_FILE"
 
-  log_ok "リンク済み $LINKED 件 / 未配置 $UNLINKED 件"
+  log_ok "$LINKED linked, $UNLINKED not linked"
 }
 
 # --- リンク切れの走査 ---
@@ -125,11 +125,11 @@ check_broken_links() {
 
     case "$target" in
     "$DOTFILES_ROOT"/* | */dotfiles/*)
-      ng "リンク切れ: $link -> $target"
+      ng "Broken link: $link -> $target"
       found=1
       ;;
     *)
-      log_verbose "管理外の切れたリンク: $link -> $target"
+      log_verbose "Broken link outside dotfiles: $link -> $target"
       ;;
     esac
   done < <(
@@ -138,7 +138,7 @@ check_broken_links() {
       -maxdepth 2 -xtype l 2>/dev/null
   )
 
-  [ "$found" -eq 0 ] && log_ok "dotfiles 由来のリンク切れは無し"
+  [ "$found" -eq 0 ] && log_ok "No broken dotfiles links"
 }
 
 # --- リポジトリ外に残った古いコピー ---
@@ -157,15 +157,15 @@ check_stale_copies() {
       [ "$target" = "$DOTFILES_ROOT/bin/$name" ] && continue
 
       if cmp -s "$path" "$DOTFILES_ROOT/bin/$name"; then
-        warn "リポジトリ外にコピーがある（内容は同一）: $path"
+        warn "Copy outside the repository (identical): $path"
       else
-        warn "リポジトリ外に古いコピーがある: $path（$DOTFILES_ROOT/bin/$name と内容が異なる）"
+        warn "Stale copy outside the repository: $path (differs from $DOTFILES_ROOT/bin/$name)"
       fi
       found=1
     done
   done
 
-  [ "$found" -eq 0 ] && log_ok "リポジトリ外の重複コピーは無し"
+  [ "$found" -eq 0 ] && log_ok "No duplicate copies outside the repository"
 }
 
 # --- 依存コマンド ---
@@ -175,7 +175,7 @@ check_commands() {
 
   for c in git curl tmux zsh vim; do
     command -v "$c" >/dev/null 2>&1 || {
-      ng "必須コマンドが無い: $c"
+      ng "Required command not found: $c"
       missing_req=1
     }
   done
@@ -190,8 +190,8 @@ check_commands() {
     command -v "$c" >/dev/null 2>&1 || missing_opt="$missing_opt $c"
   done
 
-  [ "$missing_req" -eq 0 ] && log_ok "必須コマンドは揃っている"
-  [ -n "$missing_opt" ] && warn "任意のコマンドが無い:$missing_opt"
+  [ "$missing_req" -eq 0 ] && log_ok "All required commands found"
+  [ -n "$missing_opt" ] && warn "Optional commands not found:$missing_opt"
 }
 
 # --- Claude Code のフック ---
@@ -200,17 +200,17 @@ check_claude_hooks() {
   local settings="$HOME/.claude/settings.json" event missing=""
 
   if [ ! -f "$settings" ]; then
-    warn "Claude Code の設定が無い: $settings"
+    warn "Claude Code settings not found: $settings"
     return
   fi
 
   if ! command -v jq >/dev/null 2>&1; then
-    log_verbose "jq が無いためフック設定を確認できない"
+    log_verbose "jq not found: cannot check hook settings"
     return
   fi
 
   if ! jq -e . "$settings" >/dev/null 2>&1; then
-    ng "Claude Code の設定が JSON として壊れている: $settings"
+    ng "Claude Code settings are not valid JSON: $settings"
     return
   fi
 
@@ -221,9 +221,9 @@ check_claude_hooks() {
   done
 
   if [ -n "$missing" ]; then
-    warn "tmux のウィンドウ状態表示のフックが未設定:$missing（make claude-hooks で追加）"
+    warn "tmux window status hooks not configured:$missing (run 'make claude-hooks')"
   else
-    log_ok "Claude Code のフックは設定済み"
+    log_ok "Claude Code hooks configured"
   fi
 }
 
@@ -244,10 +244,10 @@ check_claude_hooks
 echo
 
 if [ "$NG_COUNT" -gt 0 ]; then
-  log_error "問題 $NG_COUNT 件、警告 $WARN_COUNT 件"
+  log_error "$NG_COUNT problem(s), $WARN_COUNT warning(s)"
   exit 1
 elif [ "$WARN_COUNT" -gt 0 ]; then
-  log_warn "警告 $WARN_COUNT 件"
+  log_warn "$WARN_COUNT warning(s)"
 else
-  log_ok "問題なし"
+  log_ok "No problems found"
 fi

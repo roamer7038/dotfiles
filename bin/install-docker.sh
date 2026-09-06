@@ -16,53 +16,39 @@ log_warn() { echo "$Y[WARN]$N $*"; }
 log_error() { echo "$R[ERROR]$N $*" >&2; }
 log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
 
-log_info "Docker の導入を開始します..."
+# --- Docker Engine ---
 
-# --- Docker Engine のインストール ---
+log_info "Installing Docker Engine..."
 
-log_info "Docker Engine を導入します..."
-
-# Docker公式のインストールスクリプトをダウンロード
 curl -fsSL https://get.docker.com -o get-docker.sh
-
-# インストールスクリプトを実行
 sudo sh get-docker.sh
-
-# インストールスクリプトを削除
 rm -f get-docker.sh
 
-log_ok "Docker Engine を導入した"
+log_ok "Docker Engine installed"
 
-# --- Lazydocker のインストール ---
+# --- Lazydocker ---
 
-log_info "Lazydocker を導入します..."
+log_info "Installing Lazydocker..."
 
-# Lazydocker（DockerコンテナのTUI管理ツール）をインストール
-# 公式インストールスクリプトを使用
 curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
 
-# Lazydockerを/usr/local/binに移動（全ユーザーがアクセス可能に）
+# 全ユーザから使えるよう /usr/local/bin へ移す
 sudo mkdir -p /usr/local/bin
 sudo mv "$HOME/.local/bin/lazydocker" /usr/local/bin
 
-log_ok "Lazydocker を導入した"
+log_ok "Lazydocker installed"
 
-# --- ユーザーをdockerグループに追加 ---
+# --- docker グループへの追加 ---
 
-log_info "実行ユーザを docker グループへ追加します..."
+log_info "Adding the current user to the docker group..."
 
-# 現在のユーザーをdockerグループに追加
-# これにより、sudoなしでdockerコマンドを実行できるようになる
 sudo gpasswd -a "$USER" docker
 
-log_ok "docker グループへ追加した"
+log_ok "Added to the docker group"
 
-# --- 完了メッセージ ---
-
-log_ok "Docker の導入が完了した"
+log_ok "Docker installation complete"
 echo
-echo "グループの変更を反映するには一度ログアウトする。"
-echo "その後、sudo なしで docker を使える:"
+echo "Log out once to apply the group change. After that docker works without sudo:"
 echo "  docker --version"
 echo "  docker run hello-world"
 echo "  lazydocker"

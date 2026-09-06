@@ -46,24 +46,25 @@ log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; 
 
 usage() {
   cat <<'EOF'
-usage: anyenv-setup [オプション] [<env>...] [<version>]
+usage: anyenv-setup [OPTIONS] [<env>...] [<version>]
 
-  <env> を anyenv で導入し、バージョンを入れて global に設定する。
-  引数が無い場合は導入済みの *env と global のバージョンを表示する。
+  Install <env> with anyenv, install a version and set it as global.
+  With no arguments, list the installed *envs and their global versions.
 
-オプション:
-  --latest        LTS の系列に絞らず、最新の安定版を選ぶ
-  -n, --dry-run   実行内容だけを表示する
-  -h, --help      この使い方を表示する
+OPTIONS:
+  --latest        Pick the latest stable release instead of the LTS line
+  -n, --dry-run   Show what would be done
+  -h, --help      Show this message
 
-例:
-  anyenv-setup                      一覧を表示する
-  anyenv-setup nodenv               LTS 系の最新版を入れて global にする
-  anyenv-setup nodenv rbenv goenv   複数をまとめて入れる
-  anyenv-setup rbenv 3.4.10         バージョンを指定する
-  anyenv-setup nodenv --latest      LTS 系に絞らず最新版にする
+EXAMPLES:
+  anyenv-setup                      List installed *envs
+  anyenv-setup nodenv               Install the latest LTS and set it global
+  anyenv-setup nodenv rbenv goenv   Install several at once
+  anyenv-setup rbenv 3.4.10         Install a specific version
+  anyenv-setup nodenv --latest      Ignore the LTS line, take the latest
 
-バージョンは、引数がちょうど2個で2個目が数字で始まる場合だけ指定とみなす。
+A version is recognized only with exactly two arguments whose second one
+starts with a digit.
 EOF
 }
 
@@ -91,7 +92,7 @@ find_anyenv() {
 }
 
 guide_anyenv() {
-  log_error "anyenv が見つからない。先に anyenv を入れる"
+  log_error "anyenv not found: install anyenv first"
   cat >&2 <<'EOF'
 
   git clone https://github.com/anyenv/anyenv ~/.anyenv
@@ -99,7 +100,7 @@ guide_anyenv() {
   eval "$(anyenv init -)"
   anyenv install --init
 
-  詳細: https://github.com/anyenv/anyenv
+  See https://github.com/anyenv/anyenv
 EOF
 }
 
@@ -110,7 +111,7 @@ ensure_init() {
 
   [ -d "$root/envs" ] && return 0
 
-  log_info "anyenv を初期化する"
+  log_info "Initializing anyenv"
   run "$ANYENV" install --init
 }
 
@@ -144,9 +145,9 @@ resolve_version() {
 
 version_note() {
   if [ "$LATEST" = false ] && is_lts_even_major "$1"; then
-    echo "（LTS 系の最新）"
+    echo " (latest LTS)"
   else
-    echo "（最新の安定版）"
+    echo " (latest stable)"
   fi
 }
 
@@ -179,10 +180,10 @@ setup_env() {
   # --- *env 本体 ---
 
   if env_installed "$env"; then
-    log_skip "$env: 導入済み"
+    log_skip "$env: already installed"
   else
     if ! run "$ANYENV" install "$env"; then
-      log_error "$env の導入に失敗した"
+      log_error "$env: installation failed"
       return 1
     fi
     # 入れたばかりの shim をこのプロセスに通し、後続の $env 呼び出しを通す
@@ -194,28 +195,28 @@ setup_env() {
   if [ -z "$version" ]; then
     if ! command -v "$env" >/dev/null 2>&1; then
       # dry-run で *env 自体が未導入のときは、まだ一覧を引けない
-      echo "  + $env install <最新版>"
-      echo "  + $env global <最新版>"
+      echo "  + $env install <latest>"
+      echo "  + $env global <latest>"
       return 0
     fi
 
     version=$(resolve_version "$env")
     if [ -z "$version" ]; then
-      log_error "$env: 最新版を判定できなかった（$env install -l の出力を確認）"
+      log_error "$env: cannot determine the latest version (check '$env install -l')"
       return 1
     fi
-    log_info "$env $version を選んだ$(version_note "$env")"
+    log_info "$env: selected $version$(version_note "$env")"
   fi
 
   # --- インストールと global 設定 ---
 
   if version_installed "$env" "$version"; then
-    log_skip "$env $version: 導入済み"
+    log_skip "$env $version: already installed"
   else
     if ! run "$env" install "$version"; then
-      log_error "$env $version の導入に失敗した"
+      log_error "$env $version: installation failed"
       if [ "$env" = rbenv ]; then
-        log_info "ビルドには依存パッケージが要る:" \
+        log_info "Building requires:" \
           "sudo apt install -y build-essential libssl-dev zlib1g-dev libyaml-dev"
       fi
       return 1
@@ -241,10 +242,10 @@ list_envs() {
   done
 
   if [ "$found" = false ]; then
-    log_info "導入済みの *env はまだ無い"
+    log_info "No *env installed yet"
     echo
-    echo "  anyenv-setup nodenv   のように入れる *env を指定する"
-    echo "  入れられる *env の一覧: $ANYENV install -l"
+    echo "  Name the *env to install, e.g. anyenv-setup nodenv"
+    echo "  Available *envs: $ANYENV install -l"
   fi
 }
 
@@ -266,7 +267,7 @@ while [ $# -gt 0 ]; do
   --latest) LATEST=true ;;
   -n | --dry-run) DRY_RUN=true ;;
   -*)
-    log_error "不明なオプション: $1"
+    log_error "Unknown option: $1"
     usage >&2
     exit 1
     ;;
@@ -285,8 +286,8 @@ elif [ ${#ENVS[@]} -gt 2 ]; then
   # 3個以上の並びにバージョンが混ざっていると、どの *env に掛かるのか決まらない
   for arg in "${ENVS[@]}"; do
     if [[ $arg == [0-9]* ]]; then
-      log_error "バージョンを指定できるのは *env 1つのときだけ: $arg"
-      log_error "例: anyenv-setup rbenv $arg"
+      log_error "A version can be given only with a single *env: $arg"
+      log_error "Example: anyenv-setup rbenv $arg"
       exit 1
     fi
   done
@@ -316,14 +317,14 @@ done
 
 echo
 if [ "$FAIL" -gt 0 ]; then
-  log_error "$FAIL 件の *env で失敗した"
+  log_error "$FAIL *env(s) failed"
   exit 1
 fi
 
 if [ "$DRY_RUN" = true ]; then
-  log_ok "dry-run: 上の内容を実行する"
+  log_ok "dry-run: the commands above would run"
 elif [ "$CHANGED" = true ]; then
-  log_ok "完了。新しい shim を通すためシェルを起動し直す: exec \$SHELL -l"
+  log_ok "Done. Restart the shell to pick up the new shims: exec \$SHELL -l"
 else
-  log_ok "完了"
+  log_ok "Done"
 fi

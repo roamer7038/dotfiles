@@ -18,16 +18,14 @@ log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOTFILES_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
-log_info "bun の導入を開始します..."
-
-# --- 既存インストールのチェック ---
+log_info "Installing bun..."
 
 if [ -d "$HOME/.bun" ]; then
-  log_skip "bun: 導入済み (~/.bun)"
+  log_skip "bun: already installed (~/.bun)"
   if command -v bun >/dev/null 2>&1; then
-    log_info "バージョン: $(bun --version)"
+    log_info "Version: $(bun --version)"
   fi
-  log_info "更新は bun upgrade"
+  log_info "Update it with: bun upgrade"
   exit 0
 fi
 
@@ -42,26 +40,20 @@ if [ "$(readlink -f "$HOME/.zshrc" 2>/dev/null)" = "$DOTFILES_ROOT/.zshrc" ] &&
   RESTORE_ZSHRC=true
 fi
 
-# --- bun のインストール ---
-
-log_info "公式インストールスクリプトで導入します..."
-
-# 公式インストールスクリプトを使用
+log_info "Running the official install script..."
 curl -fsSL https://bun.sh/install | bash
 
-log_ok "bun を導入した"
+log_ok "bun installed"
 
 # --- .zshrc を元に戻す ---
 
 if [ "$RESTORE_ZSHRC" = true ] && ! git -C "$DOTFILES_ROOT" diff --quiet -- .zshrc; then
   git -C "$DOTFILES_ROOT" checkout -- .zshrc
-  log_ok ".zshrc へ追記された行を元に戻した"
+  log_ok "Reverted the lines appended to .zshrc"
 fi
 
-# --- 完了メッセージ ---
-
-log_ok "bun の導入が完了した"
+log_ok "bun installation complete"
 echo
-echo "PATH は .zshrc に含まれている。シェルを読み直すと使える:"
+echo "The PATH entry is already in .zshrc. Reload the shell to use it:"
 echo "  exec \$SHELL -l"
 echo "  bun --version"

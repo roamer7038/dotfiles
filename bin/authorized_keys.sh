@@ -15,87 +15,64 @@ log_warn() { echo "$Y[WARN]$N $*"; }
 log_error() { echo "$R[ERROR]$N $*" >&2; }
 log_verbose() { [ "${VERBOSE:-false}" = true ] && echo "$B[VERBOSE]$N $*" || :; }
 
-# デフォルトのGitHubユーザー名
 DEFAULT_USER="roamer7038"
 
 show_help() {
-  cat <<EOF
+  cat <<EOM
 Usage: $(basename "$0") [GITHUB_USERNAME]
 
-概要:
-  GitHubから公開鍵を取得してSSH認証用のauthorized_keysに追加
+Append the public keys registered on GitHub to ~/.ssh/authorized_keys.
 
-引数:
-  GITHUB_USERNAME   GitHubユーザー名（省略時: $DEFAULT_USER）
+ARGUMENTS:
+  GITHUB_USERNAME   GitHub account (default: $DEFAULT_USER)
 
-オプション:
-  -h, --help        このヘルプを表示
+OPTIONS:
+  -h, --help        Show this message
 
-使用例:
-  $(basename "$0")                # デフォルトユーザー（$DEFAULT_USER）
-  $(basename "$0") username       # 指定したGitHubユーザー
+EXAMPLES:
+  $(basename "$0")
+  $(basename "$0") username
 
-EOF
+EOM
   exit 0
 }
 
-# 引数の処理
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   show_help
 fi
 
-# GitHubユーザー名の決定
 if [ -n "$1" ]; then
   GITHUB_USER="$1"
 else
   GITHUB_USER="$DEFAULT_USER"
 fi
 
-log_info "GitHub ユーザー $GITHUB_USER から公開鍵を取得します..."
+log_info "Fetching the public keys of GitHub user $GITHUB_USER..."
 
-# --- .sshディレクトリの作成 ---
-
-# .sshディレクトリの作成（存在しない場合）
-# パーミッションは700（所有者のみアクセス可能）に設定
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 
-# --- GitHubから公開鍵を取得 ---
-
-# GitHub APIエンドポイント: https://github.com/{username}.keys
 GITHUB_URL="https://github.com/${GITHUB_USER}.keys"
 
-# curlで公開鍵を取得（エラーチェック付き）
-# -f: HTTPエラー時に失敗ステータスを返す
-# -s: サイレントモード（進捗表示なし）
-# -S: エラーメッセージは表示
 KEYS=$(curl -fsSL "$GITHUB_URL" 2>&1)
 CURL_EXIT_CODE=$?
 
-# curlの実行結果をチェック
 if [ $CURL_EXIT_CODE -ne 0 ]; then
-  log_error "GitHub ユーザー '$GITHUB_USER' の公開鍵を取得できなかった"
-  log_error "ユーザー名とネットワーク接続を確認する"
+  log_error "Cannot fetch the public keys of GitHub user '$GITHUB_USER'"
+  log_error "Check the user name and the network connection"
   exit 1
 fi
 
-# 取得した公開鍵が空でないかチェック
 if [ -z "$KEYS" ]; then
-  log_warn "GitHub ユーザー '$GITHUB_USER' に公開鍵が登録されていない"
+  log_warn "GitHub user '$GITHUB_USER' has no public key registered"
   exit 1
 fi
 
-# 公開鍵をauthorized_keysに追記
 echo "$KEYS" >>~/.ssh/authorized_keys
 
-# --- パーミッションの設定 ---
-
-# authorized_keysのパーミッションを600に設定
-# （所有者のみ読み書き可能、SSHの要件）
+# 所有者以外が読める authorized_keys は SSH に無視される
 chmod 600 ~/.ssh/authorized_keys
 
-# --- 完了メッセージ ---
-
 KEY_COUNT=$(echo "$KEYS" | wc -l)
-log_ok "$KEY_COUNT 個の公開鍵を ~/.ssh/authorized_keys に追加した"
-log_info "追加されたキー:"
+log_ok "Added $KEY_COUNT public key(s) to ~/.ssh/authorized_keys"
+log_info "Added keys:"
 echo "$KEYS" | sed 's/^/  /'

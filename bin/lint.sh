@@ -65,35 +65,35 @@ check_syntax() {
   for f in $(shell_files); do
     interp=$(head -1 "$f" | grep -oE '\b(bash|sh|zsh)$') || interp=bash
     case "$interp" in
-    zsh) zsh -n "$f" 2>&1 || fail "zsh 構文エラー: $f" ;;
-    sh) sh -n "$f" 2>&1 || fail "sh 構文エラー: $f" ;;
-    *) bash -n "$f" 2>&1 || fail "bash 構文エラー: $f" ;;
+    zsh) zsh -n "$f" 2>&1 || fail "zsh syntax error: $f" ;;
+    sh) sh -n "$f" 2>&1 || fail "sh syntax error: $f" ;;
+    *) bash -n "$f" 2>&1 || fail "bash syntax error: $f" ;;
     esac
     n=$((n + 1))
   done
 
   # rc ファイルは shebang を持たないので個別に見る
-  zsh -n .zshrc || fail "zsh 構文エラー: .zshrc"
-  bash -n .bashrc || fail "bash 構文エラー: .bashrc"
+  zsh -n .zshrc || fail "zsh syntax error: .zshrc"
+  bash -n .bashrc || fail "bash syntax error: .bashrc"
   sh -n config/profile.d/00-common.sh ||
-    fail "sh 構文エラー: config/profile.d/00-common.sh"
+    fail "sh syntax error: config/profile.d/00-common.sh"
   n=$((n + 3))
 
-  log_ok "シェル構文: $n ファイル"
+  log_ok "Shell syntax: $n file(s)"
 }
 
 check_vim() {
   # .vimrc は vim-plug が無ければ取得しに行くため、未導入の環境では
   # 読み込んだ時点で変更が発生してしまう。その場合は飛ばす。
   if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
-    log_skip "Vim 設定: vim-plug 未導入のため未確認（読み込むと導入が走る）"
+    log_skip "Vim config: skipped, vim-plug not installed (loading it would install plugins)"
     return
   fi
 
   if vim -Nu .vimrc -c 'qa!' >/dev/null 2>&1; then
-    log_ok "Vim 設定: 読み込み可能"
+    log_ok "Vim config: loads"
   else
-    fail ".vimrc の読み込みに失敗"
+    fail ".vimrc failed to load"
   fi
 }
 
@@ -101,9 +101,9 @@ check_tmux() {
   local sock=check-$$
 
   if tmux -L "$sock" -f .tmux.conf new-session -d 2>&1 | grep -q .; then
-    fail ".tmux.conf の読み込みでエラー"
+    fail ".tmux.conf failed to load"
   else
-    log_ok "tmux 設定: 読み込み可能"
+    log_ok "tmux config: loads"
   fi
   tmux -L "$sock" kill-server 2>/dev/null
 }
@@ -117,13 +117,13 @@ check_format() {
 
   found=$(git ls-files | grep -vE '^(Makefile|\.gitconfig|.*\.md)$' |
     xargs grep -lP '^\t' 2>/dev/null) || true
-  [ -n "$found" ] && fail "インデントにタブを使っている:"$'\n'"$found"
+  [ -n "$found" ] && fail "Tab indentation:"$'\n'"$found"
 
   found=$(git ls-files | grep -vE '\.md$' | xargs grep -lP '[ \t]+$' 2>/dev/null) || true
-  [ -n "$found" ] && fail "行末に空白がある:"$'\n'"$found"
+  [ -n "$found" ] && fail "Trailing whitespace:"$'\n'"$found"
 
   found=$(git ls-files | xargs grep -lP '\r$' 2>/dev/null) || true
-  [ -n "$found" ] && fail "CRLF 改行が混ざっている:"$'\n'"$found"
+  [ -n "$found" ] && fail "CRLF line endings:"$'\n'"$found"
 
   found=""
   for f in $(git ls-files); do
@@ -131,25 +131,25 @@ check_format() {
     [ -s "$f" ] || continue
     [ -n "$(tail -c1 "$f")" ] && found="$found$f"$'\n'
   done
-  [ -n "$found" ] && fail "末尾に改行が無い:"$'\n'"$found"
+  [ -n "$found" ] && fail "Missing final newline:"$'\n'"$found"
 
-  log_ok "書式: .editorconfig に準拠"
+  log_ok "Format: conforms to .editorconfig"
 }
 
 check_shfmt() {
   local diff
 
   if ! command -v shfmt >/dev/null 2>&1; then
-    log_skip "shfmt が無いため整形差分は未確認（make fmt の説明を参照）"
+    log_skip "shfmt not found: formatting not checked"
     return
   fi
 
   diff=$(shfmt -d -i 2 bin config/profile.d 2>&1) || true
   if [ -n "$diff" ]; then
-    fail "shfmt の整形結果と差がある（make fmt で修正）"
+    fail "Differs from shfmt output (run 'make fmt')"
     echo "$diff" | head -40
   else
-    log_ok "shfmt: 整形済み"
+    log_ok "shfmt: formatted"
   fi
 }
 
@@ -161,17 +161,17 @@ check_make() {
   # 一覧を持たず .PHONY から取るので、ターゲットを増やしても追従する
   for t in $(make --no-print-directory -p 2>/dev/null |
     sed -n 's/^\.PHONY: //p' | tr ' ' '\n' | sort -u); do
-    make -n "$t" >/dev/null 2>&1 || fail "make $t が解決できない"
+    make -n "$t" >/dev/null 2>&1 || fail "make $t does not resolve"
     n=$((n + 1))
   done
 
   # プリセットの一覧も Makefile の PRESETS から取る（プリセット定義は Makefile だけにある）
   for t in $(sed -n 's/^PRESETS[[:space:]]*:=[[:space:]]*//p' Makefile); do
-    make -n "dry-run-$t" >/dev/null 2>&1 || fail "make dry-run-$t が解決できない"
+    make -n "dry-run-$t" >/dev/null 2>&1 || fail "make dry-run-$t does not resolve"
     n=$((n + 1))
   done
 
-  log_ok "Makefile: $n ターゲットが解決できる"
+  log_ok "Makefile: $n target(s) resolve"
 }
 
 check_dry_run() {
@@ -179,12 +179,12 @@ check_dry_run() {
 
   # プリセットの一覧は Makefile の PRESETS から取る（プリセット定義は Makefile だけにある）
   for p in $(sed -n 's/^PRESETS[[:space:]]*:=[[:space:]]*//p' Makefile); do
-    make "dry-run-$p" >/dev/null 2>&1 || fail "make dry-run-$p が失敗"
+    make "dry-run-$p" >/dev/null 2>&1 || fail "make dry-run-$p failed"
   done
 
-  ./bin/create-symlinks.sh --help >/dev/null 2>&1 || fail "create-symlinks.sh --help が失敗"
+  ./bin/create-symlinks.sh --help >/dev/null 2>&1 || fail "create-symlinks.sh --help failed"
 
-  log_ok "create-symlinks.sh: 全プリセットのドライランが成功"
+  log_ok "create-symlinks.sh: dry run passed for every preset"
 }
 
 check_docs() {
@@ -203,9 +203,9 @@ check_docs() {
   done < <(grep -oPH '\]\(\K[^)#]+' README.md docs/*.md 2>/dev/null)
 
   if [ -n "$missing" ]; then
-    fail "参照先の無いドキュメントリンク:"$'\n'"$missing"
+    fail "Broken relative links in docs:"$'\n'"$missing"
   else
-    log_ok "ドキュメント: 相対リンクは有効"
+    log_ok "Docs: relative links resolve"
   fi
 }
 
@@ -219,9 +219,9 @@ check_bin_table() {
   done
 
   if [ -n "$missing" ]; then
-    fail "README の bin/ 一覧に無いスクリプト:"$'\n'"$missing"
+    fail "Scripts missing from the bin/ table in README:"$'\n'"$missing"
   else
-    log_ok "README: bin/ の一覧は実体と一致"
+    log_ok "README: bin/ table matches the repository"
   fi
 }
 
@@ -235,7 +235,7 @@ check_links_file() {
     case "$src" in '' | '#'*) continue ;; esac
 
     if [ -z "$tag" ] || [ -n "$extra" ]; then
-      fail "links:$line 列が3つではない: $src"
+      fail "links:$line expected 3 columns: $src"
       continue
     fi
 
@@ -243,19 +243,19 @@ check_links_file() {
     d_dir=no
     case "$src" in */) s_dir=yes ;; esac
     case "$dest" in */) d_dir=yes ;; esac
-    [ "$s_dir" = "$d_dir" ] || fail "links:$line 末尾の / が片側だけ: $src $dest"
+    [ "$s_dir" = "$d_dir" ] || fail "links:$line trailing / on one side only: $src $dest"
 
     case "$dest" in
     '~/'*) ;;
-    *) fail "links:$line 配置先が ~/ で始まっていない: $dest" ;;
+    *) fail "links:$line destination does not start with ~/: $dest" ;;
     esac
 
-    [ -e "$src" ] || fail "links:$line 参照先が無い: $src"
+    [ -e "$src" ] || fail "links:$line source not found: $src"
     n=$((n + 1))
   done <links
 
   if [ "$FAIL" -eq "$fail_before" ]; then
-    log_ok "links: $n 件の配置対象"
+    log_ok "links: $n entries"
   fi
 }
 
@@ -271,16 +271,16 @@ check_tags() {
 
   for t in $in_links; do
     echo "$in_make" | grep -qx "$t" ||
-      fail "links のタグ $t を使うプリセットが Makefile に無い"
+      fail "Tag $t in links is not used by any preset in Makefile"
   done
 
   for t in $in_make; do
     echo "$in_links" | grep -qx "$t" ||
-      fail "Makefile のプリセットが使うタグ $t が links に無い"
+      fail "Tag $t used by a preset in Makefile is not in links"
   done
 
   if [ "$FAIL" -eq "$fail_before" ]; then
-    log_ok "タグ: links と Makefile のプリセット定義が一致"
+    log_ok "Tags: links and the presets in Makefile agree"
   fi
 }
 
@@ -305,8 +305,8 @@ check_bin_table
 echo
 
 if [ "$FAIL" -gt 0 ]; then
-  log_error "$FAIL 件の問題"
+  log_error "$FAIL problem(s)"
   exit 1
 fi
 
-log_ok "すべて通過"
+log_ok "All checks passed"

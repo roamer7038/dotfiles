@@ -12,37 +12,11 @@
 # 定義
 # ============================================================
 
-# --- iptables コマンドチートシート ---
-#
-# チェイン操作:
-# -A, --append       指定チェインに1つ以上の新しいルールを追加
-# -D, --delete       指定チェインから1つ以上のルールを削除
-# -P, --policy       指定チェインのポリシーを指定したターゲットに設定
-# -N, --new-chain    新しいユーザー定義チェインを作成
-# -X, --delete-chain 指定ユーザー定義チェインを削除
-# -F                 テーブル初期化
-#
-# マッチング条件:
-# -p, --protocol      プロトコル         プロトコル(tcp，udp，icmp，all)を指定
-# -s, --source        IPアドレス[/mask]  送信元のアドレス。IPアドレスorホスト名を記述
-# -d, --destination   IPアドレス[/mask]  送信先のアドレス。IPアドレスorホスト名を記述
-# -i, --in-interface  デバイス           パケットが入ってくるインターフェイスを指定
-# -o, --out-interface デバイス           パケットが出ていくインターフェイスを指定
-# -j, --jump          ターゲット         条件に合ったときのアクションを指定
-# -t, --table         テーブル           テーブルを指定
-# -m state --state    状態              パケットの状態を条件として指定
-#                                       stateは， NEW，ESTABLISHED，RELATED，INVALIDが指定できる
-# !                   条件を反転（～以外となる）
-#
-
-# iptablesコマンドのパス
 IPTABLES=$(which iptables)
 
-# 全てのIPアドレスを表す定数
 ANY=0.0.0.0/0
 
-# 信頼するIPアドレス（プライベートネットワーク）
-# 環境に応じて修正してください
+# 信頼する送信元。ここに挙げたネットワークだけが INPUT を通る
 ALLOW_ADDRESSES=(
   192.168.1.0/24  # ホームネットワーク1
   192.168.10.0/24 # ホームネットワーク2
@@ -95,39 +69,34 @@ MINECRAFT_JE=25565
 # 関数定義
 # ============================================================
 
-# iptablesの初期化とデフォルトポリシーの設定
+# 全テーブルを空にし、既定のポリシーを引き直す
 initialize() {
   echo "Initializing iptables..."
 
-  # 全テーブルのルールをクリア
-  $IPTABLES -F           # filterテーブルのルールをクリア
-  $IPTABLES -X           # ユーザー定義チェインを削除
-  $IPTABLES -t nat -F    # natテーブルのルールをクリア
-  $IPTABLES -t nat -X    # natテーブルのユーザー定義チェインを削除
-  $IPTABLES -t mangle -F # mangleテーブルのルールをクリア
-  $IPTABLES -t mangle -X # mangleテーブルのユーザー定義チェインを削除
+  $IPTABLES -F
+  $IPTABLES -X
+  $IPTABLES -t nat -F
+  $IPTABLES -t nat -X
+  $IPTABLES -t mangle -F
+  $IPTABLES -t mangle -X
 
-  # デフォルトポリシーの設定
-  $IPTABLES -P INPUT DROP    # 入力パケットは基本的に拒否
-  $IPTABLES -P OUTPUT ACCEPT # 出力パケットは基本的に許可
-  $IPTABLES -P FORWARD DROP  # 転送パケットは基本的に拒否
+  $IPTABLES -P INPUT DROP
+  $IPTABLES -P OUTPUT ACCEPT
+  $IPTABLES -P FORWARD DROP
 
   echo "Initialization completed."
 }
 
-# 終了処理：設定の保存と反映
 finailize() {
   echo "Finalizing iptables configuration..."
 
-  # 設定内容の確認表示
   echo "Current iptables rules:"
   $IPTABLES -L
 
-  # 設定をファイルに保存（Arch Linux形式）
+  # 保存先は Arch Linux の iptables.service が読む位置
   echo "Saving iptables rules..."
   iptables-save >/etc/iptables/iptables.rules
 
-  # iptablesサービスを再起動して設定を反映
   echo "Restarting iptables service..."
   systemctl restart iptables
 
@@ -139,64 +108,39 @@ finailize() {
 # ルールの適用
 # ============================================================
 
-# --- 初期化実行 ---
-
 initialize
 
-# --- セッション確立後のパケット疎通を許可 ---
+# --- 確立済みの接続 ---
 
-# 既に確立された接続と関連する接続を許可
-# ESTABLISHED: 既存の接続の一部であるパケット
-# RELATED: 既存の接続に関連する新しい接続（FTPのデータ接続等）
+# RELATED は FTP のデータ接続のように、既存の接続から派生するもの
 $IPTABLES -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
-# 無効なパケットを破棄
 $IPTABLES -A INPUT -m conntrack --ctstate INVALID -j DROP
 
-# --- 信頼可能なホストからの接続を許可 ---
+# --- 信頼する送信元 ---
 
-# ローカルホスト（lo）からの通信を無条件で許可
 $IPTABLES -A INPUT -i lo -j ACCEPT
 
-# 信頼するIPアドレスからのアクセスを許可
 for addr in ${ALLOW_ADDRESSES[@]}; do
   echo "Allowing access from: $addr"
 
-  # ICMPプロトコル（ping等）を許可
   $IPTABLES -A INPUT -p icmp -s $addr -j ACCEPT
 
-  # 全TCPポートを許可（必要に応じてコメントアウトを解除）
+  # 全ポートを開けるなら、次の2行を有効にする
   # $IPTABLES -A INPUT -p tcp -s $addr -j ACCEPT
-
-  # 全UDPポートを許可（必要に応じてコメントアウトを解除）
   # $IPTABLES -A INPUT -p udp -s $addr -j ACCEPT
 
-  # SSHポートを許可（リモート管理用）
   $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $SSH -j ACCEPT
-
-  # HTTP/HTTPSポートを許可（Webサーバー用）
   $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $HTTP -j ACCEPT
-
-  # 開発用サーバーポートを許可
   $IPTABLES -A INPUT -p tcp -s $addr -m multiport --dports $DEV -j ACCEPT
 done
 
-# --- 攻撃対策: SSH Brute Force ---
+# --- SSH の総当たり対策 ---
 #
-# SSHへのパスワード総当たり攻撃を防ぐための設定
-# 60秒間に5回以上の接続試行があった場合、それ以降の接続を拒否
-# DROPではなくREJECTを使用することで、クライアント側の再接続ループを防止
-#
+# 60秒間に5回を超える接続試行を記録して拒否する。
+# DROP ではなく REJECT にして、クライアントの再接続ループを避ける
 
-# SSH接続試行を記録
 iptables -A INPUT -p tcp --syn -m multiport --dports $SSH -m recent --name ssh_attack --set
-
-# 60秒以内に5回以上の試行があった場合はログに記録
 iptables -A INPUT -p tcp --syn -m multiport --dports $SSH -m recent --name ssh_attack --rcheck --seconds 60 --hitcount 5 -j LOG --log-prefix "ssh_brute_force: "
-
-# 60秒以内に5回以上の試行があった場合は接続を拒否
 iptables -A INPUT -p tcp --syn -m multiport --dports $SSH -m recent --name ssh_attack --rcheck --seconds 60 --hitcount 5 -j REJECT --reject-with tcp-reset
-
-# --- 設定の保存と反映 ---
 
 finailize

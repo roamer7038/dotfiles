@@ -6,6 +6,5 @@
 
 mkdir -p ~/.wallpaper
 
-# --randomize: ランダムに画像を選択
-# --bg-fill: 画面サイズに合わせて画像を拡大（アスペクト比維持）
+# --bg-fill はアスペクト比を保ったまま画面いっぱいに拡大する
 feh --randomize --bg-fill ~/.wallpaper/*

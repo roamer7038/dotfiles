@@ -20,7 +20,7 @@ set -u
 # ============================================================
 
 # window-status-format の #() から毎秒呼ばれる
-# tmuxの検査やディレクトリ作成より前に返し、余計な処理をさせない
+# tmux の検査やディレクトリ作成より前に返し、余計な処理をさせない
 # 現在時刻からフレームを選ぶので、状態も常駐プロセスも持たない
 if [ "${1:-}" = "--spinner" ]; then
   # 点字セル(2x4)の外周8方向を、3点の弧で1コマ1ステップずつ回す
@@ -70,15 +70,15 @@ fi
 
 # --- 事前チェック ---
 
-# tmuxの外、またはtmuxが無い環境では何もしない
+# tmux の外、または tmux が無い環境では何もしない
 [ -n "${TMUX:-}" ] || exit 0
 command -v tmux >/dev/null 2>&1 || exit 0
 
 mkdir -p "$STATE_DIR" 2>/dev/null || exit 0
 
-# $TMUX は "ソケットパス,サーバPID,セッションID" 形式
-# ペインIDはtmuxサーバ内でのみ一意なため、サーバPIDを状態ファイル名に含めて
-# 複数のtmuxサーバ（tmux -L）を併用しても衝突しないようにする
+# $TMUX は "ソケットパス,サーバ PID,セッション ID" 形式
+# ペイン ID は tmux サーバ内でのみ一意なため、サーバ PID を状態ファイル名に含めて
+# 複数の tmux サーバ（tmux -L）を併用しても衝突しないようにする
 SERVER=${TMUX#*,}
 SERVER=${SERVER%%,*}
 [ -n "$SERVER" ] || SERVER=0
@@ -98,14 +98,14 @@ priority() {
   esac
 }
 
-# ペインIDから状態ファイルのパスを組み立てる（%3 -> $STATE_DIR/1766-3）
+# ペイン ID から状態ファイルのパスを組み立てる（%3 -> $STATE_DIR/1766-3）
 state_file() {
   echo "$STATE_DIR/$SERVER-${1#%}"
 }
 
-# 自身の祖先を辿ってClaude CodeのPIDを探す
-# フックはClaude Codeの子プロセスとして起動されるため、数段辿れば見つかる
-# プロセス名の完全一致で判定する（cmdlineの部分一致だと、~/.claude/ 配下の
+# 自身の祖先を辿って Claude Code の PID を探す
+# フックは Claude Code の子プロセスとして起動されるため、数段辿れば見つかる
+# プロセス名の完全一致で判定する（cmdline の部分一致だと、~/.claude/ 配下の
 # パスを引数に持つ無関係な一時プロセスを誤検出してしまうため）
 find_claude_pid() {
   local pid=$PPID depth=0 stat comm argv0
@@ -119,7 +119,7 @@ find_claude_pid() {
       return 0
     fi
 
-    # /proc/<pid>/stat の第4フィールドが親PID
+    # /proc/<pid>/stat の第4フィールドが親 PID
     # コマンド名に空白を含む場合があるため、最後の ')' 以降を見る
     stat=$(cat "/proc/$pid/stat" 2>/dev/null) || return 1
     pid=$(echo "${stat##*) }" | awk '{print $2}')
@@ -129,7 +129,7 @@ find_claude_pid() {
   return 1
 }
 
-# 状態ファイルを読み、記録されたPIDが生きていれば状態名を返す
+# 状態ファイルを読み、記録された PID が生きていれば状態名を返す
 # プロセスが消えていればファイルを削除して none を返す
 read_state() {
   local file state pid
@@ -145,7 +145,7 @@ read_state() {
     return
   }
 
-  # PIDが取れなかった記録（"-"）は生存確認をスキップする
+  # PID が取れなかった記録（"-"）は生存確認をスキップする
   case "${pid:-}" in
   '' | *[!0-9]*) pid="" ;;
   esac
@@ -172,8 +172,8 @@ current_state() {
 # Stop の入力を読み、まだ動いているバックグラウンド作業があるか調べる
 # 本体のターンが終わってもバックグラウンドのシェルやサブエージェントが
 # 残っていることがあり、それを完了として表示すると誤報になる
-# 作業が終わるとClaude Codeがエージェントを呼び直し、空の background_tasks を
-# 持つStopが改めて届くので、そこで完了になる
+# 作業が終わると Claude Code がエージェントを呼び直し、空の background_tasks を
+# 持つ Stop が改めて届くので、そこで完了になる
 has_running_background_task() {
   local json count
 
@@ -194,7 +194,7 @@ has_running_background_task() {
     return
   fi
 
-  # jqが無い環境向けの目安。整形されていても読めるよう空白を潰してから見る
+  # jq が無い環境向けの目安。整形されていても読めるよう空白を潰してから見る
   json=${json//[[:space:]]/}
   case "$json" in
   *'"background_tasks":[]'*) return 1 ;;
@@ -255,7 +255,7 @@ apply_window() {
   # monitor-activity はウィンドウオプションなので他のウィンドウには影響しない
   # 「出力があった」を示す # フラグと、それに伴う反転描画
   # （window-status-activity-style、既定は reverse）が無くなる
-  # Claude Codeのウィンドウでは常に出力があり # は情報量を持たないうえ、
+  # Claude Code のウィンドウでは常に出力があり # は情報量を持たないうえ、
   # 反転がこのスクリプトの背景色を打ち消してしまうため
   # 上の window-status-activity-style の設定は、利用者が個別に監視を
   # 戻した場合に色が反転しないようにするための保険として残している
@@ -266,8 +266,8 @@ apply_window() {
   *) tmux set-window-option -t "$win" monitor-activity off 2>/dev/null ;;
   esac
 
-  # 非アクティブ用(window-status-format)とアクティブ用
-  # (window-status-current-format)の両方に付ける
+  # 非アクティブ用（window-status-format）とアクティブ用
+  # （window-status-current-format）の両方に付ける
   # ウィンドウを行き来しても表示が途切れず、コピーモード中など
   # Claude Code の画面が見えていないときも状態が分かる
   # 書式はグローバル設定を実行時に読んで組み立てるので、
@@ -300,7 +300,7 @@ any_running() {
     IFS=$'\t' read -r state pid _ <"$file" || continue
     [ "$state" = "running" ] || continue
 
-    # PIDが記録されていない場合は生存確認できないので、動いているとみなす
+    # PID が記録されていない場合は生存確認できないので、動いているとみなす
     case "${pid:-}" in
     '' | *[!0-9]*) return 0 ;;
     esac
@@ -334,7 +334,7 @@ sync_status_interval() {
   fi
 }
 
-# Claude Codeが消えた状態ファイルを掃除し、対象ウィンドウを塗り直す
+# Claude Code が消えた状態ファイルを掃除し、対象ウィンドウを塗り直す
 # 他のウィンドウで強制終了された場合も、次にこのスクリプトが動いた時点で消える
 prune_dead() {
   local file pid win
@@ -377,7 +377,7 @@ ack_window() {
 set_state() {
   local state=$1 win file pid
 
-  # フックはClaude Codeのプロセスから起動されるので TMUX_PANE を引き継いでいる
+  # フックは Claude Code のプロセスから起動されるので TMUX_PANE を引き継いでいる
   [ -n "${TMUX_PANE:-}" ] || return 0
 
   win=$(tmux display-message -p -t "$TMUX_PANE" '#{window_id}' 2>/dev/null) || return 0
@@ -388,7 +388,7 @@ set_state() {
   if [ "$state" = "none" ]; then
     rm -f "$file"
   else
-    # PIDが特定できない場合もプレースホルダを置く
+    # PID が特定できない場合もプレースホルダを置く
     # タブは空白類なので、空フィールドがあると列が詰まってずれてしまう
     pid=$(find_claude_pid) || pid=""
     [ -n "$pid" ] || pid="-"
@@ -411,14 +411,14 @@ case "${1:-}" in
 running | waiting | done | none)
   state=$1
 
-  # Stopは完了として呼ばれるが、バックグラウンド作業が残っていれば実行中とみなす
+  # Stop は完了として呼ばれるが、バックグラウンド作業が残っていれば実行中とみなす
   if [ "$state" = "done" ] && has_running_background_task; then
     state=running
   fi
 
-  # PreToolUse・PostToolUseはツールを呼ぶたびに実行中を伝えてくる
-  # 既に実行中なら表示は何も変わらないので、tmuxを呼ばずに帰る
-  # これでtmuxを起動するのは状態が実際に動くときだけになる
+  # PreToolUse・PostToolUse はツールを呼ぶたびに実行中を伝えてくる
+  # 既に実行中なら表示は何も変わらないので、tmux を呼ばずに帰る
+  # これで tmux を起動するのは状態が実際に動くときだけになる
   if [ "$state" = "running" ] && [ "$(current_state)" = "running" ]; then
     exit 0
   fi

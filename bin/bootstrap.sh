@@ -78,8 +78,6 @@ OPTIONS:
 
 EXAMPLE:
   curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
-
-Docker is not installed by this script. See docs/docker.md after the setup.
 EOM
 }
 
@@ -107,12 +105,12 @@ parse_args() {
 
 check_prerequisites() {
   if [ "$(id -u)" -eq 0 ]; then
-    log_error "root では実行しない（設定は一般ユーザのホームへ配置する）"
+    log_error "Do not run as root: the configuration is placed in a regular user's home"
     exit 1
   fi
 
   if ! command -v sudo >/dev/null 2>&1; then
-    log_error "sudo が無い。パッケージの導入に必要"
+    log_error "sudo not found: required to install packages"
     exit 1
   fi
 
@@ -131,11 +129,11 @@ check_os() {
   fi
 
   if [ "$id" = ubuntu ] && version_ge "$version_id" "$MIN_UBUNTU_VERSION"; then
-    log_ok "対象の OS: $pretty"
+    log_ok "Supported OS: $pretty"
     return
   fi
 
-  log_error "Ubuntu $MIN_UBUNTU_VERSION 以降が対象: ${pretty:-unknown}"
+  log_error "Requires Ubuntu $MIN_UBUNTU_VERSION or later: ${pretty:-unknown}"
   exit 1
 }
 
@@ -152,18 +150,17 @@ version_ge() {
 show_plan() {
   cat <<EOM
 
-これから次の処理を行う。
+This script will:
 
-  1. apt でパッケージを導入   ${APT_PACKAGES[*]}
-  2. $DOTFILES_DIR へ clone
-  3. 既定の ~/.bashrc を退避し make standard で設定を配置
-  4. Vim プラグインを導入
-  5. Claude Code と tmux 連携フックを導入
-  6. anyenv と bun を導入
-  7. make doctor で点検
+  1. Install apt packages   ${APT_PACKAGES[*]}
+  2. Clone the repository into $DOTFILES_DIR
+  3. Move the default ~/.bashrc aside and link the configuration (make standard)
+  4. Install Vim plugins
+  5. Install Claude Code and its tmux status hooks
+  6. Install anyenv and bun
+  7. Check the result (make doctor)
 
-Docker の導入と既定シェルの変更は行わない（最後に手順を案内する）。
-sudo のパスワードを一度だけ尋ねる。
+sudo asks for your password once.
 
 EOM
 }
@@ -172,8 +169,8 @@ confirm() {
   [ "$ASSUME_YES" = true ] && return 0
 
   local answer=""
-  if ! read -r -p "続行する？ [y/N]: " answer </dev/tty 2>/dev/null; then
-    log_error "端末が無いため確認できない。--yes を付けて実行する"
+  if ! read -r -p "Continue? [y/N]: " answer </dev/tty 2>/dev/null; then
+    log_error "No terminal to confirm on: rerun with --yes"
     exit 1
   fi
 
@@ -181,50 +178,50 @@ confirm() {
   y | Y | yes | YES) return 0 ;;
   esac
 
-  log_info "中止した"
+  log_info "Aborted"
   exit 0
 }
 
 authenticate_sudo() {
-  log_step "sudo の認証"
+  log_step "Authenticating sudo"
   if sudo -n true 2>/dev/null; then
-    log_ok "sudo は認証済み"
+    log_ok "sudo already authenticated"
     return
   fi
   sudo -v
-  log_ok "sudo を認証した"
+  log_ok "sudo authenticated"
 }
 
 install_packages() {
-  log_step "apt パッケージの導入"
+  log_step "Installing apt packages"
   sudo DEBIAN_FRONTEND=noninteractive apt-get update
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${APT_PACKAGES[@]}"
-  log_ok "パッケージを導入した"
+  log_ok "Packages installed"
 }
 
 clone_repository() {
-  log_step "リポジトリの取得"
+  log_step "Fetching the repository"
 
   if [ ! -e "$DOTFILES_DIR" ]; then
     git clone "$REPO_URL" "$DOTFILES_DIR"
-    log_ok "clone した: $DOTFILES_DIR"
+    log_ok "Cloned: $DOTFILES_DIR"
     return
   fi
 
   if [ ! -d "$DOTFILES_DIR/.git" ]; then
-    log_error "$DOTFILES_DIR が git リポジトリではない。移動または削除してからやり直す"
+    log_error "$DOTFILES_DIR is not a git repository: move or remove it and try again"
     exit 1
   fi
 
   if [ -n "$(git -C "$DOTFILES_DIR" status --porcelain)" ]; then
-    log_skip "$DOTFILES_DIR に未コミットの変更があるため更新しない"
+    log_skip "$DOTFILES_DIR has uncommitted changes: not updating"
     return
   fi
 
   if git -C "$DOTFILES_DIR" pull --ff-only; then
-    log_ok "更新した: $DOTFILES_DIR"
+    log_ok "Updated: $DOTFILES_DIR"
   else
-    log_warn "更新できなかったため既存の内容のまま進める"
+    log_warn "Update failed: continuing with the existing checkout"
   fi
 }
 
@@ -232,80 +229,80 @@ clone_repository() {
 # create-symlinks.sh が既存ファイルとして常に飛ばしてしまう。
 # 退避しておき、dotfiles の .bashrc が配置されるようにする。
 backup_default_bashrc() {
-  log_step "既定の .bashrc の退避"
+  log_step "Moving the default .bashrc aside"
 
   local rc="$HOME/.bashrc" backup="$HOME/.bashrc.orig"
 
   if [ ! -e "$rc" ] || [ -L "$rc" ]; then
-    log_skip "退避するファイルは無い"
+    log_skip "Nothing to move aside"
     return
   fi
 
   if [ -e "$backup" ]; then
-    log_skip "$backup が既にあるため退避しない"
+    log_skip "$backup already exists: keeping it"
     return
   fi
 
   mv "$rc" "$backup"
-  log_ok "$rc を $backup へ退避した"
+  log_ok "Moved $rc to $backup"
 }
 
 # standard は agent（~/.claude）を含むので make agent は呼ばない
 link_dotfiles() {
-  log_step "設定ファイルの配置（make standard）"
+  log_step "Linking the configuration (make standard)"
   make -C "$DOTFILES_DIR" standard
-  log_ok "設定を配置した"
+  log_ok "Configuration linked"
 }
 
 # .vimrc は初回起動時に vim-plug とプラグインを同期導入する。
 # それをヘッドレスで済ませ、初回の対話起動を待たせない。
 install_vim_plugins() {
-  log_step "Vim プラグインの導入"
+  log_step "Installing Vim plugins"
 
   if ! command -v vim >/dev/null 2>&1; then
-    log_warn "vim が無いため飛ばす"
+    log_warn "vim not found: skipping"
     return
   fi
 
   if vim --not-a-term -c 'qall!' </dev/null >/dev/null 2>&1; then
-    log_ok "Vim プラグインを導入した"
+    log_ok "Vim plugins installed"
   else
-    log_warn "Vim プラグインの導入に失敗した。vim を起動して手動で :PlugInstall する"
+    log_warn "Vim plugin installation failed: start vim and run :PlugInstall"
   fi
 }
 
 install_claude_code() {
-  log_step "Claude Code の導入"
+  log_step "Installing Claude Code"
 
   if command -v claude >/dev/null 2>&1 || [ -x "$HOME/.local/bin/claude" ]; then
-    log_skip "Claude Code は導入済み"
+    log_skip "Claude Code already installed"
     return
   fi
 
   if curl -fsSL "$CLAUDE_INSTALL_URL" | bash; then
-    log_ok "Claude Code を導入した"
+    log_ok "Claude Code installed"
   else
-    log_warn "Claude Code の導入に失敗した: curl -fsSL $CLAUDE_INSTALL_URL | bash"
+    log_warn "Claude Code installation failed: curl -fsSL $CLAUDE_INSTALL_URL | bash"
   fi
 }
 
 install_claude_hooks() {
-  log_step "Claude Code のフック設定（make claude-hooks）"
+  log_step "Configuring Claude Code hooks (make claude-hooks)"
   if make -C "$DOTFILES_DIR" claude-hooks; then
-    log_ok "フックを設定した"
+    log_ok "Hooks configured"
   else
-    log_warn "フックを設定できなかった"
+    log_warn "Hook configuration failed"
   fi
 }
 
 install_extra_tools() {
-  log_step "anyenv と bun の導入"
+  log_step "Installing anyenv and bun"
   make -C "$DOTFILES_DIR" anyenv
   make -C "$DOTFILES_DIR" bun
 }
 
 run_doctor() {
-  log_step "配置状態の点検（make doctor）"
+  log_step "Checking the result (make doctor)"
   # 警告があっても失敗扱いにしない
   make -C "$DOTFILES_DIR" doctor || true
 }
@@ -314,34 +311,30 @@ print_next_steps() {
   cat <<EOM
 
 ============================================
-セットアップが完了した
+Setup complete
 ============================================
 
-残りは手動で行う。
+Remaining steps are manual.
 
-  Docker（システムへの影響が大きいため自動化しない）
+  Docker
     cd $DOTFILES_DIR && make docker
-    詳細は docs/docker.md
+    See docs/docker.md
 
-  既定シェル（ログインシェルの変更はシステム側の設定なので自動化しない）
+  Login shell
     chsh -s "\$(command -v zsh)"
-    反映には一度ログアウトする
+    Log out once to apply
 
-  Git のユーザ情報
-    $DOTFILES_DIR/.gitconfig の user.name と user.email を書き換える
+  Git identity
+    Set user.name and user.email in $DOTFILES_DIR/.gitconfig
 
-  SSH 公開鍵の登録
+  SSH public keys
     cd $DOTFILES_DIR && make .ssh
 
-  退避した既定の .bashrc（不要なら消してよい）
+  The default .bashrc moved aside (remove it if you do not need it)
     $HOME/.bashrc.orig
 
-  リポジトリへ push する場合（現在は HTTPS）
+  Pushing to the repository (currently cloned over HTTPS)
     git -C $DOTFILES_DIR remote set-url origin $REPO_SSH_URL
-
-zsh を試すだけなら次を実行する。
-
-  exec zsh -l
 
 EOM
 }

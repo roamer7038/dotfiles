@@ -11,23 +11,14 @@
 #
 # 動作ログは /tmp/systemd_suspend_test に残る。
 
-# --- サスペンド前の処理 ---
+# /proc/acpi/wakeup への XHC の書き込みは enable と disable を切り替える。
+# 現在の状態を grep で確かめてから書き、二重に切り替えないようにする
 
 if [ "${1}" == "pre" ]; then
-  # サスペンド前: xHCIのウェイクアップ機能を無効化
   echo "Disable broken xhci module before suspending at $(date)..." >/tmp/systemd_suspend_test
-
-  # /proc/acpi/wakeup からXHCの状態を確認
-  # "enable"状態であれば、ウェイクアップ機能を無効化（"disable"に変更）
   grep XHC.*enable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
 
-# --- レジューム後の処理 ---
-
 elif [ "${1}" == "post" ]; then
-  # レジューム後: xHCIのウェイクアップ機能を再有効化
   echo "Enable broken xhci module at wakeup from $(date)" >>/tmp/systemd_suspend_test
-
-  # /proc/acpi/wakeup からXHCの状態を確認
-  # "disable"状態であれば、ウェイクアップ機能を有効化（"enable"に変更）
   grep XHC.*disable /proc/acpi/wakeup && echo XHC >/proc/acpi/wakeup
 fi

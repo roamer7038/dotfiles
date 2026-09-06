@@ -61,17 +61,17 @@ die() {
 
 usage() {
   cat <<'EOS'
-usage: wsl-chrome <url|path>          URL・ファイルを Windows の Chrome で開く
-       wsl-chrome debug [url]         CDP 有効の専用インスタンスを起動する
-       wsl-chrome debug --headless    画面に出さずに起動する
-       wsl-chrome status              接続先と開いているタブを表示する
-       wsl-chrome stop                専用インスタンスを終了する
+usage: wsl-chrome <url|path>          Open a URL or file in the Windows Chrome
+       wsl-chrome debug [url]         Start a dedicated instance with CDP enabled
+       wsl-chrome debug --headless    Start it without a window
+       wsl-chrome status              Show the endpoint and the open tabs
+       wsl-chrome stop                Stop the dedicated instance
 
 environment:
-       WSL_CHROME_PORT                CDP のポートを固定する（既定は自動）
-       WSL_CHROME_PROFILE             debug=専用プロファイル（既定）/ default=普段使い
-       WSL_CHROME_HEADLESS            1 なら --headless と同じ
-       WSL_CHROME_WINDOW_SIZE         ヘッドレス時のビューポート（既定 1280,800）
+       WSL_CHROME_PORT                Fix the CDP port (default: chosen by Chrome)
+       WSL_CHROME_PROFILE             debug=dedicated profile (default) / default=everyday
+       WSL_CHROME_HEADLESS            1 is the same as --headless
+       WSL_CHROME_WINDOW_SIZE         Viewport when headless (default 1280,800)
 EOS
 }
 
@@ -79,7 +79,7 @@ EOS
 require_wsl() {
   case "$(uname -r)" in
   *[Mm]icrosoft*) ;;
-  *) die "WSL2 でのみ動作する（Windows 側の Chrome を起動するため）" ;;
+  *) die "runs on WSL2 only: it starts the Chrome installed on Windows" ;;
   esac
 }
 
@@ -105,7 +105,7 @@ find_chrome() {
     return 0
   fi
 
-  die "chrome.exe が見つからない（Windows 側に Google Chrome を入れる）"
+  die "chrome.exe not found: install Google Chrome on Windows"
 }
 
 # %LOCALAPPDATA% を Windows 形式と WSL 形式でそれぞれ得る。
@@ -132,7 +132,7 @@ resolve_profile() {
   [ "$PROFILE" = default ] && return 0
 
   appdata=$(win_local_appdata)
-  [ -n "$appdata" ] || die "%LOCALAPPDATA% を取得できない"
+  [ -n "$appdata" ] || die "cannot read %LOCALAPPDATA%"
 
   PROFILE_WIN="$appdata\\$PROFILE_DIR_NAME"
   PROFILE_UNIX="$(wslpath -u "$appdata")/$PROFILE_DIR_NAME"
@@ -231,7 +231,7 @@ running_headless() {
 }
 
 mode_label() {
-  if [ "$1" = 1 ]; then echo ヘッドレス; else echo 通常; fi
+  if [ "$1" = 1 ]; then echo headless; else echo windowed; fi
 }
 
 # 占有しているプロセスを表示する（診断用）
@@ -245,7 +245,7 @@ show_port_owner() {
 
 cmd_open() {
   local arg
-  arg=$(to_win_arg "$1") || die "パスを変換できない: $1"
+  arg=$(to_win_arg "$1") || die "cannot convert path: $1"
   launch_chrome "$arg"
 }
 
@@ -255,7 +255,7 @@ cmd_debug() {
   local i
 
   if [ "$PROFILE" = default ] && [ -z "$FIXED_PORT" ]; then
-    die "普段使いのプロファイルでは DevToolsActivePort を読めない。WSL_CHROME_PORT を指定する"
+    die "DevToolsActivePort is unreadable with the everyday profile: set WSL_CHROME_PORT"
   fi
 
   # プロファイルの指定は起動時と、起動済みインスタンスを探すときの両方で要る
@@ -267,27 +267,27 @@ cmd_debug() {
     running_headless && running=1
 
     if [ "$running" != "$HEADLESS" ]; then
-      die "$(mode_label "$running") のインスタンスが起動している。切り替えるには wsl-chrome stop を実行する"
+      die "a $(mode_label "$running") instance is running: run wsl-chrome stop to switch"
     fi
 
     if [ "$url" != about:blank ]; then
-      cdp_new_tab "$url" || die "タブを開けない: $url"
+      cdp_new_tab "$url" || die "cannot open tab: $url"
     fi
-    echo "起動済み: $CDP_URL（$(mode_label "$HEADLESS")）"
+    echo "already running: $CDP_URL ($(mode_label "$HEADLESS"))"
     return 0
   fi
 
   # 固定ポートを指定したときだけ、先に空きを確かめる。
   # 自動採番では Chrome が空きを選ぶので確かめようがない
   if [ -n "$FIXED_PORT" ] && port_taken; then
-    echo "wsl-chrome: ポート $FIXED_PORT は別のプロセスが使っている" >&2
+    echo "wsl-chrome: port $FIXED_PORT is in use by another process" >&2
     show_port_owner >&2
-    die "WSL_CHROME_PORT を変えるか、指定を外して自動採番に任せる"
+    die "change WSL_CHROME_PORT, or unset it and let Chrome pick a port"
   fi
 
   if [ "$PROFILE" = default ]; then
-    echo "普段使いのプロファイルで起動する。既存の Chrome が動いていると" >&2
-    echo "デバッグポートは開かないため、先に Chrome を全て終了しておくこと" >&2
+    echo "wsl-chrome: starting with the everyday profile. Chrome does not open the" >&2
+    echo "debugging port while another instance is running: close them all first" >&2
   fi
 
   forget_active_port
@@ -305,13 +305,13 @@ cmd_debug() {
   done
 
   if ! cdp_ready; then
-    echo "wsl-chrome: Chrome が CDP を開かないまま起動した" >&2
+    echo "wsl-chrome: Chrome started without opening the CDP port" >&2
     [ -n "$FIXED_PORT" ] && show_port_owner >&2
     exit 1
   fi
 
-  echo "起動した: $CDP_URL（$(mode_label "$HEADLESS")）"
-  [ -n "$PROFILE_WIN" ] && echo "プロファイル: $PROFILE_WIN"
+  echo "started: $CDP_URL ($(mode_label "$HEADLESS"))"
+  [ -n "$PROFILE_WIN" ] && echo "profile: $PROFILE_WIN"
   return 0
 }
 
@@ -319,40 +319,40 @@ cmd_status() {
   local version
 
   if ! cdp_ready; then
-    echo "デバッグ用 Chrome は起動していない（wsl-chrome debug で起動する）"
+    echo "no debugging instance is running (start one with wsl-chrome debug)"
     return 1
   fi
 
   version=$(curl -s --max-time 2 "$CDP_URL/json/version")
 
-  echo "接続先: $CDP_URL"
+  echo "endpoint: $CDP_URL"
   # 指定ではなく、実際に動いているインスタンスのモードを見る
   if running_headless; then
-    echo "モード: $(mode_label 1)"
+    echo "mode:     $(mode_label 1)"
   else
-    echo "モード: $(mode_label 0)"
+    echo "mode:     $(mode_label 0)"
   fi
   if command -v jq >/dev/null 2>&1; then
     echo "Chrome: $(echo "$version" | jq -r '.Browser')"
   fi
   if [ "$PROFILE" = default ]; then
-    echo "プロファイル: 普段使い"
+    echo "profile:  everyday"
   else
-    echo "プロファイル: $PROFILE_WIN"
+    echo "profile:  $PROFILE_WIN"
   fi
 
-  echo "タブ:"
+  echo "tabs:"
   if command -v jq >/dev/null 2>&1; then
     curl -s --max-time 2 "$CDP_URL/json/list" |
       jq -r '.[] | select(.type == "page") | "  \(.title)\n    \(.url)"'
   else
-    echo "  （一覧の表示には jq が必要）$CDP_URL/json/list"
+    echo "  (listing tabs requires jq) $CDP_URL/json/list"
   fi
 }
 
 cmd_stop() {
   if [ "$PROFILE" = default ]; then
-    die "普段使いのプロファイルでは終了させない（通常の Chrome ごと閉じるため）"
+    die "refusing to stop the everyday profile: it would close your normal Chrome"
   fi
 
   # 専用プロファイルを参照しているプロセスだけを落とす。
@@ -366,7 +366,7 @@ cmd_stop() {
   # 番号の記録を残すと、別のプロセスが同じ番号を取ったときに誤認する
   forget_active_port
 
-  echo "終了した: $PROFILE_DIR_NAME のインスタンス"
+  echo "stopped: the $PROFILE_DIR_NAME instance"
 }
 
 # ============================================================
@@ -377,7 +377,7 @@ require_wsl
 
 case "$PROFILE" in
 debug | default) ;;
-*) die "WSL_CHROME_PROFILE は debug か default を指定する（指定値: $PROFILE）" ;;
+*) die "WSL_CHROME_PROFILE must be debug or default (got: $PROFILE)" ;;
 esac
 
 # --headless はどの位置に書いても効くよう、先に取り除いてから解釈する
@@ -409,7 +409,7 @@ debug) cmd_debug "${2:-}" ;;
 status) cmd_status ;;
 stop) cmd_stop ;;
 *)
-  [ "$HEADLESS" = 1 ] && die "--headless は debug でのみ使える（開くだけの用途では意味が無い）"
+  [ "$HEADLESS" = 1 ] && die "--headless applies to debug only"
   cmd_open "$1"
   ;;
 esac

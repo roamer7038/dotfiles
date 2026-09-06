@@ -55,9 +55,8 @@ EXAMPLES:
   $(basename "$0") --dry-run basic vim agent x11 gui
 
 NOTES:
-  - Placement targets are defined in ./links (path, destination, tag)
+  - Link targets are defined in ./links (path, destination, tag)
   - Presets are defined in the Makefile; run 'make help' for the list
-  - Existing files are skipped by default (use --force to overwrite)
 
 EOM
   exit 0
@@ -205,18 +204,17 @@ main() {
 
   parse_options "$@"
 
-  log_info "Dotfiles symlink creation script"
-  log_info "Repository: $DOTFILES_ROOT"
+  log_info "dotfiles: $DOTFILES_ROOT"
   echo
 
   if [ ${#SELECTED_TAGS[@]} -eq 0 ]; then
-    log_error "No configuration options specified"
+    log_error "No tag specified"
     echo "Use --help for usage information"
     exit 1
   fi
 
   if [ "$DRY_RUN" = true ]; then
-    log_info "DRY-RUN mode: No actual changes will be made"
+    log_info "DRY-RUN: nothing is created"
     echo
   fi
 
@@ -227,7 +225,7 @@ main() {
 
   echo
   if [ "$DRY_RUN" = true ]; then
-    log_info "DRY-RUN completed. Run without --dry-run to apply changes."
+    log_info "DRY-RUN completed. Run without --dry-run to apply."
   else
     log_ok "All symbolic links created successfully!"
   fi
