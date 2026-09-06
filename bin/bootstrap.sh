@@ -41,7 +41,7 @@ APT_PACKAGES=(
 
 CLAUDE_INSTALL_URL="https://claude.ai/install.sh"
 
-FORCE=false
+ASSUME_YES=false
 
 # ============================================================
 # ログ出力
@@ -73,12 +73,11 @@ Usage: bootstrap.sh [OPTIONS]
 Set up this dotfiles repository from scratch on Ubuntu ${MIN_UBUNTU_VERSION}+.
 
 OPTIONS:
-  -f, --force    Skip the OS check and run anyway
+  -y, --yes      Skip the confirmation prompt
   -h, --help     Show this message
 
 EXAMPLE:
   curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash
-  curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootstrap.sh | bash -s -- --force
 
 Docker is not installed by this script. See docs/docker.md after the setup.
 EOM
@@ -87,7 +86,7 @@ EOM
 parse_args() {
   while [ $# -gt 0 ]; do
     case "$1" in
-    -f | --force) FORCE=true ;;
+    -y | --yes) ASSUME_YES=true ;;
     -h | --help)
       show_usage
       exit 0
@@ -136,13 +135,7 @@ check_os() {
     return
   fi
 
-  if [ "$FORCE" = true ]; then
-    log_warn "想定外の OS だが --force のため続行する: ${pretty:-unknown}"
-    return
-  fi
-
   log_error "Ubuntu $MIN_UBUNTU_VERSION 以降が対象: ${pretty:-unknown}"
-  log_error "それでも実行するなら --force を付ける"
   exit 1
 }
 
@@ -162,18 +155,34 @@ show_plan() {
 これから次の処理を行う。
 
   1. apt でパッケージを導入   ${APT_PACKAGES[*]}
-  2. 既定シェルを zsh に変更
-  3. $DOTFILES_DIR へ clone
-  4. 既定の ~/.bashrc を退避し make standard で設定を配置
-  5. Vim プラグインを導入
-  6. Claude Code と tmux 連携フックを導入
-  7. anyenv と bun を導入
-  8. make doctor で点検
+  2. $DOTFILES_DIR へ clone
+  3. 既定の ~/.bashrc を退避し make standard で設定を配置
+  4. Vim プラグインを導入
+  5. Claude Code と tmux 連携フックを導入
+  6. anyenv と bun を導入
+  7. make doctor で点検
 
-Docker は導入しない（最後に手順を案内する）。
+Docker の導入と既定シェルの変更は行わない（最後に手順を案内する）。
 sudo のパスワードを一度だけ尋ねる。
 
 EOM
+}
+
+confirm() {
+  [ "$ASSUME_YES" = true ] && return 0
+
+  local answer=""
+  if ! read -r -p "続行する？ [y/N]: " answer </dev/tty 2>/dev/null; then
+    log_error "端末が無いため確認できない。--yes を付けて実行する"
+    exit 1
+  fi
+
+  case "$answer" in
+  y | Y | yes | YES) return 0 ;;
+  esac
+
+  log_info "中止した"
+  exit 0
 }
 
 authenticate_sudo() {
@@ -191,30 +200,6 @@ install_packages() {
   sudo DEBIAN_FRONTEND=noninteractive apt-get update
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${APT_PACKAGES[@]}"
   log_ok "パッケージを導入した"
-}
-
-# apt の直後に行う。間隔が空くと sudo の認証が切れる
-change_login_shell() {
-  log_step "既定シェルの変更"
-
-  local zsh_path current
-  zsh_path=$(command -v zsh || true)
-  if [ -z "$zsh_path" ]; then
-    log_warn "zsh が見つからないため既定シェルを変更しない"
-    return
-  fi
-
-  current=$(getent passwd "$(id -un)" | cut -d: -f7)
-  if [ "$current" = "$zsh_path" ]; then
-    log_skip "既定シェルは既に $zsh_path"
-    return
-  fi
-
-  if sudo chsh -s "$zsh_path" "$(id -un)"; then
-    log_ok "既定シェルを $zsh_path に変更した（反映は再ログイン後）"
-  else
-    log_warn "既定シェルを変更できなかった: chsh -s $zsh_path"
-  fi
 }
 
 clone_repository() {
@@ -338,6 +323,10 @@ print_next_steps() {
     cd $DOTFILES_DIR && make docker
     詳細は docs/docker.md
 
+  既定シェル（ログインシェルの変更はシステム側の設定なので自動化しない）
+    chsh -s "\$(command -v zsh)"
+    反映には一度ログアウトする
+
   Git のユーザ情報
     $DOTFILES_DIR/.gitconfig の user.name と user.email を書き換える
 
@@ -350,8 +339,7 @@ print_next_steps() {
   リポジトリへ push する場合（現在は HTTPS）
     git -C $DOTFILES_DIR remote set-url origin $REPO_SSH_URL
 
-既定シェルの変更を反映するには一度ログアウトする。
-今すぐ試すだけなら次を実行する。
+zsh を試すだけなら次を実行する。
 
   exec zsh -l
 
@@ -368,10 +356,10 @@ main() {
   log_info "dotfiles bootstrap"
   check_prerequisites
   show_plan
+  confirm
 
   authenticate_sudo
   install_packages
-  change_login_shell
 
   clone_repository
   backup_default_bashrc
