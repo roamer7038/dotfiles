@@ -19,6 +19,9 @@ SELECTED_TAGS=()
 DRY_RUN=false
 FORCE=false
 
+# 既存でも置き換えてよい配置先。prepare_bashrc が設定する
+REPLACEABLE=""
+
 # --- ログ出力 ---
 
 if [ -t 1 ]; then
@@ -170,18 +173,18 @@ link_entry() {
 create_symlink() {
   local src="$1" dest="$2"
 
-  if [ "$DRY_RUN" = true ]; then
-    log_info "[DRY-RUN] Would create: $dest -> $src"
-    return 0
-  fi
-
   if [ -e "$dest" ] || [ -L "$dest" ]; then
-    if [ "$FORCE" = true ]; then
-      rm -f "$dest"
+    if [ "$FORCE" = true ] || [ "$dest" = "$REPLACEABLE" ]; then
+      [ "$DRY_RUN" = true ] || rm -f "$dest"
     else
       log_skip "$dest (already exists, use --force to overwrite)"
       return 0
     fi
+  fi
+
+  if [ "$DRY_RUN" = true ]; then
+    log_info "[DRY-RUN] Would create: $dest -> $src"
+    return 0
   fi
 
   if ln -s "$src" "$dest"; then
@@ -194,7 +197,7 @@ create_symlink() {
 
 # Ubuntu は新規ユーザへ /etc/skel/.bashrc を必ずコピーするため、~/.bashrc は
 # 常に存在し、既存ファイルとして飛ばされてしまう。既定のままのコピーは
-# 利用者の設定ではないので、配置の前に消して置き換えられるようにする。
+# 利用者の設定ではないので置き換えの対象にする。
 # 手が入っていれば利用者のファイルなので、他の配置対象と同じく飛ばす。
 prepare_bashrc() {
   local dest="$1"
@@ -204,13 +207,8 @@ prepare_bashrc() {
 
   cmp -s "$dest" /etc/skel/.bashrc || return 0
 
-  if [ "$DRY_RUN" = true ]; then
-    log_info "[DRY-RUN] Would remove the distro default: $dest"
-    return 0
-  fi
-
-  rm -f "$dest"
-  log_info "Removed the distro default: $dest"
+  REPLACEABLE="$dest"
+  log_info "Distro default, will be replaced: $dest"
 }
 
 # ============================================================
