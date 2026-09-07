@@ -183,10 +183,11 @@ check_commands() {
   # 無くても大半は動くが、特定の機能が黙って効かなくなるもの
   #   bc     .tmux.conf のバージョン判定（セッション番号の詰め直し）
   #   jq     make claude-settings と statusLine の表示
+  #   delta  .gitconfig の差分表示（無ければ既定のページャで表示する）
   #   xsel   tmux とシェルのクリップボード連携
   #   feh    bin/wallpaper.sh
   #   shfmt  make fmt
-  for c in bc jq xsel feh shfmt; do
+  for c in bc jq delta xsel feh shfmt; do
     command -v "$c" >/dev/null 2>&1 || missing_opt="$missing_opt $c"
   done
 

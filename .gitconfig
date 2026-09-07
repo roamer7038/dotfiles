@@ -1,10 +1,12 @@
 [core]
   filemode = false
   editor = vim
+  # delta が無い環境では既定のページャに落とす（git は値をシェル経由で実行する）
+  pager = "command -v delta >/dev/null && exec delta || exec ${PAGER:-less}"
 
 [user]
-	name = roamer7038
-	email = okayado7038@gmail.com
+  name = roamer7038
+  email = okayado7038@gmail.com
 
 [color]
   ui = true
@@ -23,4 +25,26 @@
   helper = cache --timeout 86400
 
 [init]
-	defaultBranch = main
+  defaultBranch = main
+
+[interactive]
+  diffFilter = "command -v delta >/dev/null && exec delta --color-only || exec cat"
+
+[delta]
+  features = side-by-side line-numbers decorations
+  syntax-theme = Dracula
+  plus-style = syntax "#003800"
+  minus-style = syntax "#3f0001"
+
+[delta "decorations"]
+  commit-decoration-style = bold yellow box ul
+  file-style = bold yellow ul
+  file-decoration-style = none
+  hunk-header-decoration-style = cyan box ul
+
+[delta "line-numbers"]
+  line-numbers-left-style = cyan
+  line-numbers-right-style = cyan
+  line-numbers-minus-style = 124
+  line-numbers-plus-style = 28
+

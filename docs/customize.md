@@ -4,6 +4,8 @@
 
 ## Git
 
+### ユーザ情報
+
 `.gitconfig` のユーザ名とメールアドレスを書き換える。
 
 ```
@@ -11,6 +13,42 @@
 	name = your_username
 	email = your@example.com
 ```
+
+### 差分表示（delta）
+
+`git diff`、`git show`、`git add -p` の差分は [delta](https://dandavison.github.io/delta/) で表示する。
+シンタックスハイライト、行番号、左右2画面の表示が付く。
+
+```bash
+sudo apt install git-delta
+```
+
+`bootstrap.sh` は他の apt パッケージと一緒にこれを入れる。
+delta が無い環境では git の既定の表示に落ちるため、入れずに使ってもよい。
+
+| 設定 | 内容 | delta が無いとき |
+| --- | --- | --- |
+| `core.pager` | ページャ | `$PAGER`（未設定なら `less`） |
+| `interactive.diffFilter` | `git add -p` の差分の整形 | `cat`（素の色付き差分） |
+| `[delta]` | 表示の設定。`features` に後続のセクション名を並べて呼ぶ | 参照されない |
+| `[delta "decorations"]`、`[delta "line-numbers"]` | `features` から呼ばれる設定群 | 参照されない |
+
+git にはコマンドの有無で設定を切り替える機能が無いため（`includeIf` の条件は `gitdir` `onbranch` `hasconfig` のみ）、上2つの値は `command -v` で分岐するシェル式として書いてある。
+値はシェル経由で実行されるので、この書き方で delta の有無を判定できる。
+
+表示を変えるときは `[delta]` の `features` と各セクションを編集する。
+使えるテーマは `delta --list-syntax-themes` で一覧できる。
+一時的に素の差分を見るには `git --no-pager diff` を使う。
+
+### エイリアスと既定
+
+| 設定 | 内容 |
+| --- | --- |
+| `alias.st` `alias.co` `alias.br` `alias.sw` `alias.ch` | `status` `commit` `branch` `switch` `checkout` |
+| `core.filemode = false` | 実行属性の差分を無視する（Windows と共有するリポジトリ向け） |
+| `init.defaultBranch = main` | 新規リポジトリの既定ブランチ |
+| `credential.helper = cache --timeout 86400` | 認証情報を1日メモリに保持する |
+| `merge.tool = vimdiff` | `git mergetool` で使うツール |
 
 ## シェルの設定（profile.d）
 

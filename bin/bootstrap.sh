@@ -22,6 +22,7 @@ MIN_UBUNTU_VERSION="24.04"
 
 # 必須     git curl ca-certificates zsh tmux vim-nox
 # 任意     bc（.tmux.conf のバージョン判定）jq（claude-settings）xsel（クリップボード連携）
+#          git-delta（git の差分表示）
 # ファイラ ranger
 # 開発用   build-essential（make）shfmt（make fmt）
 APT_PACKAGES=(
@@ -34,6 +35,7 @@ APT_PACKAGES=(
   bc
   jq
   xsel
+  git-delta
   ranger
   build-essential
   shfmt
