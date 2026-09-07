@@ -68,7 +68,7 @@ bin/              セットアップ用スクリプトと各種ユーティリ�
 config/           ~/.config 配下へ配置する設定
 config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス、関数、OS 別設定）
 docs/             個別機能のドキュメント
-.claude/          Claude Code の設定
+.claude/          Claude Code の設定（CLAUDE.md）
 ```
 
 ### bin/
@@ -80,12 +80,13 @@ docs/             個別機能のドキュメント
 | `doctor.sh` | 配置状態を点検する（`make doctor`） |
 | `update.sh` | 導入済みのプラグイン・ツールを更新する（`make update`） |
 | `lint.sh` | リポジトリを静的検査する（`make lint`） |
-| `install-claude-hooks.sh` | Claude Code のフックを設定する（`make claude-hooks`） |
+| `install-claude-settings.sh` | Claude Code のフックと statusLine を設定する（`make claude-settings`） |
 | `authorized_keys.sh` | GitHub の公開鍵を `~/.ssh/authorized_keys` に追記する |
 | `install-bun.sh` | bun を導入する |
 | `install-docker.sh` | Docker Engine と Lazydocker を導入する |
 | `install-vim.sh` | Vim をソースからビルドして入れ替える |
 | `install-zsh-plugins.sh` | zsh のプラグインを導入する |
+| `claude-statusline.sh` | Claude Code のステータス行を描画する（`settings.json` の `statusLine` から呼ばれる） |
 | `tmux-claude-status.sh` | Claude Code の状態を tmux のウィンドウに表示する（[設定方法](docs/tmux-claude-status.md)） |
 | `tmux-reorder-sessions.sh` | tmux のセッション番号を連番に振り直す |
 | `pane` | tmux のペインを指定した数だけタイル状に分割する（`~/.local/bin` にリンクされる） |
@@ -106,7 +107,7 @@ docs/             個別機能のドキュメント
 | `make anyenv` | anyenv + anyenv-update プラグイン | [docs/anyenv.md](docs/anyenv.md) |
 | `make docker` | Docker Engine + Lazydocker | [docs/docker.md](docs/docker.md) |
 | `make bun` | bun | — |
-| `make claude-hooks` | Claude Code のフック設定 | [docs/tmux-claude-status.md](docs/tmux-claude-status.md) |
+| `make claude-settings` | Claude Code のフックと statusLine の設定 | [docs/tmux-claude-status.md](docs/tmux-claude-status.md) |
 
 特定のユーザの公開鍵を取る場合は直接スクリプトを実行する。
 

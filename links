@@ -26,4 +26,3 @@ config/terminator/             ~/.config/terminator/            gui
 config/dunst/                  ~/.config/dunst/                 gui
 
 .claude/CLAUDE.md              ~/.claude/CLAUDE.md              agent
-.claude/statusline-command.sh  ~/.claude/statusline-command.sh  agent

@@ -54,9 +54,9 @@ docker:
 bun:
 	$(SCRIPT_DIR)/bin/install-bun.sh
 
-# tmux のウィンドウ状態表示に必要なフックを ~/.claude/settings.json へ追加する
-claude-hooks:
-	@$(SCRIPT_DIR)/bin/install-claude-hooks.sh
+# Claude Code のフックと statusLine を ~/.claude/settings.json へ追加する
+claude-settings:
+	@$(SCRIPT_DIR)/bin/install-claude-settings.sh
 
 # 導入済みのプラグイン・ツールをまとめて更新する
 update:
@@ -86,11 +86,11 @@ fmt:
 help:
 	@echo "Setup:    $(PRESETS)"
 	@echo "          make dry-run-<preset> shows what would be linked"
-	@echo "Install:  .ssh anyenv docker bun claude-hooks update"
+	@echo "Install:  .ssh anyenv docker bun claude-settings update"
 	@echo "Check:    doctor  Check the links in \$$HOME"
 	@echo "Dev:      lint    Check the repository"
 	@echo "          fmt     Format the shell scripts"
 	@echo ""
 	@echo "See README.md for details."
 
-.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-hooks update doctor lint fmt help
+.PHONY: all $(PRESETS) .ssh anyenv docker bun claude-settings update doctor lint fmt help

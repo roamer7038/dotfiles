@@ -3,7 +3,7 @@
 # dotfiles の配置状態を点検する。何も変更しない。
 # 配置対象は links（パス・配置先・タグの3列）に定義されている。
 # リンクの有無と向き先、リポジトリ外に残った古いコピー、依存コマンド、
-# Claude Code のフック設定を確認する。
+# Claude Code の設定（フックと statusLine）を確認する。
 #
 #   doctor.sh [-v]
 #
@@ -182,7 +182,7 @@ check_commands() {
 
   # 無くても大半は動くが、特定の機能が黙って効かなくなるもの
   #   bc     .tmux.conf のバージョン判定（セッション番号の詰め直し）
-  #   jq     make claude-hooks
+  #   jq     make claude-settings と statusLine の表示
   #   xsel   tmux とシェルのクリップボード連携
   #   feh    bin/wallpaper.sh
   #   shfmt  make fmt
@@ -194,10 +194,24 @@ check_commands() {
   [ -n "$missing_opt" ] && warn "Optional commands not found:$missing_opt"
 }
 
-# --- Claude Code のフック ---
+# --- Claude Code の設定 ---
 
-check_claude_hooks() {
-  local settings="$HOME/.claude/settings.json" event missing=""
+# statusLine のコマンドから実行ファイルの部分だけを取り出す。
+# 引数付き（bash /path/to/script）でも先頭のパスを拾う。
+statusline_path() {
+  local path
+  path=$(printf '%s\n' "$1" | tr ' ' '\n' | grep '/' | head -1 | tr -d '"')
+
+  case "$path" in
+  '$HOME'*) path="$HOME${path#\$HOME}" ;;
+  '~'*) path="$HOME${path#\~}" ;;
+  esac
+
+  echo "$path"
+}
+
+check_claude_settings() {
+  local settings="$HOME/.claude/settings.json" event missing="" cmd path expected
 
   if [ ! -f "$settings" ]; then
     warn "Claude Code settings not found: $settings"
@@ -205,7 +219,7 @@ check_claude_hooks() {
   fi
 
   if ! command -v jq >/dev/null 2>&1; then
-    log_verbose "jq not found: cannot check hook settings"
+    log_verbose "jq not found: cannot check Claude Code settings"
     return
   fi
 
@@ -221,9 +235,29 @@ check_claude_hooks() {
   done
 
   if [ -n "$missing" ]; then
-    warn "tmux window status hooks not configured:$missing (run 'make claude-hooks')"
+    warn "tmux window status hooks not configured:$missing (run 'make claude-settings')"
   else
     log_ok "Claude Code hooks configured"
+  fi
+
+  # statusLine はリンクを張らず settings.json から直接参照するため、
+  # 登録の有無と参照先の実在の両方を見る
+  cmd=$(jq -r '.statusLine.command // empty' "$settings")
+
+  if [ -z "$cmd" ]; then
+    warn "Claude Code statusLine not configured (run 'make claude-settings')"
+    return
+  fi
+
+  path=$(statusline_path "$cmd")
+
+  if [ -z "$path" ] || [ ! -e "$path" ]; then
+    ng "Claude Code statusLine points to a missing file: $cmd"
+  elif expected=$(readlink -f "$DOTFILES_ROOT/bin/claude-statusline.sh") &&
+    [ "$(readlink -f "$path")" != "$expected" ]; then
+    warn "Claude Code statusLine points outside dotfiles: $cmd"
+  else
+    log_ok "Claude Code statusLine configured"
   fi
 }
 
@@ -240,7 +274,7 @@ check_broken_links
 check_stale_copies
 echo
 check_commands
-check_claude_hooks
+check_claude_settings
 echo
 
 if [ "$NG_COUNT" -gt 0 ]; then

@@ -10,8 +10,8 @@ model=$(echo "$input" | jq -r '.model.display_name // empty')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 disp_cwd=$cwd
 case "$cwd" in
-  "$HOME") disp_cwd="~" ;;
-  "$HOME"/*) disp_cwd="~/${cwd#"$HOME"/}" ;;
+"$HOME") disp_cwd="~" ;;
+"$HOME"/*) disp_cwd="~/${cwd#"$HOME"/}" ;;
 esac
 short_cwd=$(echo "$disp_cwd" | awk -F'/' '{
   n=NF; if(n<=2) { print $0 } else {
@@ -21,12 +21,12 @@ short_cwd=$(echo "$disp_cwd" | awk -F'/' '{
 
 # --- Git branch (skip optional locks) ---
 git_info=""
-if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
-  branch=$(git -C "$cwd" -c core.checkStat=minimal symbolic-ref --short HEAD 2>/dev/null \
-           || git -C "$cwd" rev-parse --short HEAD 2>/dev/null)
+if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
+  branch=$(git -C "$cwd" -c core.checkStat=minimal symbolic-ref --short HEAD 2>/dev/null ||
+    git -C "$cwd" rev-parse --short HEAD 2>/dev/null)
   if [ -n "$branch" ]; then
-    if git -C "$cwd" -c core.checkStat=minimal diff --quiet 2>/dev/null \
-       && git -C "$cwd" -c core.checkStat=minimal diff --cached --quiet 2>/dev/null; then
+    if git -C "$cwd" -c core.checkStat=minimal diff --quiet 2>/dev/null &&
+      git -C "$cwd" -c core.checkStat=minimal diff --cached --quiet 2>/dev/null; then
       git_info="$branch"
     else
       git_info="${branch}*"

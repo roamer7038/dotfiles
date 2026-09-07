@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# tmux のウィンドウ状態表示に必要なフックを ~/.claude/settings.json へ追加する。
-# 既存の設定は保持し、同じフックが既にあれば何もしない（何度実行してもよい）。
+# Claude Code の設定（tmux のウィンドウ状態表示に必要なフックと statusLine）を
+# ~/.claude/settings.json へ追加する。
+# 既存の設定は保持し、同じ内容が既にあれば何もしない（何度実行してもよい）。
 #
-#   install-claude-hooks.sh [-n]
+#   install-claude-settings.sh [-n]
 #
 # settings.json は環境ごとに内容が異なるため dotfiles の管理対象外。
 # 詳細は docs/tmux-claude-status.md を参照。
@@ -45,10 +46,15 @@ command -v jq >/dev/null 2>&1 || {
 }
 
 # ホーム配下にあるなら $HOME 起点で書き、別マシンでも同じ設定が使えるようにする
-case "$DOTFILES_ROOT" in
-"$HOME"/*) SCRIPT_REF="\"\$HOME/${DOTFILES_ROOT#"$HOME"/}/bin/tmux-claude-status.sh\"" ;;
-*) SCRIPT_REF="\"$DOTFILES_ROOT/bin/tmux-claude-status.sh\"" ;;
-esac
+script_ref() {
+  case "$DOTFILES_ROOT" in
+  "$HOME"/*) echo "\"\$HOME/${DOTFILES_ROOT#"$HOME"/}/bin/$1\"" ;;
+  *) echo "\"$DOTFILES_ROOT/bin/$1\"" ;;
+  esac
+}
+
+SCRIPT_REF=$(script_ref tmux-claude-status.sh)
+STATUSLINE_REF=$(script_ref claude-statusline.sh)
 
 # イベント名・渡す状態・matcher（空なら全件）の対応
 # Notification は種類を絞る。matcher を付けないとアイドル通知（idle_prompt、
@@ -123,14 +129,35 @@ for entry in "${EVENTS[@]}"; do
   changed=$((changed + 1))
 done
 
+# statusLine は Claude Code のステータス行。dotfiles のスクリプトを指しているもの
+# だけを対象にし、他所で設定したものは上書きしない
+current_sl=$(echo "$updated" | jq -r '.statusLine.command // empty')
+
+case "$current_sl" in
+"$STATUSLINE_REF")
+  log_skip "statusLine: already configured"
+  ;;
+'' | *claude-statusline.sh* | *statusline-command.sh*)
+  # padding など statusLine の他のキーは残す
+  updated=$(echo "$updated" | jq --arg c "$STATUSLINE_REF" '
+    .statusLine = (.statusLine // {}) + { type: "command", command: $c }
+  ')
+  [ -n "$current_sl" ] && log_ok "statusLine: updated" || log_ok "statusLine: added"
+  changed=$((changed + 1))
+  ;;
+*)
+  log_warn "statusLine: set to something else, left as is ($current_sl)"
+  ;;
+esac
+
 if [ "$changed" -eq 0 ]; then
   log_info "No changes"
   exit 0
 fi
 
 if [ "$DRY_RUN" = true ]; then
-  log_info "[DRY-RUN] resulting hooks:"
-  echo "$updated" | jq '.hooks'
+  log_info "[DRY-RUN] resulting settings:"
+  echo "$updated" | jq '{ hooks, statusLine }'
   exit 0
 fi
 
@@ -138,4 +165,4 @@ cp "$SETTINGS" "$SETTINGS.bak"
 echo "$updated" | jq . >"$SETTINGS.tmp"
 mv "$SETTINGS.tmp" "$SETTINGS"
 
-log_ok "$changed hook(s) updated (previous settings: $SETTINGS.bak)"
+log_ok "$changed change(s) applied (previous settings: $SETTINGS.bak)"

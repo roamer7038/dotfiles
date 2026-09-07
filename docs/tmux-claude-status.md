@@ -4,7 +4,7 @@ tmux で複数ウィンドウを使っていると、非アクティブなウィ
 `bin/tmux-claude-status.sh` は、その状態をウィンドウ名の後ろの印とステータスの配色で示す。
 
 ```bash
-make claude-hooks
+make claude-settings
 ```
 
 ## 表示
@@ -28,7 +28,7 @@ make claude-hooks
 | 要件 | 確認方法 | 備考 |
 | --- | --- | --- |
 | `.tmux.conf` が配置されている | `make minimal` 以上のプリセット | 既読化のフックと `focus-events on` がここにある |
-| `jq` が入っている | `jq --version` | `make claude-hooks` が使う。状態表示でも使うが、無い場合は文字列の一致で代用する |
+| `jq` が入っている | `jq --version` | `make claude-settings` が使う。状態表示でも使うが、無い場合は文字列の一致で代用する |
 
 `agent` プリセット（Claude Code 設定のみ）では `.tmux.conf` が配置されない。
 その場合は既読化が働かず「承認待ち」「完了」が消えないので、[既読化のフック](#既読化のフック)を自分の `.tmux.conf` に写す。
@@ -38,8 +38,11 @@ make claude-hooks
 `~/.claude/settings.json` にフックを追加する。
 
 ```bash
-make claude-hooks
+make claude-settings
 ```
+
+同じコマンドでステータス行（`statusLine`）も `bin/claude-statusline.sh` に設定される。
+これは tmux の状態表示とは独立した機能で、他のコマンドを設定している場合は上書きしない。
 
 既存の設定は保持され、同じフックが既にあれば何もしない（何度実行してもよい）。
 変更前の内容は `settings.json.bak` に残る。
@@ -47,7 +50,7 @@ make claude-hooks
 追加される内容を実行前に見る場合はスクリプトを直接呼ぶ。
 
 ```bash
-./bin/install-claude-hooks.sh -n
+./bin/install-claude-settings.sh -n
 ```
 
 `~/.claude/settings.json` は環境ごとに内容が異なるため dotfiles の管理対象外。
@@ -55,7 +58,7 @@ make claude-hooks
 
 ### 追加される内容
 
-手で書く場合は次の内容を追記する。`$HOME/dotfiles` の部分はこのリポジトリを置いた場所に読み替える（`make claude-hooks` は実際の配置から組み立てる）。
+手で書く場合は次の内容を追記する。`$HOME/dotfiles` の部分はこのリポジトリを置いた場所に読み替える（`make claude-settings` は実際の配置から組み立てる）。
 
 ```json
 {
@@ -185,7 +188,7 @@ tmux の外、または tmux が無い環境では何もせず正常終了する
 
 | 症状 | 対処 |
 | --- | --- |
-| 何も表示されない | `make doctor` でフック設定を確認する。`jq` が無いと `make claude-hooks` が失敗している |
+| 何も表示されない | `make doctor` でフック設定を確認する。`jq` が無いと `make claude-settings` が失敗している |
 | 承認待ち・完了が消えない | `.tmux.conf` の既読化フックと `focus-events on` が入っているか確認する（[既読化のフック](#既読化のフック)） |
 | ウィンドウに `#` が残る | 一度そのウィンドウを開く。tmux は実際に表示したときにしかフラグを落とさない |
 | 実行中の印が消えない | バックグラウンド作業が残っていないか確認する。`Stop` は `background_tasks` に動いているものが無くなるまで「完了」にしない |

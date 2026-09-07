@@ -21,7 +21,7 @@ DOTFILES_DIR="$HOME/dotfiles"
 MIN_UBUNTU_VERSION="24.04"
 
 # 必須     git curl ca-certificates zsh tmux vim-nox
-# 任意     bc（.tmux.conf のバージョン判定）jq（claude-hooks）xsel（クリップボード連携）
+# 任意     bc（.tmux.conf のバージョン判定）jq（claude-settings）xsel（クリップボード連携）
 # ファイラ ranger
 # 開発用   build-essential（make）shfmt（make fmt）
 APT_PACKAGES=(
@@ -157,7 +157,7 @@ This script will:
   2. Clone the repository into $DOTFILES_DIR
   3. Link the configuration, replacing the default ~/.bashrc (make standard)
   4. Install Vim plugins
-  5. Install Claude Code and its tmux status hooks
+  5. Install Claude Code and configure its hooks and status line
   6. Install anyenv and bun
   7. Check the result (make doctor)
 
@@ -269,12 +269,12 @@ install_claude_code() {
   fi
 }
 
-install_claude_hooks() {
-  log_step "Configuring Claude Code hooks (make claude-hooks)"
-  if make -C "$DOTFILES_DIR" claude-hooks; then
-    log_ok "Hooks configured"
+install_claude_settings() {
+  log_step "Configuring Claude Code settings (make claude-settings)"
+  if make -C "$DOTFILES_DIR" claude-settings; then
+    log_ok "Settings configured"
   else
-    log_warn "Hook configuration failed"
+    log_warn "Settings configuration failed"
   fi
 }
 
@@ -339,7 +339,7 @@ main() {
   install_vim_plugins
 
   install_claude_code
-  install_claude_hooks
+  install_claude_settings
 
   install_extra_tools
   run_doctor
