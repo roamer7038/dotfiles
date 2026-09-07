@@ -3,11 +3,24 @@
 
 input=$(cat)
 
-# --- Model ---
-model=$(echo "$input" | jq -r '.model.display_name // empty')
+# --- Input fields ---
+# 描画のたびに走るので jq の起動は1回にまとめる。
+# 区切りは値に現れない US(\037)。タブや空白は IFS が連続を1つに畳むため、
+# 欠落した項目があると以降の桁がずれる
+US=$(printf '\037')
+IFS="$US" read -r model cwd used_pct total_cost duration_ms five_h seven_d <<EOF
+$(echo "$input" | jq -j '[
+  (.model.display_name // ""),
+  (.workspace.current_dir // .cwd // ""),
+  (.context_window.used_percentage // ""),
+  (.cost.total_cost_usd // ""),
+  (.cost.total_duration_ms // ""),
+  (.rate_limits.five_hour.used_percentage // ""),
+  (.rate_limits.seven_day.used_percentage // "")
+] | join("\u001f")')
+EOF
 
 # --- Directory (home -> ~, last 2 components) ---
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 disp_cwd=$cwd
 case "$cwd" in
 "$HOME") disp_cwd="~" ;;
@@ -36,7 +49,6 @@ fi
 
 # --- Context usage (progress bar) ---
 ctx_str=""
-used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 if [ -n "$used_pct" ]; then
   ctx_int=$(printf '%.0f' "$used_pct")
   bar=$(awk -v p="$ctx_int" 'BEGIN{
@@ -49,14 +61,12 @@ fi
 
 # --- Cost ---
 cost_str=""
-total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 if [ -n "$total_cost" ]; then
   cost_str="\$$(printf '%.4f' "$total_cost")"
 fi
 
 # --- Duration (human-readable) ---
 time_str=""
-duration_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
 if [ -n "$duration_ms" ]; then
   time_str=$(awk -v ms="$duration_ms" 'BEGIN{
     s=ms/1000;
@@ -68,8 +78,6 @@ fi
 
 # --- Rate limits ---
 rate_str=""
-five_h=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
-seven_d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 if [ -n "$five_h" ]; then
   rate_str="5h:$(printf '%.0f' "$five_h")%"
 fi
