@@ -30,13 +30,12 @@ delta が無い環境では git の既定の表示に落ちるため、入れず
 | --- | --- | --- |
 | `core.pager` | ページャ | `$PAGER`（未設定なら `less`） |
 | `interactive.diffFilter` | `git add -p` の差分の整形 | `cat`（素の色付き差分） |
-| `[delta]` | 表示の設定。`features` に後続のセクション名を並べて呼ぶ | 参照されない |
-| `[delta "decorations"]`、`[delta "line-numbers"]` | `features` から呼ばれる設定群 | 参照されない |
+| `[delta]` | 表示の設定（配色、`side-by-side`、`line-numbers`、シンタックステーマ） | 参照されない |
 
 git にはコマンドの有無で設定を切り替える機能が無いため（`includeIf` の条件は `gitdir` `onbranch` `hasconfig` のみ）、上2つの値は `command -v` で分岐するシェル式として書いてある。
 値はシェル経由で実行されるので、この書き方で delta の有無を判定できる。
 
-表示を変えるときは `[delta]` の `features` と各セクションを編集する。
+表示を変えるときは `[delta]` の各項目を編集する。
 使えるテーマは `delta --list-syntax-themes` で一覧できる。
 一時的に素の差分を見るには `git --no-pager diff` を使う。
 
