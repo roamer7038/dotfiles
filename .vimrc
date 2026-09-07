@@ -140,6 +140,9 @@ augroup END
 " --- indentLine ---
 
 let g:indentLine_faster = 1
+
+" カーソルのある行は conceal を解除し、JSON の " などを実文字で表示する
+let g:indentLine_concealcursor = ''
 nmap <silent><Leader>i :<C-u>IndentLinesToggle<CR>
 
 " --- caw.vim（コメントトグル） ---
