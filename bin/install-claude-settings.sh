@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Claude Code の設定（tmux のウィンドウ状態表示に必要なフックと statusLine）を
-# ~/.claude/settings.json へ追加する。
+# Claude Code の設定（tmux のウィンドウ状態表示に必要なフック、statusLine、
+# セッション名の自動設定）を ~/.claude/settings.json へ追加する。
 # 既存の設定は保持し、同じ内容が既にあれば何もしない（何度実行してもよい）。
 #
 #   install-claude-settings.sh [-n]
@@ -128,6 +128,27 @@ for entry in "${EVENTS[@]}"; do
   log_ok "$event: added"
   changed=$((changed + 1))
 done
+
+# セッション名のフック。UserPromptSubmit には状態表示のフックも入るため、
+# 登録済みかどうかはスクリプト名で見る。matcher は取らないので上の EVENTS
+# ループとは分けている
+TITLE_REF=$(script_ref claude-session-title.sh)
+
+if echo "$updated" | jq -e \
+  '[.hooks.UserPromptSubmit[]?.hooks[]?.command] | any(test("claude-session-title"))' \
+  >/dev/null 2>&1; then
+  log_skip "UserPromptSubmit: session title already configured"
+else
+  updated=$(echo "$updated" | jq --arg c "$TITLE_REF" '
+    .hooks //= {}
+    | .hooks.UserPromptSubmit //= []
+    | .hooks.UserPromptSubmit += [
+        { hooks: [{ type: "command", command: $c, timeout: 5 }] }
+      ]
+  ')
+  log_ok "UserPromptSubmit: session title added"
+  changed=$((changed + 1))
+fi
 
 # statusLine は Claude Code のステータス行。dotfiles のスクリプトを指しているもの
 # だけを対象にし、他所で設定したものは上書きしない

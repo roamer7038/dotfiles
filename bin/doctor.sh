@@ -241,6 +241,13 @@ check_claude_settings() {
     log_ok "Claude Code hooks configured"
   fi
 
+  if jq -e '[.hooks.UserPromptSubmit[]?.hooks[]?.command] | any(test("claude-session-title"))' \
+    "$settings" >/dev/null 2>&1; then
+    log_ok "Claude Code session title hook configured"
+  else
+    warn "Claude Code session title hook not configured (run 'make claude-settings')"
+  fi
+
   # statusLine はリンクを張らず settings.json から直接参照するため、
   # 登録の有無と参照先の実在の両方を見る
   cmd=$(jq -r '.statusLine.command // empty' "$settings")

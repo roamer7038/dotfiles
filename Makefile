@@ -54,7 +54,7 @@ docker:
 bun:
 	$(SCRIPT_DIR)/bin/install-bun.sh
 
-# Claude Code のフックと statusLine を ~/.claude/settings.json へ追加する
+# Claude Code のフック・statusLine・セッション名を ~/.claude/settings.json へ追加する
 claude-settings:
 	@$(SCRIPT_DIR)/bin/install-claude-settings.sh
 

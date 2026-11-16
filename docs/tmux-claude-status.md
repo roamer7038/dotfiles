@@ -44,6 +44,9 @@ make claude-settings
 同じコマンドでステータス行（`statusLine`）も `bin/claude-statusline.sh` に設定される。
 これは tmux の状態表示とは独立した機能で、他のコマンドを設定している場合は上書きしない。
 
+セッション名を自動で付ける `bin/claude-session-title.sh` も同時に登録される。
+これも tmux の状態表示とは独立した機能で、詳細は[セッション名の自動設定](#セッション名の自動設定)を参照。
+
 既存の設定は保持され、同じフックが既にあれば何もしない（何度実行してもよい）。
 変更前の内容は `settings.json.bak` に残る。
 
@@ -64,7 +67,8 @@ make claude-settings
 {
   "hooks": {
     "UserPromptSubmit": [
-      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] },
+      { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/claude-session-title.sh\"", "timeout": 5 } ] }
     ],
     "PreToolUse": [
       { "hooks": [ { "type": "command", "command": "\"$HOME/dotfiles/bin/tmux-claude-status.sh\" running", "timeout": 5 } ] }
@@ -112,6 +116,26 @@ tmux set-window-option -u -t <window> window-status-format
 tmux set-window-option -u -t <window> window-status-current-format
 tmux set-window-option -u -t <window> monitor-activity
 ```
+
+## セッション名の自動設定
+
+`bin/claude-session-title.sh` は、Claude Code が自分で作った要約（`ai-title`）をセッション名として設定し直す。
+`/resume` の一覧やセッションの表示がプロンプトの先頭ではなく要約で並ぶようになる。
+
+ブランチ名が `<種別>/<番号>-<説明>` の形なら、番号を `#123` として名前の前に置く。
+`main` や `feat/profiles` のように番号を持たないブランチでは、要約だけが名前になる。
+
+| ブランチ | セッション名 |
+| --- | --- |
+| `fix/123-concurrent-fetch` | `#123 <要約>` |
+| `feat/profiles` | `<要約>` |
+| `main` | `<要約>` |
+
+要約は1往復目のあとに作られるため、名前が付くのは2通目の送信からになる。
+その後は送信のたびに最新の要約へ追随する（同じ名前なら Claude Code 側が無視するので、付け直しの記録は持たない）。
+
+`/rename` で自分で付けた名前も、次の送信で要約に戻る。
+固定したい場合は `~/.claude/settings.json` から `claude-session-title` を含むフックを消す。
 
 ## 挙動
 
