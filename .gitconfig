@@ -58,3 +58,8 @@
   syntax-theme = Monokai Extended Origin
   whitespace-error-style = "#280050" reverse
   zero-style = syntax
+
+# 端末ごとの設定（認証ヘルパーなど）を読む。無ければ無視される。
+# 末尾で読むため、ここまでの設定を上書きできる
+[include]
+  path = ~/.gitconfig.local

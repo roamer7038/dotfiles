@@ -49,6 +49,25 @@ git にはコマンドの有無で設定を切り替える機能が無いため�
 | `credential.helper = cache --timeout 86400` | 認証情報を1日メモリに保持する |
 | `merge.tool = vimdiff` | `git mergetool` で使うツール |
 
+### 端末ごとの設定（~/.gitconfig.local）
+
+`.gitconfig` は末尾で `~/.gitconfig.local` を読み込む。
+認証ヘルパーのように端末ごとに異なる設定はこのファイルに書く。
+ファイルが無ければ読み込みは無視される。
+末尾で読むため、`.gitconfig` の設定を上書きできる。
+
+`~/.gitconfig` は dotfiles へのシンボリックリンクなので、`git config --global` や `gh auth setup-git` で書き込むとリポジトリの `.gitconfig` が変更される。
+端末ごとの設定は `--file` で書き込み先を指定する。
+
+```bash
+# gh の認証情報を github.com への HTTPS 通信に使う例
+git config --file ~/.gitconfig.local --replace-all credential.https://github.com.helper ''
+git config --file ~/.gitconfig.local --add credential.https://github.com.helper '!gh auth git-credential'
+```
+
+空の値は、それまでに設定された helper（`cache`）を外す指定である。
+設定がどのファイルから読まれたかは `git config --list --show-origin` で確認できる。
+
 ## シェルの設定（profile.d）
 
 `.bashrc` と `.zshrc` は、起動時に `~/.config/profile.d/` 配下を名前順に読み込む。
