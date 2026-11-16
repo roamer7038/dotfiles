@@ -68,7 +68,7 @@ bin/              セットアップ用スクリプトと各種ユーティリ�
 config/           ~/.config 配下へ配置する設定
 config/profile.d/ Bash と Zsh で共有する設定（PATH、環境変数、配色、エイリアス、関数、OS 別設定）
 docs/             個別機能のドキュメント
-.claude/          Claude Code の設定（CLAUDE.md）
+.claude/          Claude Code の設定（CLAUDE.md、基本の agent と skill）
 ```
 
 ### bin/

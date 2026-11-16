@@ -26,3 +26,6 @@ config/terminator/             ~/.config/terminator/            gui
 config/dunst/                  ~/.config/dunst/                 gui
 
 .claude/CLAUDE.md              ~/.claude/CLAUDE.md              agent
+.claude/agents/                ~/.claude/agents/                agent
+.claude/skills/research/SKILL.md ~/.claude/skills/research/SKILL.md agent
+.claude/skills/decide/SKILL.md ~/.claude/skills/decide/SKILL.md agent
