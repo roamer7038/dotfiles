@@ -81,6 +81,8 @@ claude mcp add -s user chrome-devtools -- npx -y chrome-devtools-mcp@latest \
 
 登録先の `~/.claude.json` はこのリポジトリの管理対象外なので、環境ごとに一度実行する。
 
+エージェントに手順を教える skill（`.claude/skills/wsl-chrome/SKILL.md`）は、WSL2 で `agent` を含むプリセットを適用すると `~/.claude/skills/wsl-chrome/` に配置される。
+
 `--autoConnect` を渡すと MCP は自分でブラウザを起動せず、`--userDataDir` で指定したプロファイルで動いているインスタンスを探して接続する。
 そのため使う前に `wsl-chrome debug` を実行しておく。
 

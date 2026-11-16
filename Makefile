@@ -10,6 +10,14 @@ TAGS_standard := basic vim agent
 TAGS_desktop  := basic vim agent x11 gui
 TAGS_agent    := agent
 
+# WSL2 では agent を含むプリセットに WSL2 専用の agent 設定を加える
+IS_WSL := $(if $(findstring microsoft,$(shell uname -r)),1)
+ifdef IS_WSL
+TAGS_standard += wsl-agent
+TAGS_desktop  += wsl-agent
+TAGS_agent    += wsl-agent
+endif
+
 PRESETS := minimal standard desktop agent
 
 all: help

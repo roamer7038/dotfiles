@@ -38,6 +38,8 @@ curl -fsSL https://raw.githubusercontent.com/roamer7038/dotfiles/main/bin/bootst
 | `desktop` | standard + X11 + GUI アプリケーション |
 | `agent` | Claude Code 設定のみ（構築済みの環境へ追加する用） |
 
+WSL2 では、`agent` を含むプリセット（`standard` `desktop` `agent`）に WSL2 専用の Claude Code 設定（タグ `wsl-agent`、skill `wsl-chrome`）が自動で加わる。
+
 ```bash
 make dry-run-standard   # 適用内容を確認する
 make standard           # 適用する

@@ -29,3 +29,5 @@ config/dunst/                  ~/.config/dunst/                 gui
 .claude/agents/                ~/.claude/agents/                agent
 .claude/skills/research/SKILL.md ~/.claude/skills/research/SKILL.md agent
 .claude/skills/decide/SKILL.md ~/.claude/skills/decide/SKILL.md agent
+
+.claude/skills/wsl-chrome/SKILL.md ~/.claude/skills/wsl-chrome/SKILL.md wsl-agent

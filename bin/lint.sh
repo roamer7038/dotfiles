@@ -266,7 +266,7 @@ check_tags() {
   local in_links in_make t fail_before=$FAIL
 
   in_links=$(awk '$1 !~ /^#/ && NF == 3 { print $3 }' links | sort -u)
-  in_make=$(sed -n 's/^TAGS_[a-z]*[[:space:]]*:=[[:space:]]*//p' Makefile |
+  in_make=$(sed -n 's/^TAGS_[a-z]*[[:space:]]*[:+]=[[:space:]]*//p' Makefile |
     tr ' ' '\n' | grep -v '^$' | sort -u)
 
   for t in $in_links; do
