@@ -34,6 +34,8 @@ export LSCOLORS=Exfxcxdxbxegedabagacad
 if [ -d "$HOME/.anyenv" ] || [ -d "$HOME/.config/anyenv" ]; then
   PATH="$HOME/.anyenv/bin:$PATH"
   export GOENV_GOPATH_PREFIX="$HOME/.go"
+  # goenv の shim を PATH 先頭に置き、apt の /usr/bin/go より優先する
+  export GOENV_PATH_ORDER=front
   eval "$(anyenv init -)"
 fi
 
